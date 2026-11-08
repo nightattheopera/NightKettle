@@ -566,6 +566,57 @@ body.serving .scan{opacity:.25}
 .donelabel{color:var(--dim);opacity:.8}
 .donelist .item{opacity:.55}
 .donelist .item .nm{text-decoration:line-through}
+/* ---------- task page v3: Today / Tasks / Habits ---------- */
+.tmain{padding:10px 12px 70px}
+.tseg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);background:#0a0910;margin:0 0 10px}
+.tseg button{background:none;border:0;border-right:1px solid var(--line);color:var(--dim);font-family:var(--pixel);font-size:9px;letter-spacing:.1em;padding:10px 4px;cursor:pointer;text-transform:uppercase}
+.tseg button:last-child{border-right:0}
+.tseg button b{color:var(--accent);font-weight:400;margin-left:3px}
+.tseg button.on{color:var(--bg);background:var(--accent)}
+.tseg button.on b{color:var(--bg)}
+.todayhd{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--dim);margin:0 0 4px}
+.linkbtn{background:none;border:0;color:var(--accent);font:inherit;font-size:12px;padding:4px 0;cursor:pointer}
+.sh{font-family:var(--pixel);font-size:8px;letter-spacing:.12em;color:var(--dim);margin:14px 0 4px}
+.sh.bad{color:var(--bad)} .sh.acc{color:var(--accent)}
+.tnone{font-size:13px;color:var(--dim);margin:2px 0 6px}
+.tlist{border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.trow{display:flex;align-items:center;gap:10px;min-height:42px;padding:0 4px 0 6px;border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-left:3px solid transparent}
+.trow.hi{border-left-color:var(--bad)}
+.trow.lo .ttl span{color:var(--dim)}
+.trow.off{opacity:.55}
+.tchk{width:22px;height:22px;flex:none;border:2px solid var(--accent);background:transparent;color:var(--bg);font-size:13px;line-height:1;padding:0;cursor:pointer;display:grid;place-items:center}
+.tchk[aria-pressed="true"]{background:var(--accent)}
+.ttl{flex:1;min-width:0;background:none;border:0;color:var(--ink);text-align:left;font:inherit;padding:9px 0;cursor:pointer;display:flex;flex-direction:column;gap:1px}
+.ttl span{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ttl small{font-size:11px;color:var(--dim)}
+.tmeta{flex:none;font-size:11px;color:var(--dim);white-space:nowrap;display:flex;gap:6px;align-items:center}
+.tmeta .bad{color:var(--bad)} .tmeta .acc{color:var(--accent)} .tmeta .good{color:var(--good)}
+.trow.done .ttl span{color:var(--dim);text-decoration:line-through}
+.trow.done{opacity:.6}
+.tbtn{width:34px;height:30px;flex:none;border:1px solid var(--line);background:#0a0910;font-size:18px;line-height:1;cursor:pointer}
+.tbtn.plus{color:var(--good);border-color:color-mix(in srgb,var(--good) 50%,var(--line))}
+.tbtn.minus{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 50%,var(--line))}
+.hchips,.fchips{display:flex;flex-wrap:wrap;gap:6px}
+.fchips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;margin-bottom:4px;scrollbar-width:none}
+.fchips::-webkit-scrollbar{display:none}
+.hchip,.fchip{background:#0a0910;border:1px solid var(--line);color:var(--ink);font:inherit;font-size:13px;padding:6px 10px;cursor:pointer;white-space:nowrap}
+.hchip b,.fchip b{color:var(--accent);font-weight:400;font-size:11px}
+.hchip.ok{border-color:var(--good);color:var(--good)}
+.hchip.any{border-color:color-mix(in srgb,var(--good) 45%,var(--line))}
+.hchip.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line));color:color-mix(in srgb,var(--bad) 75%,var(--ink))}
+.hchip.bad b{color:var(--bad)}
+.fchip.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.fchip.on b{color:var(--bg)}
+.fchip.add{color:var(--accent);border-style:dashed}
+.fab{position:fixed;right:16px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:25;width:54px;height:54px;border:0;background:var(--accent);color:var(--bg);font-size:30px;line-height:1;cursor:pointer;box-shadow:0 0 18px var(--glow),0 4px 10px rgba(0,0,0,.5)}
+.qprev{min-height:22px;font-size:13px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.qprev b{font-weight:600;margin-right:2px}
+.qprev span{border:1px solid var(--line);padding:2px 7px;font-size:12px;color:var(--accent)}
+.qprev span.hi{color:var(--bad);border-color:var(--bad)}
+.qprev span.muted{border:0;padding:0;color:var(--dim)}
+.penal{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;font-size:13px}
+.penal .field{width:auto}
+.k-warn{color:var(--bad)}
 
 </style>
 </head>
@@ -2441,7 +2492,7 @@ function freshState(){
   return {v:3,updatedAt:0,shopName:"NIGHT KETTLE",credits:150,xp:0,rep:0,sound:true,clockMode:undefined,
     habits:[],tasks:[],clients:{waiting:1,vip:0},lastWalk:today(),stats:{served:0,perfect:0,favors:0,tips:0},
     modules:{},sprites:{},staff:[starterWorker()],board:null,boardRoll:0,serves:{},
-    buckets:[],cadence:"weekly",lists:[],wins:[],taskLog:[],prog:defaultProg(),
+    buckets:[],cadence:"weekly",lists:[],wins:[],taskLog:[],bads:[],missLog:[],miss:{on:true,rep:1,since:today(),last:addDays(today(),-1)},prog:defaultProg(),
     favors:{on:true,chance:.25,deck:defaultFavors()},
     lines:null,
     log:[{t:Date.now(),k:"sys",m:"Welcome to Night Kettle. Finish tasks and habits to bring clients in, then serve them at the counter to earn creds."}]};
@@ -2451,6 +2502,9 @@ function migrate(o){
   ["modules","sprites","serves","stats","clients"].forEach(k=>{ if(!o[k]||typeof o[k]!=="object") o[k]=b[k]; });
   ["habits","tasks","buckets","log","staff","lists","wins"].forEach(k=>{ if(!Array.isArray(o[k])) o[k]=b[k]; });
   o.wins.forEach(w=>{ w.log=Array.isArray(w.log)?w.log:[]; });
+  if(!Array.isArray(o.bads)) o.bads=[]; o.bads.forEach(x=>{ x.log=Array.isArray(x.log)?x.log:[]; });
+  if(!Array.isArray(o.missLog)) o.missLog=[];
+  if(!o.miss||typeof o.miss!=="object") o.miss={on:true,rep:1,since:today(),last:addDays(today(),-1)};
   if(!Array.isArray(o.taskLog)){ o.taskLog=[]; o.tasks.forEach(t=>{ if(t.repeat&&t.repeat.type&&t.repeat.type!=="none") (t.doneLog||[]).forEach(d=>o.taskLog.push({id:uid(),d,tid:t.id,title:t.title})); else if(t.done&&t.doneOn) o.taskLog.push({id:uid(),d:t.doneOn,tid:t.id,title:t.title}); }); }
   if(!o.favors||!Array.isArray(o.favors.deck)) o.favors=b.favors;
   o.prog=Object.assign(defaultProg(),o.prog||{}); ["need","bonus","names"].forEach(k=>{ if(!Array.isArray(o.prog[k])||o.prog[k].length!==5) o.prog[k]=defaultProg()[k]; });
@@ -2770,16 +2824,6 @@ function renderTop(){
 }
 function renderTabs(){
   const box=$("tabs");
-  if(tab==="tasks"){
-    const views=taskViews(), order=["today","todo","dailies","anytime","repeat","scheduled","someday","week"], short={today:"TODAY",todo:"TO-DO",dailies:"HABITS",anytime:"ANYTIME",repeat:"REPEATS",scheduled:"UPCOMING",someday:"SOMEDAY",done:"DONE",week:"WEEK"};
-    const T=order.map(id=>{ const v=views.find(x=>x[0]===id); return [id,v[1],short[id],v[3]]; })
-      .concat(S.lists.map(l=>["list:"+l.id,"#",l.name.toUpperCase().slice(0,10),openTasks().filter(t=>t.list===l.id).length]));
-    box.className="in tasktabs";
-    box.innerHTML=T.map(([id,g,l,b])=>`<button class="tab" data-act="taskView" data-id="${id}" ${taskView===id?'aria-current="page"':""}><span class="g" aria-hidden="true">${g}</span>${esc(l)}${b?`<span class="badge">${b}</span>`:""}</button>`).join("")
-      +`<button class="tab" data-act="newList"><span class="g" aria-hidden="true">+</span>LIST</button>`;
-    const cur=box.querySelector('[aria-current="page"]'); if(cur&&cur.scrollIntoView) try{ cur.scrollIntoView({inline:"nearest",block:"nearest"}); }catch(e){}
-    return;
-  }
   box.className="in";
   const T=[["tasks","☐","TASKS",todayLeft()],["save","$","SAVE",depositDue()?"!":0],["shop","⌂","SHOP",S.clients.waiting||0],["upgrade","▦","UPGRADE"],["dev","⚙","DEV"]];
   box.innerHTML=T.map(([id,g,l,b])=>`<button class="tab ${id==="shop"?"center":""}" data-act="tab" data-id="${id}" ${tab===id?'aria-current="page"':""}><span class="g" aria-hidden="true">${g}</span>${l}${b?`<span class="badge">${b}</span>`:""}</button>`).join("");
@@ -2823,28 +2867,33 @@ function dueRail(){
   </div>`;
 }
 function habitRowH(h){
-  const k=today(), done=!!h.hist[k], st=streak(h), b=bucketById(h.bucket);
-  let dots=""; for(let i=6;i>=0;i--){ const kk=addDays(k,-i); dots+=!isDue(h,kk)?`<span class="z">·</span>`:h.hist[kk]?`<span class="y">■</span>`:i===0?`<span>□</span>`:`<span class="n">□</span>`; }
-  return `<div class="item ${done?"done":""}">
-    <button class="chk" data-act="habit" data-id="${h.id}" aria-pressed="${done}" aria-label="${done?"Un-check":"Check off"} ${esc(h.name)}">${done?"✓":""}</button>
-    <button class="info" data-act="editHabit" data-id="${h.id}" aria-label="Edit ${esc(h.name)}"><span class="nm">${esc(h.name)}</span>
-      <span class="meta"><span>${st?"🔥 "+st:"streak 0"}</span><span class="dots">${dots}</span>${b&&h.save?`<span class="good">+${money(h.save)} → ${esc(b.name)}</span>`:""}</span></button>
-    <div class="rw">+1 👤</div></div>`;
+  const k=today(), done=!!h.hist[k], st=streak(h), b=bucketById(h.bucket), due=isDue(h,k);
+  const sched=!h.days.length?"every day":h.days.length===5&&!h.days.includes(0)&&!h.days.includes(6)?"weekdays":h.days.slice().sort((x,y)=>((x+6)%7)-((y+6)%7)).map(d=>DOW3[d].slice(0,2)).join(" ");
+  return `<div class="trow ${done?"done":""} ${due?"":"off"}">
+    <button class="tchk" data-act="habit" data-id="${h.id}" aria-pressed="${done}" aria-label="${done?"Un-check":"Check off"} ${esc(h.name)}">${done?"✓":""}</button>
+    <button class="ttl" data-act="editHabit" data-id="${h.id}" aria-label="Edit ${esc(h.name)}"><span>${esc(h.name)}</span><small>${st?`🔥${st} · `:""}${sched}${b&&h.save?` · +${money(h.save)}`:""}</small></button>
+  </div>`;
+}
+function shortDue(t){
+  if(isRec(t)&&t.lastDone===today()) return `<span class="good">next ${shortDate(t.due)}</span>`;
+  if(t.done) return `<span class="good">done</span>`;
+  if(!t.due) return "";
+  const n=daysBetween(today(),t.due);
+  return n<0?`<span class="bad">${-n}d late</span>`:n===0?`<span class="acc">today</span>`:n===1?"tmrw":shortDate(t.due);
 }
 function taskRowT(t){
-  const n=t.due?daysBetween(today(),t.due):null, rec=isRec(t), dt=rec&&t.lastDone===today();
-  const due=dt?`<span class="good">DONE TODAY · next ${shortDate(t.due)}</span>`:t.done?`<span class="good">DONE</span>`:!t.due?"no deadline":n<0?`<span class="bad">${-n}d late</span>`:n===0?`<span class="acc">due today</span>`:n===1?"due tomorrow":"due "+shortDate(t.due);
-  const on=t.done||dt;
-  return `<div class="item ${on?"done":""}">
-    <button class="chk" data-act="task" data-id="${t.id}" aria-pressed="${!!on}" aria-label="${on?"Undo":"Complete"} ${esc(t.title)}">${on?"✓":""}</button>
-    <button class="info" data-act="editTask" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><span class="nm">${esc(t.title)}</span><span class="meta"><span class="tag">${["","LOW","MED","HIGH"][t.pri]}</span><span>${due}</span>${rec?`<span class="reptag">↻ ${esc(repeatText(t.repeat))}</span>`:""}${t.list&&listById(t.list)&&taskView!=="list:"+t.list?`<span class="ltag">${esc(listById(t.list).name)}</span>`:""}</span></button>
-    <div class="rw">${t.pri===3?`<span class="viptag">VIP</span>`:"+1 👤"}</div></div>`;
+  const on=t.done||(isRec(t)&&t.lastDone===today()), l=t.list&&listById(t.list);
+  return `<div class="trow ${on?"done":""} ${t.pri===3?"hi":t.pri===1?"lo":""}">
+    <button class="tchk" data-act="task" data-id="${t.id}" aria-pressed="${!!on}" aria-label="${on?"Undo":"Complete"} ${esc(t.title)}">${on?"✓":""}</button>
+    <button class="ttl" data-act="editTask" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><span>${esc(t.title)}</span></button>
+    <span class="tmeta">${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
+  </div>`;
 }
 const listById=id=>S.lists.find(l=>l.id===id);
 const dueSort=(x,y)=>((x.due||"9999")<(y.due||"9999")?-1:(x.due||"9999")>(y.due||"9999")?1:y.pri-x.pri);
 const openTasks=()=>S.tasks.filter(t=>!t.done&&!(isRec(t)&&t.lastDone===today()));
 const doneNow=()=>S.tasks.filter(t=>t.done||(isRec(t)&&t.lastDone===today()));
-const doneTail=xs=>xs.length?`<p class="alabel donelabel">DONE TODAY · ${xs.length}</p><div class="list donelist">${xs.map(taskRowT).join("")}</div>`:"";
+const doneTail=xs=>xs.length?`<p class="sh donelabel">DONE TODAY · ${xs.length}</p><div class="tlist donelist">${xs.map(taskRowT).join("")}</div>`:"";
 const overdue=()=>openTasks().filter(t=>t.due&&t.due<today());
 const dueToday=()=>openTasks().filter(t=>t.due===today());
 const habitsDueOpen=()=>S.habits.filter(h=>isDue(h,today())&&!h.hist[today()]);
@@ -2873,36 +2922,104 @@ function readRepeat(pfx,due){
 /* first due date for a new repeating task: the given date if it fits, otherwise the next occurrence from today */
 function firstDue(r,due){ if(!r) return due; if(due) return due; const k=today(); const fits=r.type==="daily"||(r.type==="weekly"&&r.days.includes(dowOf(k)))||(r.type==="monthly"&&(r.dom==="last"?lastDom(k)===+k.slice(8):+k.slice(8)===r.dom))||r.type==="every"; return fits?k:nextOcc(r,k); }
 document.addEventListener("change",ev=>{ const t=ev.target; if(t.dataset&&t.dataset.repsel){ const w=$(t.dataset.repsel+"RepWrap"); if(w) w.dataset.rep=t.value; } });
-function taskForm(opts){
-  opts=opts||{}; const lid=opts.list||"";
-  return `<form data-form="task" class="qadd">
-    <label class="srt" for="tTitle">New task</label><input class="field" id="tTitle" maxlength="120" placeholder="${opts.ph||"Add a task…"}" autocomplete="off" required>
-    <button class="btn solid" type="submit" aria-label="Add task">+</button>
-    <details class="sub qmore" ${opts.openMore?"open":""}><summary>Priority, due date, list</summary>
+/* ---------- smart add: "pay rent every month on the 1st !high #home" ---------- */
+const WD=[["sunday","sun"],["monday","mon"],["tuesday","tue","tues"],["wednesday","wed"],["thursday","thu","thur","thurs"],["friday","fri"],["saturday","sat"]];
+const wdIndex=s=>{ s=s.toLowerCase(); return WD.findIndex(v=>v.includes(s)); };
+const WDRE="(?:sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)";
+const MONRE="(?:january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)";
+const monIndex=s=>["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(s.toLowerCase().slice(0,3));
+function parseQuick(text){
+  let s=" "+text+" "; const out={pri:null,due:null,repeat:null,list:null};
+  const take=(re,fn)=>{ const m=s.match(re); if(m){ fn(m); s=s.replace(m[0]," "); return true; } return false; };
+  take(/\s(!high|!!!|!h|!vip)(?=\s)/i,()=>out.pri=3) || take(/\s(!low|!l)(?=\s)/i,()=>out.pri=1) || take(/\s(!med|!m|!normal)(?=\s)/i,()=>out.pri=2);
+  take(/\s#([\w-]{1,24})(?=\s)/,m=>out.list=m[1]);
+  const k=today(), dk=k;
+  take(/\severy\s+weekdays?(?=\s)/i,()=>out.repeat={type:"weekly",days:[1,2,3,4,5]})
+  || take(/\s(?:every\s+day|daily)(?=\s)/i,()=>out.repeat={type:"daily"})
+  || take(/\severy\s+(\d{1,3})\s+days?(?=\s)/i,m=>out.repeat={type:"every",n:Math.max(2,+m[1])})
+  || take(new RegExp("\\severy\\s+("+WDRE+"(?:\\s*(?:,|and|&)\\s*"+WDRE+")*)(?=\\s)","i"),m=>out.repeat={type:"weekly",days:[...new Set(m[1].split(/\s*(?:,|and|&)\s*/i).map(wdIndex).filter(i=>i>=0))]})
+  || take(/\s(?:every\s+month|monthly)(?:\s+on\s+the\s+(last(?:\s+day)?|\d{1,2})(?:st|nd|rd|th)?)?(?=\s)/i,m=>out.repeat={type:"monthly",dom:m[1]?(/last/i.test(m[1])?"last":Math.min(31,+m[1])):null})
+  || take(/\s(?:every\s+week|weekly)(?=\s)/i,()=>out.repeat={type:"weekly",days:null})
+  || take(/\s(?:every\s+year|yearly|annually)(?=\s)/i,()=>out.repeat={type:"yearly"});
+  take(/\s(?:due\s+|on\s+|by\s+)?(today|tonight)(?=\s)/i,()=>out.due=k)
+  || take(/\s(?:due\s+|on\s+|by\s+)?(tomorrow|tmrw|tmr)(?=\s)/i,()=>out.due=addDays(k,1))
+  || take(/\s(?:due\s+|on\s+|by\s+)?in\s+(\d{1,3})\s+(days?|weeks?)(?=\s)/i,m=>out.due=addDays(k,+m[1]*(/w/i.test(m[2])?7:1)))
+  || take(new RegExp("\\s(?:due\\s+|on\\s+|by\\s+)?("+MONRE+")\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?(?=\\s)","i"),m=>{ const y=+k.slice(0,4), mi=monIndex(m[1]); let d=ymd(y,mi+1,Math.min(+m[2],new Date(y,mi+1,0).getDate())); if(d<k) d=ymd(y+1,mi+1,+m[2]); out.due=d; })
+  || take(/\s(?:due\s+|on\s+|by\s+)?(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?=\s)/,m=>{ let y=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):+k.slice(0,4); let d=ymd(y,+m[1],+m[2]); if(!m[3]&&d<k) d=ymd(y+1,+m[1],+m[2]); out.due=d; })
+  || take(new RegExp("\\s(next\\s+|on\\s+|due\\s+|by\\s+)("+WDRE+")(?=\\s)","i"),m=>{ const w=wdIndex(m[2]); let d=k, n=0; do{ d=addDays(d,1); n++; } while(dowOf(d)!==w&&n<8); if(!/next/i.test(m[1])&&dowOf(k)===w) d=k; out.due=d; })
+  || take(/\s(sunday|monday|tuesday|wednesday|thursday|friday|saturday)(?=\s)/i,m=>{ const w=wdIndex(m[1]); let d=k; while(dowOf(d)!==w) d=addDays(d,1); out.due=d; });
+  if(out.repeat){ const base=out.due||k, d0=new Date(base+"T12:00:00");
+    if(out.repeat.type==="weekly"&&!out.repeat.days) out.repeat.days=[d0.getDay()];
+    if(out.repeat.type==="monthly"&&out.repeat.dom==null) out.repeat.dom=d0.getDate();
+    if(out.repeat.type==="yearly") Object.assign(out.repeat,{m:d0.getMonth()+1,d:d0.getDate()});
+    if(out.repeat.type==="every") out.repeat.anchor=base; }
+  out.title=s.replace(/\s+(due|on|by)\s*$/i," ").replace(/\s{2,}/g," ").trim();
+  return out;
+}
+let quickCtx={};
+function quickPreview(){
+  const el=$("qPrev"); if(!el) return; const v=($("qText")||{}).value||"", p=parseQuick(v), f=quickFinal(p);
+  const chips=[]; if(f.due) chips.push(`<span>${f.due===today()?"Due today":"Due "+shortDate(f.due)}</span>`); if(f.repeat) chips.push(`<span>↻ ${esc(repeatText(f.repeat))}</span>`);
+  if(f.pri===3) chips.push(`<span class="hi">High · VIP</span>`); else if(f.pri===1) chips.push(`<span>Low</span>`);
+  if(f.listName) chips.push(`<span>${esc(f.listName)}${f.newList?" (new list)":""}</span>`);
+  el.innerHTML=v.trim()?`<b>${esc(f.title||"…")}</b>${chips.join("")}`:`<span class="muted">Type naturally. Dates, repeats, !high and #list are picked up automatically.</span>`;
+}
+function quickFinal(p){
+  const f={title:p.title,pri:p.pri||2,due:p.due,repeat:p.repeat,list:"",listName:"",newList:false};
+  const pri=$("qPri"); if(pri&&pri.dataset.dirty) f.pri=+pri.value;
+  const due=$("qDue"); if(due&&due.value) f.due=due.value;
+  const rs=$("qRep"); if(rs&&rs.dataset.dirty){ const r=readRepeat("q",f.due); f.repeat=r; }
+  if(!f.due&&!f.repeat&&quickCtx.today) f.due=today();
+  if(f.repeat) f.due=firstDue(f.repeat,f.due);
+  const ls=$("qList"); if(ls&&ls.value){ f.list=ls.value; f.listName=(listById(ls.value)||{}).name||""; }
+  else if(p.list){ const l=S.lists.find(x=>x.name.toLowerCase()===p.list.toLowerCase()); if(l){ f.list=l.id; f.listName=l.name; } else { f.listName=p.list; f.newList=true; } }
+  else if(quickCtx.list){ f.list=quickCtx.list; f.listName=(listById(quickCtx.list)||{}).name||""; }
+  return f;
+}
+function quickSheet(ctx){
+  quickCtx=ctx||{};
+  openSheet(`<h3>NEW TASK</h3>
+  <form data-form="quick" class="stack">
+    <div><label class="srt" for="qText">Task</label><input class="field" id="qText" maxlength="160" placeholder="Pay rent every month on the 1st !high #home" autocomplete="off" required></div>
+    <div class="qprev" id="qPrev" aria-live="polite"></div>
+    <details class="sub"><summary>More options</summary>
       <div class="formgrid">
-        <div><label class="fl" for="tPri">Priority</label><select class="field" id="tPri"><option value="1">LOW</option><option value="2" selected>MED</option><option value="3">HIGH · VIP</option></select></div>
-        <div><label class="fl" for="tDue">Due</label><input class="field" id="tDue" type="date" value="${opts.due||""}"></div>
-        <div class="full">${repeatUI("t",null,opts.due)}</div>
-        <div class="full"><label class="fl" for="tList">List</label><select class="field" id="tList"><option value="">No list</option>${S.lists.map(l=>`<option value="${l.id}" ${l.id===lid?"selected":""}>${esc(l.name)}</option>`).join("")}</select></div>
-      </div></details></form>`;
+        <div><label class="fl" for="qPri">Priority</label><select class="field" id="qPri" data-qdirty><option value="1">LOW</option><option value="2" selected>MED</option><option value="3">HIGH · VIP</option></select></div>
+        <div><label class="fl" for="qDue">Due</label><input class="field" id="qDue" type="date"></div>
+        <div class="full">${repeatUI("q",null,null)}</div>
+        <div class="full"><label class="fl" for="qList">List</label><select class="field" id="qList"><option value="">${quickCtx.list?"This list":"No list"}</option>${S.lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join("")}</select></div>
+      </div></details>
+    <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">ADD</button></div>
+  </form>`);
+  $("qRep").dataset.qdirty="1"; quickPreview();
+}
+document.addEventListener("input",ev=>{ if(ev.target.id==="qText") quickPreview(); });
+document.addEventListener("change",ev=>{ const t=ev.target; if(t.id==="qPri"||t.id==="qRep") t.dataset.dirty="1"; if(["qPri","qDue","qRep","qList","qRepN","qRepDom"].includes(t.id)||t.name==="qRepDay") quickPreview(); });
+function addQuick(){
+  const p=parseQuick(($("qText")||{}).value||""), f=quickFinal(p); if(!f.title){ toast("Give the task a name.", true); return false; }
+  if(f.newList){ const l={id:uid(),name:f.listName.slice(0,24)}; S.lists.push(l); f.list=l.id; }
+  S.tasks.push({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined});
+  return true;
 }
 function groupedByDue(list){
   const k=today(), wk=addDays(k,7), G=[["Overdue",t=>t.due<k,"bad"],["Today",t=>t.due===k,"acc"],["Tomorrow",t=>t.due===addDays(k,1),""],["This week",t=>t.due>addDays(k,1)&&t.due<=wk,""],["Later",t=>t.due>wk,""]];
-  return G.map(([lab,f,cls])=>{ const xs=list.filter(f); return xs.length?`<p class="alabel ${cls}">${lab.toUpperCase()} · ${xs.length}</p><div class="list">${xs.map(taskRowT).join("")}</div>`:""; }).join("");
+  return G.map(([lab,f,cls])=>{ const xs=list.filter(f); return xs.length?`<p class="sh ${cls}">${lab.toUpperCase()} · ${xs.length}</p><div class="tlist">${xs.map(taskRowT).join("")}</div>`:""; }).join("");
 }
+function habitChip(h){ const done=!!h.hist[today()], st=streak(h); return `<button class="hchip ${done?"ok":""}" data-act="habit" data-id="${h.id}" aria-pressed="${done}">${done?"✓ ":""}${esc(h.name)}${st?` <b>${st}</b>`:""}</button>`; }
 function todayBody(){
   const k=today(), od=overdue().sort(dueSort), dt=dueToday().sort((x,y)=>y.pri-x.pri);
   const hDue=S.habits.filter(h=>isDue(h,k)), hOpen=hDue.filter(h=>!h.hist[k]), hDone=hDue.filter(h=>h.hist[k]);
-  const doneT=doneNow(), left=od.length+dt.length+hOpen.length;
-  return `${taskForm({due:k,ph:"Add for today…"})}
-    ${od.length?`<p class="alabel bad">OVERDUE · ${od.length}</p><div class="list">${od.map(taskRowT).join("")}</div>`:""}
-    <p class="alabel acc">DUE TODAY · ${dt.length}</p>
-    <div class="list">${dt.length?dt.map(taskRowT).join(""):`<div class="empty">No tasks due today.</div>`}</div>
-    <p class="alabel">HABITS · ${hDone.length}/${hDue.length}</p>
-    <div class="list">${hDue.length?[...hOpen,...hDone].map(habitRowH).join(""):`<div class="empty">No habits today. <button class="linkbtn" data-act="newHabit">Add one</button></div>`}</div>
-    ${winChips()}
-    ${doneTail(doneNow())}
-    ${left===0&&(hDue.length||doneT.length)?`<p class="hint good">All clear for today. Nice work.</p>`:""}`;
+  const D=doneNow(), left=od.length+dt.length+hOpen.length;
+  return `<div class="todayhd"><span>${DOW3[dowOf(k)]} ${shortDate(k)} · ${left} left</span><button class="linkbtn" data-act="taskView" data-id="week">Weekly review ›</button></div>
+    ${od.length?`<p class="sh bad">OVERDUE · ${od.length}</p><div class="tlist">${od.map(taskRowT).join("")}</div>`:""}
+    <p class="sh acc">DUE TODAY${dt.length?" · "+dt.length:""}</p>
+    ${dt.length?`<div class="tlist">${dt.map(taskRowT).join("")}</div>`:`<p class="tnone">Nothing due today. Tap + to add something.</p>`}
+    <p class="sh">HABITS · ${hDone.length}/${hDue.length}</p>
+    ${hDue.length?`<div class="hchips">${[...hOpen,...hDone].map(habitChip).join("")}</div>`:`<p class="tnone">No habits today.</p>`}
+    ${S.wins.length?`<p class="sh">ANYTIME</p><div class="hchips">${S.wins.map(w=>{ const t=winCount(w,k); return `<button class="hchip any" data-act="win" data-id="${w.id}">+ ${esc(w.name)}${t?` <b>×${t}</b>`:""}</button>`; }).join("")}</div>`:""}
+    ${S.bads.length?`<p class="sh">SLIP-UPS</p><div class="hchips">${S.bads.map(b=>{ const t=badCount(b,k); return `<button class="hchip bad" data-act="bad" data-id="${b.id}">− ${esc(b.name)}${t?` <b>×${t}</b>`:""}</button>`; }).join("")}</div>`:""}
+    ${doneTail(D)}
+    ${left===0&&(hDue.length||D.length)?`<p class="hint good">All clear for today. Nice work.</p>`:""}`;
 }
 const todayLeft=()=>overdue().length+dueToday().length+habitsDueOpen().length;
 /* ---------- anytime actions: log whenever it happens ---------- */
@@ -2965,6 +3082,45 @@ function winAmountSheet(w){
   </form>`);
   setTimeout(()=>{ const i=$("wlAmt"); if(i){ i.focus(); i.select(); } },50);
 }
+/* ---------- bad habits (slip-ups) + missed-habit penalty ---------- */
+const badById=id=>S.bads.find(b=>b.id===id);
+const badCount=(b,from,to)=>b.log.filter(l=>l.d>=from&&l.d<=(to||from)).length;
+function tapBad(id,ev){
+  const b=badById(id); if(!b) return; const r=Math.max(0,b.rep|0); b.log.push({id:uid(),d:today(),rep:r});
+  S.rep=Math.max(0,S.rep-r); pop(ev,r?`−${r} REP`:"LOGGED","var(--bad)"); beep(220);
+  addLog(`Slip-up: ${b.name}.${r?` −${r} rep.`:""}`,"warn"); commit();
+}
+function undoBad(bid,lid){ const b=badById(bid); if(!b) return; const i=b.log.findIndex(l=>l.id===lid); if(i<0) return; const l=b.log[i]; b.log.splice(i,1); S.rep+=l.rep||0; addLog(`Removed a ${b.name} slip-up.`); commit(); }
+function badSheet(b){
+  const isNew=!b; b=b||{name:"",rep:2};
+  openSheet(`<h3>${isNew?"NEW BAD HABIT":"EDIT BAD HABIT"}</h3>
+  <form data-form="bad" data-id="${isNew?"":b.id}" class="stack">
+    <div><label class="fl" for="bdName">Bad habit</label><input class="field" id="bdName" maxlength="60" value="${esc(b.name)}" placeholder="Doomscrolling past midnight" required autocomplete="off"></div>
+    <div><label class="fl" for="bdRep">Rep lost each slip-up</label><input class="field num" id="bdRep" type="number" min="0" max="20" value="${b.rep}"></div>
+    <p class="hint" style="margin:0">Tap − whenever it happens. It's honest bookkeeping, not punishment, so log it and move on.</p>
+    <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delBad" data-id="${b.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
+  </form>`);
+}
+function addSheetHabits(){
+  openSheet(`<h3>ADD</h3><div class="stack">
+    <button class="btn solid wide" data-act="newHabit">HABIT · scheduled, keeps a streak</button>
+    <button class="btn wide" data-act="newWin">ANYTIME · log it whenever it happens</button>
+    <button class="btn wide" data-act="newBad">BAD HABIT · tap − when you slip</button>
+    <button class="btn ghost wide" data-act="close">CANCEL</button></div>`);
+}
+/* missed scheduled habits cost rep at the 4 AM rollover (only days after the feature was switched on) */
+function applyMissed(){
+  const M=S.miss; if(!M) return; const y=addDays(today(),-1); let d=addDays(M.last||y,1); if(d<M.since) d=M.since;
+  let total=0, days=0, g=0;
+  while(d<=y&&g++<60){
+    if(M.on&&M.rep>0){ const n=S.habits.filter(h=>isDue(h,d)&&!h.hist[d]).length; if(n){ const r=n*M.rep; total+=r; days++; S.missLog.push({d,n,rep:r}); } }
+    d=addDays(d,1);
+  }
+  M.last=y;
+  if(total){ S.rep=Math.max(0,S.rep-total); addLog(`Missed habits cost ${total} rep${days>1?` over ${days} days`:""}.`,"warn"); setTimeout(()=>toast(`Missed habits: −${total} rep.`, true),600); }
+  if(S.missLog.length>400) S.missLog.splice(0,S.missLog.length-400);
+  save();
+}
 /* ---------- weekly review ---------- */
 let weekOff=0;
 const weekStart=k=>addDays(k,-((dowOf(k)+6)%7));
@@ -3014,34 +3170,52 @@ function vWeek(){
   <p class="hint" style="margin-top:4px">Bar height is the share of that day's habits you finished. Green means all of them. ✓ is tasks finished.</p>
   ${habits.length?`<p class="alabel">EACH HABIT</p><div class="hgrid"><div class="hrow hhead"><span></span><span class="hcells">${W.days.map(k=>`<span class="hc">${DOW3[dowOf(k)][0]}</span>`).join("")}</span><span></span></div>${hrows}</div>`:""}
   ${S.wins.some(w=>winCount(w,start,end))?`<p class="alabel">ANYTIME</p><p class="wshop">${S.wins.filter(w=>winCount(w,start,end)).map(w=>`${esc(w.name)} <b class="acc">×${winCount(w,start,end)}</b>`).join(" · ")}</p>`:""}
+  ${(()=>{ const sl=S.bads.filter(b=>badCount(b,start,end)), mi=S.missLog.filter(m=>m.d>=start&&m.d<=end), mn=mi.reduce((s,m)=>s+m.n,0), mr=mi.reduce((s,m)=>s+m.rep,0), sr=S.bads.reduce((s,b)=>s+b.log.filter(l=>l.d>=start&&l.d<=end).reduce((x,l)=>x+(l.rep||0),0),0);
+    return (sl.length||mn)?`<p class="alabel">SETBACKS</p><p class="wshop">${sl.map(b=>`${esc(b.name)} <b class="bad">×${badCount(b,start,end)}</b>`).join(" · ")}${sl.length&&mn?" · ":""}${mn?`${mn} missed habit${mn===1?"":"s"}`:""} <span class="muted">(−${sr+mr} rep)</span></p>`:""; })()}
   ${streaks.length?`<p class="hint">Streaks going now: ${streaks.map(([h,n])=>`${esc(h.name)} 🔥${n}`).join(" · ")}</p>`:""}
   <p class="alabel">THE SHOP</p>
   <p class="wshop">${W.served} client${W.served===1?"":"s"} served${W.served?` · ${Math.round(W.perfect/W.served*100)}% perfect`:""} · ${W.favors} favor${W.favors===1?"":"s"} done · ${W.creds.toLocaleString()}₵ earned</p>
   ${S.buckets.length?`<p class="alabel">SAVINGS</p>${buckets}`:""}`;
 }
-function taskViews(){
-  const o=openTasks();
-  return [["todo","☐","To-do",o.length],["today","!","Due today",todayLeft()],["dailies","↻","Habits",habitsDueOpen().length],["scheduled","▤","Upcoming",o.filter(t=>t.due).length],["someday","∞","Someday",o.filter(t=>!t.due).length],["week","▥","Week",0],["anytime","✚","Anytime",0],["repeat","↻","Repeating",S.tasks.filter(isRec).length]];
+let taskFilter="all";
+function vHabitsTab(){
+  const k=today(), due=S.habits.filter(h=>isDue(h,k)), off=S.habits.filter(h=>!isDue(h,k));
+  const recent=[]; S.wins.forEach(w=>w.log.forEach(l=>recent.push({kind:"win",o:w,l}))); S.bads.forEach(b=>b.log.forEach(l=>recent.push({kind:"bad",o:b,l}))); recent.sort((x,y)=>y.l.d.localeCompare(x.l.d));
+  return `<p class="sh">HABITS · ${due.filter(h=>h.hist[k]).length}/${due.length} TODAY</p>
+    ${S.habits.length?`<div class="tlist">${[...due,...off].map(habitRowH).join("")}</div>`:`<p class="tnone">No habits yet. Tap + to add one.</p>`}
+    <p class="sh">ANYTIME</p>
+    ${S.wins.length?`<div class="tlist">${S.wins.map(w=>{ const t=winCount(w,k), wk=winCount(w,weekStart(k),k), b=bucketById(w.bucket);
+      return `<div class="trow"><button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week${b?` · ${w.ask?"asks amount":w.save?"+"+money(w.save):""}`:""}</small></button><button class="tbtn plus" data-act="win" data-id="${w.id}" aria-label="Log ${esc(w.name)}">+</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you log whenever they happen, like splitting a meal.</p>`}
+    <p class="sh">BAD HABITS</p>
+    ${S.bads.length?`<div class="tlist">${S.bads.map(b=>{ const t=badCount(b,k), wk=badCount(b,weekStart(k),k);
+      return `<div class="trow"><button class="ttl" data-act="editBad" data-id="${b.id}"><span>${esc(b.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week · −${b.rep} rep each</small></button><button class="tbtn minus" data-act="bad" data-id="${b.id}" aria-label="Log a slip-up: ${esc(b.name)}">−</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you're cutting back on. Tap − when you slip and lose a little rep.</p>`}
+    <div class="penal"><label for="missRep">Missed habits cost</label>
+      <select class="field" id="missRep">${[0,1,2,3,5].map(n=>`<option value="${n}" ${(S.miss.on?S.miss.rep:0)===n?"selected":""}>${n?n+" rep each":"nothing (off)"}</option>`).join("")}</select></div>
+    <p class="hint" style="margin:4px 0 0">Checked at the 4 AM rollover for habits scheduled that day.</p>
+    ${recent.length?`<details class="sub"><summary>Recent log · ${recent.length}</summary><div class="log">${recent.slice(0,30).map(({kind,o,l})=>`<div><time>${shortDate(l.d)}</time><span class="${kind==="bad"?"k-warn":"k-gain"}">${kind==="bad"?"−":"+"} ${esc(o.name)}${l.c?" · "+money(l.c):""}${kind==="bad"&&l.rep?` · −${l.rep} rep`:""} <button class="linkbtn" data-act="${kind==="bad"?"undoBad":"undoWin"}" data-id="${o.id}:${l.id}">remove</button></span></div>`).join("")}</div></details>`:""}`;
+}
+function vTasksTab(){
+  const o=openTasks(), D=doneNow();
+  if(taskFilter.indexOf("list:")===0&&!listById(taskFilter.slice(5))) taskFilter="all";
+  const F=[["all","All",o.length],["upcoming","Upcoming",o.filter(t=>t.due).length],["someday","Someday",o.filter(t=>!t.due).length],["repeat","Repeating",o.filter(isRec).length],...S.lists.map(l=>["list:"+l.id,"#"+l.name,o.filter(t=>t.list===l.id).length])];
+  const chips=`<div class="fchips">${F.map(([id,l,n])=>`<button class="fchip ${taskFilter===id?"on":""}" data-act="taskFilter" data-id="${id}" aria-pressed="${taskFilter===id}">${esc(l)}${n?` <b>${n}</b>`:""}</button>`).join("")}<button class="fchip add" data-act="newList">+ List</button></div>`;
+  let xs, done, body;
+  if(taskFilter==="upcoming"){ xs=o.filter(t=>t.due).sort(dueSort); done=D.filter(t=>t.due); body=xs.length?groupedByDue(xs):`<p class="tnone">Nothing with a date.</p>`; }
+  else { const pick=taskFilter==="someday"?(t=>!t.due):taskFilter==="repeat"?isRec:taskFilter.indexOf("list:")===0?(t=>t.list===taskFilter.slice(5)):(()=>true);
+    xs=o.filter(pick).sort(dueSort); done=D.filter(pick);
+    body=xs.length?`<div class="tlist">${xs.map(taskRowT).join("")}</div>`:`<p class="tnone">${taskFilter==="repeat"?"No repeating to-dos. Try \"laundry every sunday\".":"Nothing here. Tap + to add a task."}</p>`; }
+  return chips+body+doneTail(done)+(taskFilter.indexOf("list:")===0?`<div class="actions"><button class="btn ghost smallbtn" data-act="editList" data-id="${taskFilter.slice(5)}">EDIT LIST</button></div>`:"");
 }
 function vTasks(){
-  if(taskView==="done"||(taskView.indexOf("list:")===0&&!listById(taskView.slice(5)))) taskView="todo";
-  const D=doneNow();
-  let body="", title="", sub="";
-  const o=openTasks();
-  if(taskView==="todo"){ title="TO-DO"; sub=o.length+" OPEN"; body=taskForm()+`<div class="list">${o.length?o.sort(dueSort).map(taskRowT).join(""):`<div class="empty">Nothing on the list.</div>`}</div>`+doneTail(D); }
-  else if(taskView==="today"){ title="DUE TODAY"; sub=todayLeft()+" LEFT"; body=todayBody(); }
-  else if(taskView==="scheduled"){ const xs=o.filter(t=>t.due).sort(dueSort); title="UPCOMING"; sub=xs.length+" OPEN"; body=taskForm()+(xs.length?groupedByDue(xs):`<div class="empty">No tasks with a due date.</div>`)+doneTail(D.filter(t=>t.due)); }
-  else if(taskView==="someday"){ const xs=o.filter(t=>!t.due).sort(dueSort); title="SOMEDAY"; sub=xs.length+" OPEN"; body=taskForm()+`<div class="list">${xs.length?xs.map(taskRowT).join(""):`<div class="empty">Every task has a date.</div>`}</div>`+doneTail(D.filter(t=>!t.due)); }
-  else if(taskView==="repeat"){ const xs=o.filter(isRec).sort(dueSort); title="REPEATING"; sub=xs.length+"";
-    body=`<p class="hint" style="margin:0 0 8px">To-dos that come back on their own. Finish one and it jumps to its next date. Set the repeat under "Priority, due date, list" when adding a task, or edit any task.</p>${taskForm({openMore:true})}<div class="list">${xs.length?xs.map(taskRowT).join(""):`<div class="empty">${D.some(isRec)?"All caught up.":"No repeating to-dos yet."}</div>`}</div>`+doneTail(D.filter(isRec)); }
-  else if(taskView==="anytime"){ title="ANYTIME"; sub=S.wins.reduce((s,w)=>s+winCount(w,today()),0)+" TODAY"; body=vAnytime(); }
-  else if(taskView==="week"){ title="WEEKLY REVIEW"; sub=""; body=vWeek(); }
-  else if(taskView==="dailies"){ const k=today(), due=S.habits.filter(h=>isDue(h,k)), off=S.habits.filter(h=>!isDue(h,k)); title="HABITS"; sub=`${due.filter(h=>h.hist[k]).length}/${due.length} TODAY`;
-    body=`<div class="list">${due.length?due.map(habitRowH).join(""):`<div class="empty">No habits scheduled today.</div>`}</div>${off.length?`<p class="alabel">NOT TODAY · ${off.length}</p><div class="list">${off.map(habitRowH).join("")}</div>`:""}<div class="actions"><button class="btn solid wide" data-act="newHabit">+ ADD HABIT</button></div>`; }
-  else { const l=listById(taskView.slice(5)), xs=o.filter(t=>t.list===l.id).sort(dueSort), dn=D.filter(t=>t.list===l.id); title="# "+l.name.toUpperCase(); sub=xs.length+" OPEN";
-    body=taskForm({list:l.id})+`<div class="list">${xs.length?xs.map(taskRowT).join(""):`<div class="empty">Nothing in this list.</div>`}</div>${doneTail(dn)}<div class="actions"><button class="btn ghost" data-act="editList" data-id="${l.id}">EDIT LIST</button></div>`; }
-  return `<section class="panel tmain"><div class="taskhead"><h2><span>${esc(title)}</span><span>${sub}</span></h2><button class="xbtn" data-act="tab" data-id="shop" aria-label="Close tasks and go back to the main menu">✕</button></div>${body}</section>
-  <p class="hint" style="text-align:center">Tap ✕ to get the main menu back.</p>`;
+  const MAP={todo:"tasks",scheduled:"tasks",someday:"tasks",repeat:"tasks",done:"tasks",dailies:"habits",anytime:"habits"};
+  if(MAP[taskView]){ if(["scheduled","someday","repeat"].includes(taskView)) taskFilter={scheduled:"upcoming",someday:"someday",repeat:"repeat"}[taskView]; taskView=MAP[taskView]; }
+  if(taskView.indexOf("list:")===0){ taskFilter=taskView; taskView="tasks"; }
+  if(!["today","tasks","habits","week"].includes(taskView)) taskView="today";
+  const seg=[["today","Today",todayLeft()],["tasks","Tasks",openTasks().length],["habits","Habits",habitsDueOpen().length]];
+  const head=taskView==="week"?`<div class="todayhd"><button class="linkbtn" data-act="taskView" data-id="today">‹ Back to today</button><span>Weekly review</span></div>`
+    :`<div class="tseg" role="tablist">${seg.map(([id,l,n])=>`<button role="tab" class="${taskView===id?"on":""}" aria-selected="${taskView===id}" data-act="taskView" data-id="${id}">${l}${n?` <b>${n}</b>`:""}</button>`).join("")}</div>`;
+  const body=taskView==="today"?todayBody():taskView==="tasks"?vTasksTab():taskView==="habits"?vHabitsTab():vWeek();
+  return `<section class="panel tmain">${head}${body}</section>${taskView!=="week"?`<button class="fab" data-act="fab" aria-label="${taskView==="habits"?"Add a habit":"Add a task"}">+</button>`:""}`;
 }
 function listSheet(l){
   const isNew=!l;
@@ -3838,7 +4012,7 @@ document.addEventListener("input",ev=>{ const t=ev.target; if(!t.dataset||!t.dat
 document.addEventListener("click",ev=>{
   const el=ev.target.closest("[data-act]"); if(!el) return;
   const id=el.dataset.id, act=el.dataset.act;
-  if(!["ssClear","ssDel","ssNew","zeroCreds","undoWin","delWin","delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
+  if(!["delBad","undoBad","ssClear","ssDel","ssNew","zeroCreds","undoWin","delWin","delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
   const twoTap=(label)=>{ if(armed!==act+id){ armed=act+id; el.textContent=label||"TAP AGAIN"; return false; } armed=null; return true; };
   switch(act){
     case "tab": if(id==="favors"){ devSub="favors"; tab="dev"; render(); window.scrollTo(0,0); break; } if(id==="today") taskView="today"; tab=id==="today"?"tasks":id==="build"?"upgrade":id; peek=null; render(); window.scrollTo(0,0); break;
@@ -3855,6 +4029,13 @@ document.addEventListener("click",ev=>{
     case "delHabit": if(!twoTap()) return; S.habits=S.habits.filter(h=>h.id!==id); closeSheet(); commit(); break;
     case "delTask": if(!twoTap()) return; S.tasks=S.tasks.filter(t=>t.id!==id); closeSheet(); commit(); break;
     case "taskView": taskView=id; render(); window.scrollTo(0,0); break;
+    case "taskFilter": taskFilter=id; render(); break;
+    case "fab": if(taskView==="habits") addSheetHabits(); else quickSheet({today:taskView==="today",list:taskFilter.indexOf("list:")===0?taskFilter.slice(5):""}); break;
+    case "bad": tapBad(id,ev); break;
+    case "newBad": badSheet(null); break;
+    case "editBad": badSheet(badById(id)); break;
+    case "delBad": { if(!twoTap()) return; S.bads=S.bads.filter(b=>b.id!==id); closeSheet(); commit(); break; }
+    case "undoBad": { if(!twoTap("tap again")) return; const [bid,lid]=id.split(":"); undoBad(bid,lid); break; }
     case "shopView": shopView=id; render(); break;
     case "devSub": devSub=id; render(); window.scrollTo(0,0); break;
     case "devWorker": devWorker=id; devSub="workers"; tab="dev"; render(); window.scrollTo(0,0); break;
@@ -3862,7 +4043,7 @@ document.addEventListener("click",ev=>{
     case "floorTap": floorTap(ev); break;
     case "newList": listSheet(null); break;
     case "editList": listSheet(listById(id)); break;
-    case "delList": if(!twoTap()) return; S.lists=S.lists.filter(l=>l.id!==id); S.tasks.forEach(t=>{ if(t.list===id) t.list=""; }); if(taskView==="list:"+id) taskView="todo"; closeSheet(); commit(); break;
+    case "delList": if(!twoTap()) return; S.lists=S.lists.filter(l=>l.id!==id); S.tasks.forEach(t=>{ if(t.list===id) t.list=""; }); if(taskFilter==="list:"+id) taskFilter="all"; closeSheet(); commit(); break;
     case "showDone": showDoneTasks=true; render(); break;
     case "hideDone": showDoneTasks=false; render(); break;
     case "clearDone": S.tasks=S.tasks.filter(t=>!t.done); commit(); break;
@@ -3920,6 +4101,7 @@ document.addEventListener("click",ev=>{
 });
 $("veil").addEventListener("click",ev=>{ if(ev.target===$("veil")) closeSheet(); });
 document.addEventListener("keydown",ev=>{ if(ev.key!=="Escape") return; if(!$("veil").hidden) closeSheet(); else if(srv.open) serveClose(); });
+document.addEventListener("change",ev=>{ if(ev.target.id==="missRep"){ const n=+ev.target.value, was=S.miss.on; if(n>0&&!was){ S.miss.since=today(); S.miss.last=addDays(today(),-1); } S.miss.on=n>0; S.miss.rep=n||S.miss.rep||1; save(); toast(n?`Missed habits now cost ${n} rep.`:"Missed-habit penalty is off."); } });
 document.addEventListener("input",ev=>{ if(ev.target.id==="favChance"){ S.favors.chance=(+ev.target.value)/100; const l=ev.target.previousElementSibling; if(l) l.textContent="How often clients ask · "+ev.target.value+"%"; save(); } });
 function restoreSave(text){
   try{ const o=JSON.parse(text); if(!o||!Array.isArray(o.habits)) throw 0; S=migrate(o); applyLines(); commit(); toast("Save restored."); }
@@ -3944,12 +4126,15 @@ document.addEventListener("submit",ev=>{
     if(id){ const b=bucketById(id); if(b) Object.assign(b,{name,target,color}); } else S.buckets.push({id:uid(),name,target,color,entries:[],deposits:[]});
     closeSheet(); commit();
   }
+  if(k==="quick"){ if(addQuick()){ closeSheet(); commit(); toast("Task added."); } return; }
+  if(k==="bad"){ const name=val("bdName"); if(!name) return; const o={name,rep:Math.max(0,Math.min(20,Math.round(+val("bdRep")||0)))}, id=f.dataset.id;
+    if(id){ const b=badById(id); if(b) Object.assign(b,o); } else S.bads.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
   if(k==="win"){ const name=val("wnName"); if(!name) return; const o={name,bucket:val("wnBucket"),save:toCents(val("wnSave")),ask:$("wnAsk").checked}, id=f.dataset.id;
     if(id){ const w=winById(id); if(w) Object.assign(w,o); } else S.wins.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
   if(k==="winLog"){ const id=f.dataset.id, v=val("wlAmt"), c=v?Math.round((parseFloat(v.replace(/[^0-9.]/g,""))||0)*100):0; closeSheet(); logWin(id,c,null); }
   if(k==="addSave"){ const b=bucketById(f.dataset.id), c=toCents(val("svAmt")), label=val("svLabel"); if(!b||!c||!label){ toast("Add what it was and how much.", true); return; } b.entries.push({id:uid(),d:today(),c,label}); addLog(`Saved ${money(c)} to ${b.name}: ${label}.`,"gain"); closeSheet(); commit(); toast("+"+money(c)+" to "+b.name+"."); }
   if(k==="deposit"){ const b=bucketById(f.dataset.id), c=toCents(val("depAmt")); if(!b||!c){ toast("Enter the amount you deposited.", true); return; } b.deposits.push({id:uid(),d:today(),c,note:val("depNote")}); addLog(`Deposited ${money(c)} into ${b.name}.`,"build"); closeSheet(); commit(); pop(null,"BANKED "+money(c),"var(--good)"); beep(660); setTimeout(()=>beep(1320),120); }
-  if(k==="list"){ const name=val("lName").slice(0,24); if(!name) return; const id=f.dataset.id; if(id){ const l=listById(id); if(l) l.name=name; } else { const l={id:uid(),name}; S.lists.push(l); taskView="list:"+l.id; } closeSheet(); commit(); }
+  if(k==="list"){ const name=val("lName").slice(0,24); if(!name) return; const id=f.dataset.id; if(id){ const l=listById(id); if(l) l.name=name; } else { const l={id:uid(),name}; S.lists.push(l); taskView="tasks"; taskFilter="list:"+l.id; } closeSheet(); commit(); }
   if(k==="rename"||k==="rename2"){ const n=val(k==="rename"?"shopName":"shopName2").toUpperCase().slice(0,22); if(n){ S.shopName=n; closeSheet(); commit(); toast("Shop renamed."); } }
   if(k==="renameWorker"){ const w=S.staff.find(x=>x.id===f.dataset.id), n=val("wName").slice(0,16); if(w&&n){ w.name=n; closeSheet(); commit(); } }
   if(k==="prog"){ const nm=val("pgLabel").slice(0,20)||"Lewdness"; const need=[0], bonus=[], names=[];
@@ -3993,9 +4178,9 @@ async function boot(){
   lastDay=today(); lastSide=clockSide();
   render();
   const ok=await ArtDB.open(); if(ok){ await ArtDB.loadAll(); render(); }
-  rollTasks(); dailyWalkIn(); render();
-  document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&today()!==lastDay){ lastDay=today(); lastSide=clockSide(); peek=null; rollTasks(); dailyWalkIn(); render(); } });
-  setInterval(()=>{ if(today()!==lastDay||clockSide()!==lastSide){ lastDay=today(); lastSide=clockSide(); peek=null; rollTasks(); dailyWalkIn(); render(); return; } const c=$("clock"); if(c) c.textContent=clockText(); },20000);
+  rollTasks(); applyMissed(); dailyWalkIn(); render();
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&today()!==lastDay){ lastDay=today(); lastSide=clockSide(); peek=null; rollTasks(); applyMissed(); dailyWalkIn(); render(); } });
+  setInterval(()=>{ if(today()!==lastDay||clockSide()!==lastSide){ lastDay=today(); lastSide=clockSide(); peek=null; rollTasks(); applyMissed(); dailyWalkIn(); render(); return; } const c=$("clock"); if(c) c.textContent=clockText(); },20000);
 }
 boot();
 
