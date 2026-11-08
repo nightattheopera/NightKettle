@@ -516,6 +516,15 @@ body.serving .scan{opacity:.25}
 .wshop{margin:0;font-size:14px}
 .wbucket{border-left:3px solid var(--bc);padding:6px 10px;margin-bottom:8px;background:#0a0910}
 
+.winrow{grid-template-columns:minmax(0,1fr) auto!important}
+.winbtn{width:48px;height:48px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:26px;line-height:1;cursor:pointer}
+.winbtn:active{background:var(--accent);color:var(--bg)}
+.winchips{display:flex;flex-wrap:wrap;gap:6px}
+.winchip{border:1px solid var(--accent);background:transparent;color:var(--ink);font:inherit;font-size:14px;padding:8px 12px;cursor:pointer;min-height:40px}
+.winchip b{color:var(--accent);margin-left:4px}
+.checkrow{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer}
+.checkrow input{width:20px;height:20px}
+
 </style>
 </head>
 <body class="night">
@@ -2374,7 +2383,7 @@ function freshState(){
   return {v:3,updatedAt:0,shopName:"NIGHT KETTLE",credits:150,xp:0,rep:0,sound:true,clockMode:undefined,
     habits:[],tasks:[],clients:{waiting:1,vip:0},lastWalk:today(),stats:{served:0,perfect:0,favors:0,tips:0},
     modules:{},sprites:{},staff:[starterWorker()],board:null,boardRoll:0,serves:{},
-    buckets:[],cadence:"weekly",lists:[],
+    buckets:[],cadence:"weekly",lists:[],wins:[],
     favors:{on:true,chance:.25,deck:defaultFavors()},
     lines:null,
     log:[{t:Date.now(),k:"sys",m:"Welcome to Night Kettle. Finish tasks and habits to bring clients in, then serve them at the counter to earn creds."}]};
@@ -2382,7 +2391,8 @@ function freshState(){
 function migrate(o){
   const b=freshState(); o=Object.assign(b,o||{});
   ["modules","sprites","serves","stats","clients"].forEach(k=>{ if(!o[k]||typeof o[k]!=="object") o[k]=b[k]; });
-  ["habits","tasks","buckets","log","staff","lists"].forEach(k=>{ if(!Array.isArray(o[k])) o[k]=b[k]; });
+  ["habits","tasks","buckets","log","staff","lists","wins"].forEach(k=>{ if(!Array.isArray(o[k])) o[k]=b[k]; });
+  o.wins.forEach(w=>{ w.log=Array.isArray(w.log)?w.log:[]; });
   if(!o.favors||!Array.isArray(o.favors.deck)) o.favors=b.favors;
   o.habits.forEach(h=>{ h.hist=h.hist||{}; h.days=Array.isArray(h.days)?h.days:[]; h.created=h.created||today(); });
   o.buckets.forEach(x=>{ x.entries=x.entries||[]; x.deposits=x.deposits||[]; });
@@ -2634,7 +2644,7 @@ function renderTop(){
 function renderTabs(){
   const box=$("tabs");
   if(tab==="tasks"){
-    const views=taskViews(), order=["today","todo","dailies","scheduled","someday","done","week"], short={today:"TODAY",todo:"TO-DO",dailies:"DAILIES",scheduled:"UPCOMING",someday:"SOMEDAY",done:"DONE",week:"WEEK"};
+    const views=taskViews(), order=["today","todo","dailies","anytime","scheduled","someday","done","week"], short={today:"TODAY",todo:"TO-DO",dailies:"HABITS",anytime:"ANYTIME",scheduled:"UPCOMING",someday:"SOMEDAY",done:"DONE",week:"WEEK"};
     const T=order.map(id=>{ const v=views.find(x=>x[0]===id); return [id,v[1],short[id],v[3]]; })
       .concat(S.lists.map(l=>["list:"+l.id,"#",l.name.toUpperCase().slice(0,10),openTasks().filter(t=>t.list===l.id).length]));
     box.className="in tasktabs";
@@ -2677,7 +2687,7 @@ function dueRail(){
   const k=today(), items=[
     ...overdue().sort(dueSort).map(t=>({kind:"task",id:t.id,title:t.title,tag:`<span class="bad">${daysBetween(t.due,k)}d late</span>`,vip:t.pri===3})),
     ...dueToday().sort((x,y)=>y.pri-x.pri).map(t=>({kind:"task",id:t.id,title:t.title,tag:`<span class="acc">today</span>`,vip:t.pri===3})),
-    ...habitsDueOpen().map(h=>({kind:"habit",id:h.id,title:h.name,tag:`<span class="muted">daily</span>`}))];
+    ...habitsDueOpen().map(h=>({kind:"habit",id:h.id,title:h.name,tag:`<span class="muted">habit</span>`}))];
   const shown=items.slice(0,4), more=items.length-shown.length;
   return `<div class="rail" aria-label="Due today">
     <div class="railhead"><span class="px">DUE TODAY · ${items.length}</span><button class="linkbtn" data-act="tab" data-id="today">${more>0?`+${more} more`:"open"} ›</button></div>
@@ -2732,12 +2742,73 @@ function todayBody(){
     ${od.length?`<p class="alabel bad">OVERDUE · ${od.length}</p><div class="list">${od.map(taskRowT).join("")}</div>`:""}
     <p class="alabel acc">DUE TODAY · ${dt.length}</p>
     <div class="list">${dt.length?dt.map(taskRowT).join(""):`<div class="empty">No tasks due today.</div>`}</div>
-    <p class="alabel">DAILIES · ${hDone.length}/${hDue.length}</p>
-    <div class="list">${hDue.length?[...hOpen,...hDone].map(habitRowH).join(""):`<div class="empty">No dailies today. <button class="linkbtn" data-act="newHabit">Add one</button></div>`}</div>
+    <p class="alabel">HABITS · ${hDone.length}/${hDue.length}</p>
+    <div class="list">${hDue.length?[...hOpen,...hDone].map(habitRowH).join(""):`<div class="empty">No habits today. <button class="linkbtn" data-act="newHabit">Add one</button></div>`}</div>
+    ${winChips()}
     ${doneT.length?`<details class="sub"><summary>Finished today · ${doneT.length}</summary><div class="list">${doneT.map(taskRowT).join("")}</div></details>`:""}
     ${left===0&&(hDue.length||doneT.length)?`<p class="hint good">All clear for today. Nice work.</p>`:""}`;
 }
 const todayLeft=()=>overdue().length+dueToday().length+habitsDueOpen().length;
+/* ---------- anytime actions: log whenever it happens ---------- */
+const WIN_CLIENT_CAP=3;
+const winById=id=>S.wins.find(w=>w.id===id);
+const winCount=(w,from,to)=>w.log.filter(l=>l.d>=from&&l.d<=(to||from)).length;
+function logWin(id,c,ev){
+  const w=winById(id); if(!w) return; const k=today(), n=winCount(w,k);
+  const lg={id:uid(),d:k,c:c||0,client:n<WIN_CLIENT_CAP}; w.log.push(lg);
+  if(lg.client) addClient(false,w.name);
+  const b=bucketById(w.bucket); if(b&&lg.c>0) b.entries.push({id:uid(),d:k,c:lg.c,label:w.name,win:w.id,logId:lg.id});
+  pop(ev,lg.client?"+1 CLIENT":"LOGGED","var(--good)");
+  if(b&&lg.c>0) setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(lg.c),"var(--good)"),200);
+  addLog(`${w.name}${n?` (×${n+1} today)`:""}.${lg.client?" A client walked in.":""}${b&&lg.c?" "+money(lg.c)+" to "+b.name+".":""}`,"gain");
+  if(!lg.client) toast(`Logged. Clients come from the first ${WIN_CLIENT_CAP} each day.`);
+  commit();
+}
+function undoWin(wid,lid){
+  const w=winById(wid); if(!w) return; const i=w.log.findIndex(l=>l.id===lid); if(i<0) return; const lg=w.log[i]; w.log.splice(i,1);
+  if(lg.client&&lg.d===today()) removeClient(false);
+  S.buckets.forEach(b=>{ b.entries=b.entries.filter(e=>e.logId!==lid); });
+  addLog(`Removed a ${w.name} entry.`); commit();
+}
+function tapWin(id,ev){ const w=winById(id); if(!w) return; if(w.ask) winAmountSheet(w); else logWin(id,w.save,ev); }
+function winRow(w){
+  const k=today(), t=winCount(w,k), wk=winCount(w,weekStart(k),k), b=bucketById(w.bucket);
+  return `<div class="item winrow">
+    <button class="info" data-act="editWin" data-id="${w.id}" aria-label="Edit ${esc(w.name)}"><span class="nm">${esc(w.name)}</span>
+      <span class="meta"><span>${t?`<b class="acc">×${t} today</b>`:"not yet today"}</span><span>×${wk} this week</span>${b?`<span class="good">${w.ask?"asks amount":w.save?"+"+money(w.save):""} → ${esc(b.name)}</span>`:""}</span></button>
+    <button class="winbtn" data-act="win" data-id="${w.id}" aria-label="Log ${esc(w.name)}">+</button></div>`;
+}
+function winChips(){ if(!S.wins.length) return "";
+  return `<p class="alabel">ANYTIME</p><div class="winchips">${S.wins.map(w=>{ const t=winCount(w,today()); return `<button class="winchip" data-act="win" data-id="${w.id}">+ ${esc(w.name)}${t?` <b>×${t}</b>`:""}</button>`; }).join("")}</div>`; }
+function vAnytime(){
+  const recent=[]; S.wins.forEach(w=>w.log.forEach(l=>recent.push({w,l}))); recent.sort((x,y)=>y.l.d.localeCompare(x.l.d)||0); 
+  return `<p class="hint" style="margin:0 0 8px">For things you do whenever they come up, like splitting a meal or skipping takeout. Tap + every time it happens. No schedule, no streak to break. The first ${WIN_CLIENT_CAP} each day send a client.</p>
+    <div class="list">${S.wins.length?S.wins.map(winRow).join(""):`<div class="empty">No anytime actions yet.</div>`}</div>
+    <div class="actions"><button class="btn solid wide" data-act="newWin">+ ADD ANYTIME ACTION</button></div>
+    ${recent.length?`<details class="sub"><summary>Recent · ${recent.length}</summary><div class="log">${recent.slice(0,25).map(({w,l})=>`<div><time>${shortDate(l.d)}</time><span class="k-gain">${esc(w.name)}${l.c?" · "+money(l.c):""} <button class="linkbtn" data-act="undoWin" data-id="${w.id}:${l.id}">remove</button></span></div>`).join("")}</div></details>`:""}`;
+}
+function winSheet(w){
+  const isNew=!w; w=w||{name:"",bucket:"",save:0,ask:false};
+  openSheet(`<h3>${isNew?"NEW ANYTIME ACTION":"EDIT ANYTIME ACTION"}</h3>
+  <form data-form="win" data-id="${isNew?"":w.id}" class="stack">
+    <div><label class="fl" for="wnName">Action</label><input class="field" id="wnName" maxlength="60" value="${esc(w.name)}" placeholder="e.g. Split a meal when eating out" required autocomplete="off"></div>
+    <div class="formgrid"><div><label class="fl" for="wnBucket">Savings bucket</label><select class="field" id="wnBucket">${bucketOptions(w.bucket)}</select></div>
+      <div><label class="fl" for="wnSave">Usual amount ($)</label><input class="field num" id="wnSave" inputmode="decimal" value="${w.save?(w.save/100).toFixed(2):""}" placeholder="10.00"></div></div>
+    <label class="checkrow"><input type="checkbox" id="wnAsk" ${w.ask?"checked":""}> Ask me the amount each time</label>
+    <p class="hint" style="margin:0">Turn that on when it changes, like the price of half a meal. The usual amount gets filled in so you can just adjust it.</p>
+    <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delWin" data-id="${w.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
+  </form>`);
+}
+function winAmountSheet(w){
+  const b=bucketById(w.bucket);
+  openSheet(`<h3>${esc(w.name.toUpperCase())}</h3>
+  <form data-form="winLog" data-id="${w.id}" class="stack">
+    <div><label class="fl" for="wlAmt">How much did you save this time? ($)</label><input class="field num" id="wlAmt" inputmode="decimal" value="${w.save?(w.save/100).toFixed(2):""}" placeholder="0.00"></div>
+    <p class="hint" style="margin:0">${b?`Goes to ${esc(b.name)}.`:"No bucket set, so this only logs it."} Leave it at 0 to log without saving anything.</p>
+    <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">LOG IT</button></div>
+  </form>`);
+  setTimeout(()=>{ const i=$("wlAmt"); if(i){ i.focus(); i.select(); } },50);
+}
 /* ---------- weekly review ---------- */
 let weekOff=0;
 const weekStart=k=>addDays(k,-((dowOf(k)+6)%7));
@@ -2761,7 +2832,7 @@ function vWeek(){
   const title=weekOff===0?"THIS WEEK":weekOff===-1?"LAST WEEK":"WEEK OF "+shortDate(start).toUpperCase();
   const tile=(lab,val,d)=>`<div class="wtile"><span class="px">${lab}</span><b class="num">${val}</b>${d||""}</div>`;
   const best=W.per.filter(d=>!d.future&&d.due).sort((x,y)=>(y.done/y.due)-(x.done/x.due)||y.tasks-x.tasks)[0];
-  const bars=W.per.map(d=>{ const r=d.due?d.done/d.due:0, isT=d.k===now, lab=`${DOW3[dowOf(d.k)]} ${shortDate(d.k)}: ${d.future?"upcoming":d.due?`${d.done} of ${d.due} dailies`:"no dailies due"}, ${d.tasks} task${d.tasks===1?"":"s"} done`;
+  const bars=W.per.map(d=>{ const r=d.due?d.done/d.due:0, isT=d.k===now, lab=`${DOW3[dowOf(d.k)]} ${shortDate(d.k)}: ${d.future?"upcoming":d.due?`${d.done} of ${d.due} habits`:"no habits due"}, ${d.tasks} task${d.tasks===1?"":"s"} done`;
     return `<div class="wcol ${d.future?"fut":""} ${isT?"today":""}" title="${lab}" aria-label="${lab}" role="img"><div class="wbarwrap"><i style="height:${d.future?0:Math.max(d.due?4:0,r*100)}%" class="${r>=1?"full":""}"></i></div>
       <span class="wday">${DOW3[dowOf(d.k)].slice(0,2)}</span><span class="wtask">${d.future?"":d.tasks?"✓"+d.tasks:"·"}</span></div>`; }).join("");
   const habits=S.habits.filter(h=>W.days.some(k=>k<=now&&isDue(h,k)));
@@ -2774,18 +2845,19 @@ function vWeek(){
   return `
   <div class="weeknav"><button class="btn ghost" data-act="weekNav" data-id="-1" aria-label="Previous week">‹</button><div><b>${title}</b><span class="muted">${shortDate(start)} – ${shortDate(end)}</span></div><button class="btn ghost" data-act="weekNav" data-id="1" aria-label="Next week" ${weekOff>=0?"disabled":""}>›</button></div>
   <div class="wtiles">
-    ${tile("DAILIES",pct(W.pct),W.pct!=null&&P.pct!=null?delta(Math.round(W.pct*100),Math.round(P.pct*100),v=>v+" pts"):"")}
+    ${tile("HABITS",pct(W.pct),W.pct!=null&&P.pct!=null?delta(Math.round(W.pct*100),Math.round(P.pct*100),v=>v+" pts"):"")}
     ${tile("TASKS DONE",W.tasks,delta(W.tasks,P.tasks))}
     ${tile("CLIENTS SERVED",W.served,delta(W.served,P.served))}
     ${tile("CREDS EARNED",W.creds.toLocaleString()+"₵",delta(W.creds,P.creds,v=>v.toLocaleString()+"₵"))}
     ${tile("SAVED",money(W.saved),delta(W.saved,P.saved,money))}
     ${tile("DEPOSITED",money(W.dep),"")}
   </div>
-  ${best&&best.done?`<p class="whigh">Best day: <b>${DOW3[dowOf(best.k)]}</b>${best.done===best.due?" · every daily done":` · ${best.done}/${best.due} dailies`}${best.tasks?` · ${best.tasks} task${best.tasks===1?"":"s"}`:""}.</p>`:""}
-  <p class="alabel">DAILIES DONE EACH DAY</p>
+  ${best&&best.done?`<p class="whigh">Best day: <b>${DOW3[dowOf(best.k)]}</b>${best.done===best.due?" · every habit done":` · ${best.done}/${best.due} habits`}${best.tasks?` · ${best.tasks} task${best.tasks===1?"":"s"}`:""}.</p>`:""}
+  <p class="alabel">HABITS DONE EACH DAY</p>
   <div class="wchart">${bars}</div>
-  <p class="hint" style="margin-top:4px">Bar height is the share of that day's dailies you finished. Green means all of them. ✓ is tasks finished.</p>
-  ${habits.length?`<p class="alabel">EACH DAILY</p><div class="hgrid"><div class="hrow hhead"><span></span><span class="hcells">${W.days.map(k=>`<span class="hc">${DOW3[dowOf(k)][0]}</span>`).join("")}</span><span></span></div>${hrows}</div>`:""}
+  <p class="hint" style="margin-top:4px">Bar height is the share of that day's habits you finished. Green means all of them. ✓ is tasks finished.</p>
+  ${habits.length?`<p class="alabel">EACH HABIT</p><div class="hgrid"><div class="hrow hhead"><span></span><span class="hcells">${W.days.map(k=>`<span class="hc">${DOW3[dowOf(k)][0]}</span>`).join("")}</span><span></span></div>${hrows}</div>`:""}
+  ${S.wins.some(w=>winCount(w,start,end))?`<p class="alabel">ANYTIME</p><p class="wshop">${S.wins.filter(w=>winCount(w,start,end)).map(w=>`${esc(w.name)} <b class="acc">×${winCount(w,start,end)}</b>`).join(" · ")}</p>`:""}
   ${streaks.length?`<p class="hint">Streaks going now: ${streaks.map(([h,n])=>`${esc(h.name)} 🔥${n}`).join(" · ")}</p>`:""}
   <p class="alabel">THE SHOP</p>
   <p class="wshop">${W.served} client${W.served===1?"":"s"} served${W.served?` · ${Math.round(W.perfect/W.served*100)}% perfect`:""} · ${W.favors} favor${W.favors===1?"":"s"} done · ${W.creds.toLocaleString()}₵ earned</p>
@@ -2793,7 +2865,7 @@ function vWeek(){
 }
 function taskViews(){
   const o=openTasks();
-  return [["todo","☐","To-do",o.length],["today","!","Due today",todayLeft()],["dailies","↻","Dailies",habitsDueOpen().length],["scheduled","▤","Upcoming",o.filter(t=>t.due).length],["someday","∞","Someday",o.filter(t=>!t.due).length],["done","✓","Done",S.tasks.filter(t=>t.done).length],["week","▥","Week",0]];
+  return [["todo","☐","To-do",o.length],["today","!","Due today",todayLeft()],["dailies","↻","Habits",habitsDueOpen().length],["scheduled","▤","Upcoming",o.filter(t=>t.due).length],["someday","∞","Someday",o.filter(t=>!t.due).length],["done","✓","Done",S.tasks.filter(t=>t.done).length],["week","▥","Week",0],["anytime","✚","Anytime",0]];
 }
 function vTasks(){
   if(taskView.indexOf("list:")===0&&!listById(taskView.slice(5))) taskView="todo";
@@ -2803,10 +2875,11 @@ function vTasks(){
   else if(taskView==="today"){ title="DUE TODAY"; sub=todayLeft()+" LEFT"; body=todayBody(); }
   else if(taskView==="scheduled"){ const xs=o.filter(t=>t.due).sort(dueSort); title="UPCOMING"; sub=xs.length+" OPEN"; body=taskForm()+(xs.length?groupedByDue(xs):`<div class="empty">No tasks with a due date.</div>`); }
   else if(taskView==="someday"){ const xs=o.filter(t=>!t.due).sort(dueSort); title="SOMEDAY"; sub=xs.length+" OPEN"; body=taskForm()+`<div class="list">${xs.length?xs.map(taskRowT).join(""):`<div class="empty">Every task has a date.</div>`}</div>`; }
+  else if(taskView==="anytime"){ title="ANYTIME"; sub=S.wins.reduce((s,w)=>s+winCount(w,today()),0)+" TODAY"; body=vAnytime(); }
   else if(taskView==="week"){ title="WEEKLY REVIEW"; sub=""; body=vWeek(); }
   else if(taskView==="done"){ const xs=S.tasks.filter(t=>t.done).sort((x,y)=>(y.doneOn||"").localeCompare(x.doneOn||"")); title="DONE"; sub=xs.length+""; body=`<div class="list">${xs.length?xs.slice(0,60).map(taskRowT).join(""):`<div class="empty">Nothing finished yet.</div>`}</div>${xs.length?`<div class="actions"><button class="btn ghost" data-act="clearDone">CLEAR DONE</button></div>`:""}`; }
-  else if(taskView==="dailies"){ const k=today(), due=S.habits.filter(h=>isDue(h,k)), off=S.habits.filter(h=>!isDue(h,k)); title="DAILIES"; sub=`${due.filter(h=>h.hist[k]).length}/${due.length} TODAY`;
-    body=`<div class="list">${due.length?due.map(habitRowH).join(""):`<div class="empty">No dailies scheduled today.</div>`}</div>${off.length?`<p class="alabel">NOT TODAY · ${off.length}</p><div class="list">${off.map(habitRowH).join("")}</div>`:""}<div class="actions"><button class="btn solid wide" data-act="newHabit">+ ADD DAILY</button></div>`; }
+  else if(taskView==="dailies"){ const k=today(), due=S.habits.filter(h=>isDue(h,k)), off=S.habits.filter(h=>!isDue(h,k)); title="HABITS"; sub=`${due.filter(h=>h.hist[k]).length}/${due.length} TODAY`;
+    body=`<div class="list">${due.length?due.map(habitRowH).join(""):`<div class="empty">No habits scheduled today.</div>`}</div>${off.length?`<p class="alabel">NOT TODAY · ${off.length}</p><div class="list">${off.map(habitRowH).join("")}</div>`:""}<div class="actions"><button class="btn solid wide" data-act="newHabit">+ ADD HABIT</button></div>`; }
   else { const l=listById(taskView.slice(5)), xs=o.filter(t=>t.list===l.id).sort(dueSort), dn=S.tasks.filter(t=>t.done&&t.list===l.id); title="# "+l.name.toUpperCase(); sub=xs.length+" OPEN";
     body=taskForm({list:l.id})+`<div class="list">${xs.length?xs.map(taskRowT).join(""):`<div class="empty">Nothing in this list.</div>`}</div>${dn.length?`<details class="sub"><summary>Done · ${dn.length}</summary><div class="list">${dn.map(taskRowT).join("")}</div></details>`:""}<div class="actions"><button class="btn ghost" data-act="editList" data-id="${l.id}">EDIT LIST</button></div>`; }
   return `<section class="panel tmain"><div class="taskhead"><h2><span>${esc(title)}</span><span>${sub}</span></h2><button class="xbtn" data-act="tab" data-id="shop" aria-label="Close tasks and go back to the main menu">✕</button></div>${body}</section>
@@ -2822,7 +2895,7 @@ function listSheet(l){
 function vSave(){
   const pend=totalPending(), all=S.buckets.reduce((a,b)=>a+bDep(b),0);
   const cards=S.buckets.map(b=>{ const dep=bDep(b), p=bPend(b), pct=b.target?Math.min(1,dep/b.target):0, ppct=b.target?Math.min(1-pct,p/b.target):0;
-    const savers=S.habits.filter(h=>h.bucket===b.id&&h.save);
+    const savers=[...S.habits.filter(h=>h.bucket===b.id&&h.save),...S.wins.filter(w=>w.bucket===b.id&&(w.save||w.ask)).map(w=>({name:w.name+(w.ask?" · varies":""),save:w.save}))];
     return `<div class="bucket" style="--bc:${b.color}">
       <div class="spread"><b class="bname">${esc(b.name)}</b><button class="linkbtn" data-act="editBucket" data-id="${b.id}">edit</button></div>
       <div class="bbar" role="img" aria-label="${Math.round(pct*100)} percent deposited"><i style="width:${pct*100}%"></i><i class="pend" style="width:${ppct*100}%"></i></div>
@@ -2843,7 +2916,7 @@ function vSave(){
     <h2><span>BUCKETS</span><span>${S.buckets.length}</span></h2>
     ${cards||`<p class="empty">No buckets yet. Make one for each goal, like Emergency fund, Trip or Gear.</p>`}
     <div class="actions"><button class="btn solid" data-act="newBucket">+ NEW BUCKET</button></div>
-    <p class="hint">To save automatically, give a daily a dollar amount and a bucket (Tasks tab › Dailies).</p>
+    <p class="hint">To save automatically, give a habit a dollar amount and a bucket (Tasks tab › Habits).</p>
   </section>
   <section class="panel">
     <h2><span>DEPOSIT REMINDER</span><span></span></h2>
@@ -3026,9 +3099,9 @@ function closeSheet(){ $("veil").hidden=true; $("sheet").innerHTML=""; favDraft=
 function bucketOptions(sel){ return `<option value="">No savings</option>`+S.buckets.map(b=>`<option value="${b.id}" ${sel===b.id?"selected":""}>${esc(b.name)}</option>`).join(""); }
 function habitSheet(h){
   const isNew=!h; h=h||{name:"",days:[],bucket:"",save:0};
-  openSheet(`<h3>${isNew?"NEW DAILY":"EDIT DAILY"}</h3>
+  openSheet(`<h3>${isNew?"NEW HABIT":"EDIT HABIT"}</h3>
   <form data-form="habit" data-id="${isNew?"":h.id}" class="stack">
-    <div><label class="fl" for="hName">Daily habit</label><input class="field" id="hName" maxlength="80" value="${esc(h.name)}" placeholder="e.g. Skip buying coffee on work days" required autocomplete="off"></div>
+    <div><label class="fl" for="hName">Habit</label><input class="field" id="hName" maxlength="80" value="${esc(h.name)}" placeholder="e.g. Skip buying coffee on work days" required autocomplete="off"></div>
     <div><span class="fl">Days · none checked = every day</span><div class="seg">${[1,2,3,4,5,6,0].map(d=>`<input type="checkbox" name="day" id="w-${d}" value="${d}" ${h.days.includes(d)?"checked":""}><label for="w-${d}">${DOW3[d].slice(0,2)}</label>`).join("")}</div></div>
     <div class="formgrid"><div><label class="fl" for="hBucket">Savings bucket</label><select class="field" id="hBucket">${bucketOptions(h.bucket)}</select></div>
       <div><label class="fl" for="hSave">Saves each time ($)</label><input class="field num" id="hSave" inputmode="decimal" value="${h.save?(h.save/100).toFixed(2):""}" placeholder="6.00"></div></div>
@@ -3360,13 +3433,18 @@ document.addEventListener("input",ev=>{ const t=ev.target; if(!t.dataset||!t.dat
 document.addEventListener("click",ev=>{
   const el=ev.target.closest("[data-act]"); if(!el) return;
   const id=el.dataset.id, act=el.dataset.act;
-  if(!["delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
+  if(!["undoWin","delWin","delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
   const twoTap=(label)=>{ if(armed!==act+id){ armed=act+id; el.textContent=label||"TAP AGAIN"; return false; } armed=null; return true; };
   switch(act){
     case "tab": if(id==="today") taskView="today"; tab=id==="today"?"tasks":id==="build"?"upgrade":id; peek=null; render(); window.scrollTo(0,0); break;
     case "habit": toggleHabit(id,ev); break;
     case "task": toggleTask(id,ev); break;
     case "newHabit": habitSheet(null); break;
+    case "win": tapWin(id,ev); break;
+    case "newWin": winSheet(null); break;
+    case "editWin": winSheet(winById(id)); break;
+    case "delWin": { if(!twoTap()) return; S.wins=S.wins.filter(w=>w.id!==id); closeSheet(); commit(); break; }
+    case "undoWin": { if(!twoTap("tap again")) return; const [wid,lid]=id.split(":"); undoWin(wid,lid); break; }
     case "editHabit": habitSheet(S.habits.find(h=>h.id===id)); break;
     case "editTask": taskSheet(S.tasks.find(t=>t.id===id)); break;
     case "delHabit": if(!twoTap()) return; S.habits=S.habits.filter(h=>h.id!==id); closeSheet(); commit(); break;
@@ -3384,7 +3462,7 @@ document.addEventListener("click",ev=>{
     case "close": closeSheet(); break;
     case "newBucket": bucketSheet(null); break;
     case "editBucket": bucketSheet(bucketById(id)); break;
-    case "delBucket": if(!twoTap("TAP AGAIN · HISTORY GOES TOO")) return; S.buckets=S.buckets.filter(b=>b.id!==id); S.habits.forEach(h=>{ if(h.bucket===id) h.bucket=""; }); closeSheet(); commit(); break;
+    case "delBucket": if(!twoTap("TAP AGAIN · HISTORY GOES TOO")) return; S.buckets=S.buckets.filter(b=>b.id!==id); S.habits.forEach(h=>{ if(h.bucket===id) h.bucket=""; }); S.wins.forEach(w=>{ if(w.bucket===id) w.bucket=""; }); closeSheet(); commit(); break;
     case "addSave": addSaveSheet(id); break;
     case "deposit": depositSheet(id); break;
     case "delMoney": { if(!twoTap("tap again")) return; const [ty,bid,eid]=id.split(":"), b=bucketById(bid); if(b){ if(ty==="e") b.entries=b.entries.filter(e=>e.id!==eid); else b.deposits=b.deposits.filter(x=>x.id!==eid); } commit(); break; }
@@ -3452,6 +3530,9 @@ document.addEventListener("submit",ev=>{
     if(id){ const b=bucketById(id); if(b) Object.assign(b,{name,target,color}); } else S.buckets.push({id:uid(),name,target,color,entries:[],deposits:[]});
     closeSheet(); commit();
   }
+  if(k==="win"){ const name=val("wnName"); if(!name) return; const o={name,bucket:val("wnBucket"),save:toCents(val("wnSave")),ask:$("wnAsk").checked}, id=f.dataset.id;
+    if(id){ const w=winById(id); if(w) Object.assign(w,o); } else S.wins.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
+  if(k==="winLog"){ const id=f.dataset.id, v=val("wlAmt"), c=v?Math.round((parseFloat(v.replace(/[^0-9.]/g,""))||0)*100):0; closeSheet(); logWin(id,c,null); }
   if(k==="addSave"){ const b=bucketById(f.dataset.id), c=toCents(val("svAmt")), label=val("svLabel"); if(!b||!c||!label){ toast("Add what it was and how much.", true); return; } b.entries.push({id:uid(),d:today(),c,label}); addLog(`Saved ${money(c)} to ${b.name}: ${label}.`,"gain"); closeSheet(); commit(); toast("+"+money(c)+" to "+b.name+"."); }
   if(k==="deposit"){ const b=bucketById(f.dataset.id), c=toCents(val("depAmt")); if(!b||!c){ toast("Enter the amount you deposited.", true); return; } b.deposits.push({id:uid(),d:today(),c,note:val("depNote")}); addLog(`Deposited ${money(c)} into ${b.name}.`,"build"); closeSheet(); commit(); pop(null,"BANKED "+money(c),"var(--good)"); beep(660); setTimeout(()=>beep(1320),120); }
   if(k==="list"){ const name=val("lName").slice(0,24); if(!name) return; const id=f.dataset.id; if(id){ const l=listById(id); if(l) l.name=name; } else { const l={id:uid(),name}; S.lists.push(l); taskView="list:"+l.id; } closeSheet(); commit(); }
