@@ -724,6 +724,20 @@ body.xson{overflow:hidden}
 .xsqueue span{color:var(--dim)} .xsqueue .cur{color:var(--accent)} .xsqueue .done{color:var(--good)}
 .xcard .price{position:absolute;top:2px;left:2px;background:#0a0910;border:1px solid var(--good);color:var(--good);font-family:var(--pixel);font-size:8px;padding:2px 4px;z-index:1}
 .xcard .lvl{font-family:var(--pixel);font-size:7px;color:#ff8cc4;letter-spacing:.06em}
+/* ---------- upgrades / outfits ---------- */
+.upseg{margin:0 0 10px}
+.wardrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.wslot{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;border:1px solid var(--line);padding:4px 3px 6px;background:#0a0910;min-width:0}
+.wslot.on{border-color:var(--accent);box-shadow:0 0 10px var(--glow)}
+.wslot.locked .wthumb{opacity:.45}
+.wslot b{font-size:11px;line-height:1.1;overflow-wrap:anywhere}
+.wslot small{font-size:10px;color:var(--dim)}
+.wslot .btn.smallbtn{font-size:7px;padding:5px 3px;width:100%}
+.wslot .viptag{font-size:7px}
+.wthumb{width:100%;aspect-ratio:3/4;background:#1e1430;display:grid;place-items:center;overflow:hidden;font-size:18px}
+.wthumb img{width:100%;height:100%;object-fit:cover;object-position:top}
+.wardcfg{display:grid;grid-template-columns:auto 2fr 1fr 1.4fr 1fr;gap:5px;align-items:center}
+.wardcfg .field{padding:6px;font-size:13px;min-width:0}
 
 </style>
 </head>
@@ -750,7 +764,7 @@ const DOW1 = ["S","M","T","W","T","F","S"];
 const DOW3 = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 const MON3 = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 const SHUTTER_COST = 30;
-const MAX_LVL = 3;
+const MAX_LVL = 5;
 
 const RANKS = ["Street Kid","Dishwasher","Barback","Line Cook","Barista","Bartender","Bookseller","Night Manager","Fixer","Proprietor","Block Boss","Legend of the District"];
 const CLASSES = [[0,"Pop-up Stall"],[3,"Hole in the Wall"],[8,"Neighborhood Spot"],[16,"Local Favorite"],[28,"District Landmark"],[40,"Megacity Icon"]];
@@ -778,6 +792,16 @@ const MODULES = {
   booth:   {name:"DJ Booth",        sec:"CLUB", cost:160, amb:4, seats:1, desc:"Two decks and a crate of bootleg tapes. The DJ takes live requests.", line:"The DJ drops a live remix and the booths start cheering."},
   vip:     {name:"VIP Booths",      sec:"CLUB", cost:240, amb:4, seats:4, desc:"Velvet booths behind a beaded curtain. Bottle service only.", line:"Someone books a VIP booth and orders the whole bottle."},
   lights:  {name:"Laser Rig",       sec:"CLUB", cost:290, amb:5, seats:2, desc:"Lasers, haze and a mirror ball rescued from a dead casino.", line:"The laser rig sweeps the room and every phone comes out."},
+  grinder: {name:"Burr Grinder",    sec:"CAFE", cost:260, amb:4, seats:1, desc:"Hand-tuned steel burrs. Regulars swear they can taste the difference.", line:"The grinder hums. A regular nods like they can taste it."},
+  patio:   {name:"Sidewalk Tables", sec:"CAFE", cost:340, amb:3, seats:4, desc:"Four wobbly tables under the rail line. Somehow always full.", line:"Every sidewalk table is taken. Somebody brought a dog."},
+  lamps:   {name:"Reading Lamps",   sec:"BOOKS",cost:300, amb:4, seats:1, desc:"Green-glass bankers' lamps on every table. The loft glows like an aquarium.", line:"The reading lamps click on and the loft goes quiet."},
+  cat:     {name:"Shop Cat",        sec:"BOOKS",cost:480, amb:6, seats:0, desc:"A three-legged tabby named Cache. Half the customers come for her.", line:"Cache the shop cat sleeps on the poetry shelf. Nobody dares move her."},
+  ice:     {name:"Clear Ice Machine",sec:"BAR", cost:290, amb:4, seats:1, desc:"Crystal-clear cubes, cut by hand. Drinks look like jewelry.", line:"A perfect ice cube clinks into a perfect glass."},
+  backbar: {name:"Mirror Backbar",  sec:"BAR",  cost:400, amb:5, seats:2, desc:"Floor-to-ceiling mirrors and three hundred bottles lit from below.", line:"The backbar glows. Someone takes a photo of the bottles."},
+  sound:   {name:"Sound System",    sec:"CLUB", cost:340, amb:5, seats:1, desc:"Salvaged stadium speakers. You feel the bass in your teeth.", line:"The new speakers kick in and the whole room leans forward."},
+  merch:   {name:"Merch Table",     sec:"CLUB", cost:260, amb:3, seats:2, desc:"Shirts, tapes and stickers from every act that plays here.", line:"Someone buys a shirt from tonight's act."},
+  tipjar:  {name:"Tip Jar",         sec:"SHOP", cost:150, amb:1, seats:0, desc:"A big glass jar by the register. +2% tips on every client per tier.", line:"Coins rattle into the tip jar."},
+  loyalty: {name:"Loyalty Cards",   sec:"SHOP", cost:360, amb:2, seats:0, desc:"Punch cards for regulars. Every 2 tiers bring one more walk-in client a day.", line:"A regular slides over a full punch card."},
   drone:   {name:"Drone Window",    sec:"SHOP", cost:400, amb:3, seats:6, desc:"Delivery drones dock at the window. Orders go out to the whole district.", line:"A delivery drone lifts off with six coffees and a paperback."}
 };
 
@@ -793,6 +817,16 @@ const RAMP={CAFE:["#4a2a12","#8a5224","#d08a40","#ffd08a"],BAR:["#4a1230","#9a24
 const MET=["#1c1a28","#4a4860","#8a88a2","#d6d4ea"], WOOD=["#2e1c12","#5a3a26","#8a5e3e","#b8885e"], LEAF=["#123a22","#227a44","#3fbf6a","#a0f0b0"];
 const OUT="#0a0812", GLASS="#1e3446", WARM="#ffe2a8", CY="#3ef2e0", YE="#ffd23f", PK="#ff3d8b", VI="#7a5aff", CREAM="#f4eee6";
 const SPRITES={
+  grinder(R,P,box,A){ R(8,2,8,6,MET[1]); R(9,3,6,4,"#5a3a26"); R(7,8,10,10,OUT); R(8,9,8,8,MET[2]); R(9,10,6,2,MET[3]); R(10,18,4,4,MET[1]); R(4,20,16,2,A[1]); },
+  patio(R,P,box,A){ R(2,6,20,3,A[2]); R(11,9,2,10,MET[1]); R(4,19,16,2,A[1]); R(3,14,4,1,MET[2]); R(17,14,4,1,MET[2]); R(4,15,1,6,MET[1]); R(19,15,1,6,MET[1]); },
+  lamps(R,P,box,A){ R(5,6,14,5,"#2a7a4a"); R(6,6,12,2,"#5ac88a"); R(11,11,2,7,"#c8a040"); R(7,18,10,3,"#8a6020"); R(8,11,8,1,"#ffe8a0"); },
+  cat(R,P,box,A){ R(5,12,12,7,"#c88a40"); R(14,7,7,7,"#c88a40"); R(14,5,2,2,"#c88a40"); R(19,5,2,2,"#c88a40"); R(16,10,1,1,OUT); R(19,10,1,1,OUT); R(3,10,2,6,"#c88a40"); R(6,19,2,2,"#a06a30"); R(13,19,2,2,"#a06a30"); for(let x=6;x<16;x+=3) R(x,13,1,4,"#a06a30"); },
+  ice(R,P,box,A){ box(3,6,18,15,A); R(6,9,5,5,"#c8f0ff"); R(13,9,5,5,"#c8f0ff"); R(9,15,5,5,"#c8f0ff"); P(7,10,"#ffffff"); P(14,10,"#ffffff"); P(10,16,"#ffffff"); },
+  backbar(R,P,box,A){ R(2,2,20,19,OUT); R(3,3,18,17,"#2a3a50"); for(let i=0;i<5;i++){ R(4+i*4,5,2,6,[A[2],YE,CY,PK,A[3]][i]); R(4+i*4,13,2,6,[CY,A[2],YE,A[3],PK][i]); } R(3,11,18,1,MET[2]); R(3,19,18,1,MET[2]); },
+  sound(R,P,box,A){ box(2,3,9,18,A); box(13,3,9,18,A); R(4,6,5,5,OUT); R(15,6,5,5,OUT); R(5,7,3,3,MET[2]); R(16,7,3,3,MET[2]); R(5,13,3,3,OUT); R(16,13,3,3,OUT); },
+  merch(R,P,box,A){ R(2,14,20,3,"#5a3a26"); R(4,17,2,5,"#3a2418"); R(18,17,2,5,"#3a2418"); R(5,4,9,9,A[2]); R(3,5,3,3,A[2]); R(13,5,3,3,A[2]); R(8,6,3,3,A[3]); R(16,10,5,4,MET[1]); R(17,11,3,2,PK); },
+  tipjar(R,P,box,A){ R(6,5,12,2,MET[2]); R(5,7,14,15,"#9fd0e8"); R(6,8,12,13,"#c8e8f8"); R(7,14,10,6,YE); P(9,13,YE); P(14,12,YE); R(8,16,2,1,"#c8a040"); R(13,18,2,1,"#c8a040"); },
+  loyalty(R,P,box,A){ R(3,6,18,12,OUT); R(4,7,16,10,"#f4eee6"); R(4,7,16,3,A[2]); for(let i=0;i<5;i++){ R(5+i*3,12,2,2,i<3?PK:"#c8c0d0"); } },
   stage(R,P,box,A){ R(2,16,20,5,OUT); R(3,16,18,3,A[1]); R(3,16,18,1,A[3]); R(3,19,18,1,PK); for(let x=4;x<21;x+=3) P(x,19,YE); R(11,1,2,15,MET[2]); R(11,1,1,15,MET[3]); R(9,0,6,1,MET[1]); for(let y=2;y<15;y++){ const s=Math.floor((y-2)*.35); for(let k=-s;k<=s;k+=2) if((y+k)%2===0&&k) P(12+k,y,A[2]); } },
   booth(R,P,box,A){ box(2,11,20,10,A); R(4,9,7,3,MET[1]); R(13,9,7,3,MET[1]); R(5,10,5,1,OUT); R(14,10,5,1,OUT); R(7,9,1,1,PK); R(16,9,1,1,CY); for(let i=0;i<5;i++) P(5+i*3,15,[PK,CY,YE,PK,CY][i]); R(9,2,6,5,OUT); R(10,3,4,3,A[2]); R(11,7,2,2,MET[2]); },
   vip(R,P,box,A){ R(2,9,20,12,OUT); R(3,10,18,6,A[1]); R(3,10,18,1,A[2]); R(3,16,18,4,A[1]); R(3,16,18,1,A[3]); R(1,12,3,9,A[0]); R(20,12,3,9,A[0]); for(let x=4;x<21;x+=2) for(let y=1;y<8;y+=2) P(x,y,y%4===1?YE:A[3]); R(10,17,4,3,MET[2]); P(11,15,CY); },
@@ -1394,7 +1428,7 @@ function counterFront(g,x0,x1,top,wood,front,accent){
 }
 
 function povConfig(sec){
-  const M=S.modules, lv=id=>M[id]||0, side=viewSide(), night=side==="night";
+  const M=S.modules, lv=id=>Math.min(3,M[id]||0), side=viewSide(), night=side==="night";
   const C={sec,furniture:[],seats:[],browse:[],items:[],door:330,staff:null,order:null,built:false,open:false,opensText:"",bg:null,counter:null,fg:null};
   const add=(z,draw)=>C.furniture.push({z,draw});
   if(sec==="cafe"){
@@ -2231,12 +2265,13 @@ function hintsMax(w){ const t=traitOf(w); return w.skill+((t.hint&&traitApplies(
 function hintsUsed(w){ const d=S.serves[today()]; return (d&&d.hints&&d.hints[w.id])||0; }
 function tipFor(w,grade){ const t=traitOf(w); const g=(grade==="miss"&&t.missTip)?"close":grade; return Math.max(1,Math.round(REWARD[g]*(1+.1*(w.charm-1)+(t.tip||0)))); }
 function workerXP(w,grade){
-  const t=traitOf(w); w.xp+=Math.round((grade==="perfect"?15:10)*(t.xp||1)); let msg=null;
+  const lv0=w.lv||1, t=traitOf(w); w.xp+=Math.round((grade==="perfect"?15:10)*(t.xp||1)); let msg=null;
   while(w.xp>=40*w.lv){ w.xp-=40*w.lv; w.lv++;
     if(w.skill<5&&(w.lv%2===0||w.charm>=5)){ w.skill++; msg=`${w.name} reached LV ${w.lv}. Skill up: one more hint a day.`; }
     else if(w.charm<5){ w.charm++; msg=`${w.name} reached LV ${w.lv}. Charm up: bigger tips.`; }
     else msg=`${w.name} reached LV ${w.lv}.`;
     addLog(msg,"build"); }
+  if(typeof wardUnlockMsg==="function"){ const m2=wardUnlockMsg(w,lv0); if(m2) msg=(msg?msg+" ":"")+m2; }
   return msg;
 }
 const prettyShop=()=>S.shopName.split(" ").map(s=>s[0]+s.slice(1).toLowerCase()).join(" ");
@@ -2650,7 +2685,7 @@ let S=null, peek=null, armed=null, tab="shop", taskView="today", showDoneTasks=f
 const viewSide=()=>peek||clockSide();
 function nightOpen(){ return clockSide()==="night"; }
 function povLights(C){
-  const lv=id=>S.modules[id]||0, night=viewSide()==="night", dim="#8a80a8";
+  const lv=id=>Math.min(3,S.modules[id]||0), night=viewSide()==="night", dim="#8a80a8";
   if(C.sec==="cafe"){ C.tint=C.open?"#fff1e0":dim; C.lights=C.open?[{x:46,y:40,r:62,c:"#ffcf8a",a:.45},{x:116,y:40,r:62,c:"#ffcf8a",a:.45},{x:242,y:66,r:120,c:"#ffe6c0",a:.3},{x:105,y:110,r:40,c:"#fff4d8",a:lv("espresso")?.25:0}]:[]; }
   else if(C.sec==="bar"){ C.tint=C.open?"#cdb6e6":dim; C.lights=C.open?[{x:80,y:8,r:130,c:"#ff3d8b",a:.22,flicker:true},{x:82,y:80,r:80,c:"#b18cff",a:lv("counter")?.2:0},{x:292,y:120,r:56,c:"#3ef2e0",a:lv("jukebox")?.3:0,flicker:true},{x:205,y:78,r:56,c:"#ff3d8b",a:lv("still")?.2:0},{x:142,y:116,r:24,c:"#ffd23f",a:.35,flicker:true}]:[]; }
   else if(C.sec==="club"){ C.tint=C.open?"#d6b8e8":dim; C.lights=C.open?[{x:236,y:20,r:90,c:"#ff8ad8",a:.35},{x:236,y:120,r:60,c:"#d06aff",a:.3,flicker:true},{x:96,y:36,r:50,c:"#d06aff",a:.22},{x:30,y:100,r:50,c:"#3ef2e0",a:lv("booth")?.25:0,flicker:true},{x:30,y:150,r:50,c:"#ffd23f",a:lv("vip")?.2:0}]:[]; }
@@ -2683,8 +2718,10 @@ function defaultProg(){ return {label:"Lewdness",need:[0,3,8,15,25],bonus:[0,10,
 const PL=()=>(S&&S.prog&&S.prog.label)||"Lewdness";
 function progLevel(w){ const n=S.prog.need; let l=1; for(let i=1;i<5;i++) if((w.lw||0)>=n[i]) l=i+1; return l; }
 function progNext(w){ const l=progLevel(w); return l>=5?null:S.prog.need[l]; }
-function outfitArt(w){ if(!w||!adultOn()) return null; const t=w.outfit||1; if(t<2||progLevel(w)<t) return null; const o=w.outfits&&w.outfits[t]; return o&&o.art?resolveArt(o.art):null; }
-function outfitBonus(w){ if(!adultOn()) return 0; const t=Math.min(w&&w.outfit||1,progLevel(w)); return (S.prog.bonus[t-1]||0)/100; }
+function outfitArt(w){ return lewdOutfitArt(w)||wardArt(w); }
+function lewdOutfitArt(w){ if(!w||!adultOn()) return null; const t=w.outfit||1; if(t<2||progLevel(w)<t) return null; const o=w.outfits&&w.outfits[t]; return o&&o.art?resolveArt(o.art):null; }
+function outfitBonus(w){ return wardBonus(w)+lewdBonus(w); }
+function lewdBonus(w){ if(!w||!adultOn()) return 0; const t=Math.min(w&&w.outfit||1,progLevel(w)); return (S.prog.bonus[t-1]||0)/100; }
 function gainProg(w,n){
   if(!w||!n||!adultOn()) return; const before=progLevel(w); w.lw=Math.max(0,(w.lw||0)+n); const after=progLevel(w);
   if(after>before){ const nm=S.prog.names[after-1]||("Outfit "+after); const o=w.outfits&&w.outfits[after];
@@ -2734,7 +2771,7 @@ function migrate(o){
   o.staff.forEach(w=>{ if(w.anim) ["fidle","fwalk"].forEach(k=>{ const r=w.anim[k]&&w.anim[k].ref; if(typeof r==="string"&&r.indexOf("builtin:mika")===0) delete w.anim[k]; }); });
   o.habits.forEach(h=>{ h.hist=h.hist||{}; h.days=Array.isArray(h.days)?h.days:[]; h.created=h.created||today(); });
   o.buckets.forEach(x=>{ x.entries=x.entries||[]; x.deposits=x.deposits||[]; });
-  jobsMigrate(o); charmMigrate(o); xsMigrate(o);
+  jobsMigrate(o); charmMigrate(o); xsMigrate(o); wardMigrate(o);
   return o;
 }
 function loadState(){ try{ const raw=localStorage.getItem(LS2); S=migrate(raw?JSON.parse(raw):freshState()); }catch(e){ S=migrate(freshState()); } }
@@ -2768,7 +2805,7 @@ async function storeArt(dataUrl){
   return "idb:"+k;
 }
 function dropArt(ref){ if(typeof ref==="string"&&ref.indexOf("idb:")===0){ const k=ref.slice(4); delete ART[k]; ArtDB.del(k); } }
-function artRefsInUse(){ const s=new Set(); S.staff.forEach(w=>{ [w.art,w.charmArt,...Object.values(w.charmArts||{}),...Object.values(w.anim||{}).map(x=>x&&x.ref),...Object.values(w.faces||{}),...Object.values(w.outfits||{}).map(o=>o&&o.art)].forEach(v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }); }); const ad=v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }; if(S.xs){ S.xs.cards.forEach(c=>{ ad(c.art); ad(c.anim&&c.anim.ref); }); Object.values(S.xs.rooms||{}).forEach(r=>ad(r&&r.art)); ad(S.xs.room&&S.xs.room.art); } S.staff.forEach(w=>Object.values(w.xsArt||{}).forEach(v=>{ ad(v&&v.art); ad(v&&v.anim&&v.anim.ref); }));
+function artRefsInUse(){ const s=new Set(); S.staff.forEach(w=>{ [w.art,w.charmArt,...Object.values(w.charmArts||{}),...Object.values(w.ward||{}).map(o=>o&&o.art),...Object.values(w.anim||{}).map(x=>x&&x.ref),...Object.values(w.faces||{}),...Object.values(w.outfits||{}).map(o=>o&&o.art)].forEach(v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }); }); const ad=v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }; if(S.xs){ S.xs.cards.forEach(c=>{ ad(c.art); ad(c.anim&&c.anim.ref); }); Object.values(S.xs.rooms||{}).forEach(r=>ad(r&&r.art)); ad(S.xs.room&&S.xs.room.art); } S.staff.forEach(w=>Object.values(w.xsArt||{}).forEach(v=>{ ad(v&&v.art); ad(v&&v.anim&&v.anim.ref); }));
   S.favors.deck.forEach(f=>{ if(f.art&&f.art.indexOf("idb:")===0) s.add(f.art.slice(4)); const r=f.anim&&f.anim.ref; if(typeof r==="string"&&r.indexOf("idb:")===0) s.add(r.slice(4)); }); return s; }
 function cleanArt(){ const keep=artRefsInUse(); let n=0; Object.keys(ART).forEach(k=>{ if(!keep.has(k)){ delete ART[k]; ArtDB.del(k); n++; } }); return n; }
 /* import size: display art keeps up to this many pixels on its longest side (Dev › Tools) */
@@ -2801,10 +2838,10 @@ function serveDay(){ const d=S.serves[today()]||(S.serves[today()]={n:0,perf:{da
 function serveBonus(){ return 0; }
 function addClient(vip,why){ S.clients.waiting++; if(vip) S.clients.vip++; toast((vip?"A VIP client":"A client")+" walked in"+(why?": "+why:"")+"."); beep(vip?1180:980,.06); }
 function removeClient(vip){ if(S.clients.waiting>0){ S.clients.waiting--; if(vip&&S.clients.vip>0) S.clients.vip--; if(S.clients.vip>S.clients.waiting) S.clients.vip=S.clients.waiting; } }
-function dailyWalkIn(){ if(S.lastWalk!==today()){ S.lastWalk=today(); S.clients.waiting++; addLog("A walk-in client is waiting. One shows up every day.","gain"); save(); } }
+function dailyWalkIn(){ if(S.lastWalk!==today()){ S.lastWalk=today(); const n=1+Math.floor((S.modules.loyalty||0)/2); S.clients.waiting+=n; addLog(n>1?`${n} walk-in clients are waiting. Loyalty cards bring regulars back.`:"A walk-in client is waiting. One shows up every day.","gain"); save(); } }
 function totals(secs){ let amb=0,seats=2,lv=0; for(const id in S.modules){ const L=S.modules[id], m=MODULES[id]; if(!m||!L) continue; if(secs&&!secs.includes(m.sec)) continue; amb+=m.amb*L; seats+=m.seats*L; lv+=L; } return {amb,seats,lv}; }
 function patrons(side){ return Math.max(1,Math.min(14,totals(SIDE_SECS[side]).seats)); }
-const upgradeCost=id=>Math.round(MODULES[id].cost*Math.pow(1.8,S.modules[id]||0));
+const upgradeCost=id=>Math.round(MODULES[id].cost*Math.pow(2,S.modules[id]||0));
 function counterState(sec){
   const built=SEC_ROOMS[sec].some(id=>S.modules[id]), open=(SIDE_OF[sec]||"night")===clockSide(), w=workerFor(sec);
   return {built,open,w,ok:built&&open&&!!w};
@@ -2916,7 +2953,7 @@ function srvFinish(res,ev){
   if(g==="close"&&!saved&&perkOf(w)==="service"&&Math.random()<.25){ g="perfect"; saved=true; savedBy=jobTitle(w); }
   const d=serveDay(); d.n++; if(g==="perfect") d.perf[serveSide(sec)]++;
   const amb=totals(SIDE_SECS[serveSide(sec)]).amb;
-  const tip=Math.max(1,Math.round(tipFor(w,g)*(1+amb/40)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w))*(perkOf(w)==="tips"?1.2:1)));
+  const tip=Math.max(1,Math.round(tipFor(w,g)*(1+amb/40)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)));
   S.credits+=tip; S.xp+=tip; d.tips=(d.tips||0)+tip;
   S.stats.served++; if(g==="perfect") S.stats.perfect++; S.stats.tips+=tip;
   S.rep+=g==="perfect"?2:g==="close"?1:0;
@@ -3499,7 +3536,7 @@ function vSave(){
 const AREAS=[["cafe","CAFE","☀","Café","Day"],["books","BOOKS","☀","Bookshop","Day"],["bar","BAR","☾","Bar","Night"],["club","CLUB","☾","Club","Night"],["shop","SHOP","▣","Whole shop","Always"]];
 let openAreas=null, manageOpen=null;
 function defaultOpenAreas(){ return new Set([clockSide()==="day"?"cafe":"bar"]); }
-const UNLOCKS={booth:"Adds live remixes to the stage",lights:"Adds laser sets to the stage",hydro:"Unlocks Mint Leaf + Garden Mojito",still:"Unlocks Smoke Oil + Smog Cutter",jukebox:"Unlocks Velvet Cream + Night Velvet",press:"Adds zines to the book desk",archive:"Adds rare books to the book desk",sign:"Your name on the billboard"};
+const UNLOCKS={tipjar:"+2% tips per tier",loyalty:"+1 daily walk-in every 2 tiers",booth:"Adds live remixes to the stage",lights:"Adds laser sets to the stage",hydro:"Unlocks Mint Leaf + Garden Mojito",still:"Unlocks Smoke Oil + Smog Cutter",jukebox:"Unlocks Velvet Cream + Night Velvet",press:"Adds zines to the book desk",archive:"Adds rare books to the book desk",sign:"Your name on the billboard"};
 function roomRow(id){
   const m=MODULES[id], L=S.modules[id]||0, cost=L<MAX_LVL?upgradeCost(id):0, can=S.credits>=cost;
   let lv=""; for(let i=0;i<MAX_LVL;i++) lv+=`<i class="${i<L?"on":""}"></i>`;
@@ -3517,6 +3554,7 @@ function workerMini(p){
       <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc)}</small><small class="muted">${esc(jobTitle(p))}: ${esc((PERKS[perkOf(p)]||{}).desc||"")}</small></div>
     ${p.skill<5?`<button class="btn ${S.credits>=cost?"solid":""} rbtn" data-act="train" data-id="${p.id}" ${S.credits>=cost?"":"disabled"}>TRAIN<br>${cost}₵</button>`:`<span class="px muted">MAX</span>`}
   </div>
+  ${wardBlock(p)}
   <details class="sub" ${manageOpen===p.id?"open":""}><summary>Manage ${esc(p.name)}</summary>
     ${meter("NEXT LV",p.xp/(40*p.lv),`${p.xp}/${40*p.lv}`)}
     <p class="hint">${p.serves} served · ${p.serves?Math.round(p.perfects/p.serves*100):0}% perfect · ${p.tips}₵ in tips</p>
@@ -3805,7 +3843,7 @@ function vDev(){
   if(devSub==="workers"){
     if(!S.staff.length) body=empPanel()+`<section class="panel"><p class="empty">No staff yet. Hire someone in the Upgrade tab, or create one above.</p></section>`;
     else { if(!S.staff.some(w=>w.id===devWorker)) devWorker=S.staff[0].id; const p=S.staff.find(w=>w.id===devWorker);
-      body=`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${FEATURES.charm?charmGallery(p)+charmMovesPanel():""}${empPanel()}`; }
+      body=`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${wardDevPanel(p)}${FEATURES.charm?charmGallery(p)+charmMovesPanel():""}${empPanel()}`; }
   } else if(devSub==="sprites") body=S.staff.length?vSprites():`<section class="panel"><p class="empty">Hire someone first, then draw their sprites here.</p></section>`;
   else if(devSub==="favors") body=vFavors();
   else if(devSub==="service") body=vService();
@@ -4367,7 +4405,7 @@ document.addEventListener("click",ev=>{
     case "copySave": { const t=JSON.stringify(S); $("saveText").value=t; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Save copied.")).catch(()=>{ $("saveText").select(); toast("Copy the save from the box below.", true); }); break; }
     case "importSave": restoreSave(($("saveText").value||"").trim()); break;
     case "cleanArt": { const n=cleanArt(); toast(`Removed ${n} unused image${n===1?"":"s"}.`); render(); break; }
-    case "purgeArt": if(!twoTap("TAP AGAIN TO DELETE ALL")) return; S.staff.forEach(w=>{ if(w.art&&w.art!=="builtin:mika") w.art=null; w.charmArt=null; w.charmArts={}; w.anim={}; w.faces={}; w.outfits={}; w.outfit=1; }); S.favors.deck.forEach(f=>{ f.art=null; f.anim=null; }); Object.keys(ART).forEach(k=>{ delete ART[k]; ArtDB.del(k); }); S.sprites={}; Object.keys(spriteCache).forEach(k=>delete spriteCache[k]); addLog("All uploaded art deleted.","warn"); commit(); toast("All uploaded art deleted."); break;
+    case "purgeArt": if(!twoTap("TAP AGAIN TO DELETE ALL")) return; S.staff.forEach(w=>{ if(w.art&&w.art!=="builtin:mika") w.art=null; w.charmArt=null; w.charmArts={}; Object.values(w.ward||{}).forEach(o=>{ if(o) o.art=null; }); w.anim={}; w.faces={}; w.outfits={}; w.outfit=1; }); S.favors.deck.forEach(f=>{ f.art=null; f.anim=null; }); Object.keys(ART).forEach(k=>{ delete ART[k]; ArtDB.del(k); }); S.sprites={}; Object.keys(spriteCache).forEach(k=>delete spriteCache[k]); addLog("All uploaded art deleted.","warn"); commit(); toast("All uploaded art deleted."); break;
     case "sound": S.sound=!S.sound; commit(); break;
     case "clockMode": S.clockMode=id==="auto"?undefined:id; peek=null; commit(); toast(id==="auto"?"Back on real time.":id==="day"?"It's daytime. The café and bookshop are open.":`It's night. The bar and ${ROLES.club.room} are open.`); break;
     case "testCreds": S.credits+=+id; addLog("Test creds: +"+id+"₵."); commit(); break;
@@ -4453,6 +4491,7 @@ function routeUpload(t){
   if(t.dataset&&t.dataset.up==="sheet") return sheetUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="outfit") return outfitUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="face") return faceUpload(file,t.dataset.id,t.dataset.kind);
+  if(t.dataset&&t.dataset.up==="ward") return wardUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up&&t.dataset.up.indexOf("xs")===0) return xsUpload(t,file);
   if(t.id==="artFile") return shrinkArt(file,96,data=>{ S.sprites[t.dataset.id]=data; delete spriteCache[t.dataset.id]; commit(); toast("Room art loaded."); });
   if(t.id==="packFile"&&file){ const r=new FileReader(); r.onload=()=>importPack(String(r.result)); r.readAsText(file); return; }
@@ -4612,6 +4651,71 @@ function bxInput(ev){ const t=ev.target;
   if(t.id==="bgxSpecks"){ BX.specks=t.checked; bxSoon(); }
 }
 window.addEventListener("resize",()=>{ if(BX.open) bxFit(); });
+/* ================= WARDROBE: outfits unlocked by employee level (XP from serving) or bought early ================= */
+function defaultWardrobe(){ return {names:["Uniform","Casual","Sharp","Party","Signature"],needLv:[1,3,6,10,15],price:[0,300,900,2400,6000],bonus:[0,2,4,7,10]}; }
+function wardMigrate(o){
+  const d=defaultWardrobe(); o.wardrobe=Object.assign(d,o.wardrobe||{}); ["names","needLv","price","bonus"].forEach(k=>{ if(!Array.isArray(o.wardrobe[k])||o.wardrobe[k].length!==5) o.wardrobe[k]=d[k]; });
+  (o.staff||[]).forEach(w=>{ if(!w.ward||typeof w.ward!=="object") w.ward={}; if(!w.wear) w.wear=1; });
+}
+const WCFG=()=>S.wardrobe;
+function wardOwned(w,t){ return t===1||(w.lv||1)>=WCFG().needLv[t-1]||!!(w.ward&&w.ward[t]&&w.ward[t].owned); }
+function wardArt(w){ if(!w) return null; const t=w.wear||1; if(t<2||!wardOwned(w,t)) return null; const o=w.ward&&w.ward[t]; return o&&o.art?resolveArt(o.art):null; }
+function wardBonus(w){ if(!w) return 0; const t=w.wear||1; return wardOwned(w,t)?(WCFG().bonus[t-1]||0)/100:0; }
+function wardUnlockMsg(w,lv0){ const C=WCFG(); for(let t=2;t<=5;t++){ if(lv0<C.needLv[t-1]&&(w.lv||1)>=C.needLv[t-1]&&!(w.ward&&w.ward[t]&&w.ward[t].owned)){ addLog(`${w.name} unlocked the ${C.names[t-1]} outfit.`,"build"); return `${C.names[t-1]} outfit unlocked.`; } } return null; }
+const xpNeed=w=>40*(w.lv||1);
+
+/* ---------- outfits inside each employee card (Upgrade page) ---------- */
+const wardOpen=new Set();
+function wardBlock(w){
+  const C=WCFG(), need=xpNeed(w), nextT=[2,3,4,5].find(t=>!wardOwned(w,t)), cur=w.wear||1;
+  return `<details class="sub wardsub" data-wardopen="${w.id}" ${wardOpen.has(w.id)?"open":""}><summary>Outfits · ${esc(C.names[cur-1])}${C.bonus[cur-1]?` · +${C.bonus[cur-1]}% tips`:""}</summary>
+    ${meter("XP",Math.min(1,(w.xp||0)/need),`${w.xp||0}/${need}`)}
+    <p class="hint" style="margin:4px 0 8px">${nextT?`Serving earns XP. ${esc(C.names[nextT-1])} unlocks at LV ${C.needLv[nextT-1]}, or buy it now.`:"Every outfit unlocked."}</p>
+    <div class="wardrow">${[1,2,3,4,5].map(t=>{ const o=(w.ward||{})[t]||{}, src=t===1?artHalf(w):(o.art?resolveArt(o.art):null), own=wardOwned(w,t), on=cur===t&&own, p=C.price[t-1]||0, can=S.credits>=p;
+      return `<div class="wslot ${own?"":"locked"} ${on?"on":""}">
+        <div class="wthumb">${src?`<img src="${src}" alt="">`:`<span aria-hidden="true">${own?"👕":"🔒"}</span>`}</div>
+        <b>${esc(C.names[t-1])}</b><small>${C.bonus[t-1]?`+${C.bonus[t-1]}%`:"no bonus"}</small>
+        ${on?`<span class="viptag">WEARING</span>`:own?`<button class="btn smallbtn" data-ward="wear" data-id="${w.id}:${t}">WEAR</button>`
+          :`<small class="muted">LV ${C.needLv[t-1]}</small><button class="btn smallbtn ${can?"solid":""}" data-ward="buy" data-id="${w.id}:${t}" ${can?"":"disabled"}>${p.toLocaleString()}₵</button>`}
+      </div>`; }).join("")}</div>
+    ${[2,3,4,5].some(t=>!((w.ward||{})[t]||{}).art)?`<p class="hint" style="margin:6px 0 0">Load outfit art in Dev › Workers. Without art they look the same but still get the tip bonus.</p>`:""}
+  </details>`;
+}
+document.addEventListener("toggle",ev=>{ const d=ev.target; if(d&&d.dataset&&d.dataset.wardopen){ d.open?wardOpen.add(d.dataset.wardopen):wardOpen.delete(d.dataset.wardopen); } },true);
+
+/* ---------- Dev › Workers: outfit art + outfit settings ---------- */
+function wardDevPanel(p){
+  const C=WCFG();
+  return `<section class="panel"><h2><span>OUTFITS</span><span>${esc(p.name.toUpperCase())}</span></h2>
+    <p class="hint" style="margin:0 0 8px">Outfit art uses the same position sliders as the main art, so make each outfit from the same base pose.</p>
+    <div class="cgal">${[2,3,4,5].map(t=>{ const o=(p.ward||{})[t]||{}, a=o.art&&resolveArt(o.art), fid=`wd-${t}-${p.id}`;
+      return `<div class="cslot">${a?`<div class="cthumb"><img src="${a}" alt=""></div>`:`<div class="cthumb empty"><span>👕</span></div>`}
+        <b>${esc(C.names[t-1])}</b><small class="muted">LV ${C.needLv[t-1]} · ${wardOwned(p,t)?"unlocked":"locked"}</small>
+        <div class="rowflex" style="gap:4px"><label class="btn ghost smallbtn" for="${fid}" style="text-align:center">${a?"REPLACE":"LOAD"}</label><input type="file" id="${fid}" class="srt" accept="image/*" data-up="ward" data-id="${p.id}" data-kind="${t}">
+        ${a?`<button class="btn ghost smallbtn" data-ward="clear" data-id="${p.id}:${t}" aria-label="Remove ${esc(C.names[t-1])} art">✕</button>`:""}</div></div>`; }).join("")}</div>
+  </section>
+  <section class="panel"><h2><span>OUTFIT SETTINGS</span><span>ALL STAFF</span></h2>
+    <div class="wardcfg"><span></span><span class="fl">Name</span><span class="fl">LV</span><span class="fl">Price ₵</span><span class="fl">Tip %</span>
+      ${[0,1,2,3,4].map(i=>`<b>${i+1}</b><input class="field" data-wcfg="names:${i}" maxlength="20" value="${esc(C.names[i])}" aria-label="Outfit ${i+1} name">
+        <input class="field num" data-wcfg="needLv:${i}" type="number" min="1" max="99" value="${C.needLv[i]}" ${i===0?"disabled":""} aria-label="Outfit ${i+1} level">
+        <input class="field num" data-wcfg="price:${i}" type="number" min="0" max="999999" value="${C.price[i]}" ${i===0?"disabled":""} aria-label="Outfit ${i+1} price">
+        <input class="field num" data-wcfg="bonus:${i}" type="number" min="0" max="100" value="${C.bonus[i]}" aria-label="Outfit ${i+1} tip bonus">`).join("")}</div>
+  </section>`;
+}
+function wardUpload(file,wid,t){ const w=S.staff.find(x=>x.id===wid); if(!w||!file) return; t=+t;
+  bigArt(file,2048,async data=>{ w.ward=w.ward||{}; const o=w.ward[t]||(w.ward[t]={}); dropArt(o.art); o.art=await storeArt(data); commit(); toast(`${WCFG().names[t-1]} art loaded for ${w.name}.`); }); }
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("[data-ward]"); if(!b) return; const a=b.dataset.ward, id=b.dataset.id||"";
+  const [wid,ts]=id.split(":"), w=S.staff.find(x=>x.id===wid), t=+ts;
+  if(!w) return;
+  if(a==="wear"){ if(!wardOwned(w,t)) return; w.wear=t; commit(); toast(`${w.name} is wearing the ${WCFG().names[t-1]} outfit.`); }
+  if(a==="buy"){ const p=WCFG().price[t-1]||0; if(wardOwned(w,t)) return; if(S.credits<p){ toast(`You need ${p-S.credits}₵ more.`, true); return; }
+    S.credits-=p; w.ward=w.ward||{}; (w.ward[t]=w.ward[t]||{}).owned=true; w.wear=t; addLog(`Bought the ${WCFG().names[t-1]} outfit for ${w.name}. -${p}₵`,"build"); beep(990); commit(); toast(`${w.name} is wearing the new ${WCFG().names[t-1]} outfit.`); }
+  if(a==="clear"){ const o=w.ward&&w.ward[t]; if(o){ dropArt(o.art); o.art=null; } commit(); }
+});
+document.addEventListener("change",ev=>{ const k=ev.target.dataset&&ev.target.dataset.wcfg; if(!k) return; const [f,i]=k.split(":"), C=WCFG();
+  if(f==="names") C.names[+i]=ev.target.value.trim().slice(0,20)||C.names[+i]; else C[f][+i]=Math.max(f==="needLv"?1:0,Math.round(+ev.target.value||0)); commit(); });
+
 /* ================= SIDE ROOM: energy-bar card / deck-builder minigame =================
    Finishing tasks and habits fills an energy bar. When it's full, pick an employee to work a round.
    After a good serve, a client may ask for extra service. If the worker's progression level
