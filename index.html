@@ -43,7 +43,7 @@ body.day{
 html,body{height:100%;margin:0;background:var(--bg);color:var(--ink)}
 body{font-family:var(--display);font-size:17px;line-height:1.35;-webkit-tap-highlight-color:transparent;transition:background-color .6s}
 button,input,select,textarea{font:inherit;color:inherit}
-#app{max-width:620px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);animation:boot .5s ease-out both}
+#app{max-width:620px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);animation:boot .5s ease-out backwards}
 @keyframes boot{0%{opacity:0;filter:brightness(2.5) hue-rotate(40deg)}100%{opacity:1;filter:none}}
 
 /* status strip */
@@ -802,6 +802,20 @@ body.xson{overflow:hidden}
 .fold.shut>h2{margin-bottom:0}
 .fold.shut{padding-bottom:13px}
 .fold>h2 span:first-child{margin-right:auto}
+/* checklists + task section folding */
+.ckbtn{flex:none;align-self:center;background:none;border:1px solid var(--line);color:var(--dim);font:inherit;font-size:13px;padding:5px 8px;margin-right:6px;cursor:pointer;white-space:nowrap}
+.ckbtn.full{color:var(--good);border-color:var(--good)}
+.cklist{margin:0 0 6px 44px;padding:4px 0 8px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.ckitem{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--ink);font:inherit;font-size:15px;text-align:left;padding:7px 10px;cursor:pointer;min-height:36px}
+.ckitem .ckbox{flex:none;width:18px;height:18px;border:1px solid var(--accent);display:grid;place-items:center;font-size:12px;color:var(--accent)}
+.ckitem.done span:last-child{text-decoration:line-through;color:var(--dim)}
+.ckitem.done .ckbox{border-color:var(--good);color:var(--good)}
+.ckadd{display:flex;gap:6px;padding:4px 10px 0}.ckadd .field{flex:1;min-width:0;padding:7px 9px;font-size:14px}
+.ckerow{display:flex;gap:6px;align-items:center;margin-bottom:5px}.ckerow input[type=checkbox]{width:20px;height:20px;flex:none}.ckerow .field{flex:1;min-width:0}
+p.sh.tsh{cursor:pointer;user-select:none}
+p.sh.tsh::after{content:" ▾";color:var(--accent)}
+p.sh.tsh.shut::after{content:" ▸"}
+.tfold-hide{display:none!important}
 
 </style>
 </head>
@@ -2974,7 +2988,7 @@ function toggleTask(id,ev){
   const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3, eg=()=>S.xs?Math.round((vip?S.xs.meter.vip:S.xs.meter.task)*dOf(t).e):0;
   if(isRec(t)){ const k=today();
     if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; takeReward(t,vip); glGain(-eg()); taskSaveOut(t,k); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
-    else { t.prevDue=t.due; t.doneLog=(t.doneLog||[]).concat(k).slice(-120); t.lastDone=k; const base=t.due&&t.due>k?t.due:k; t.due=nextOcc(t.repeat,base)||t.due;
+    else { t.prevDue=t.due; t.doneLog=(t.doneLog||[]).concat(k).slice(-120); t.lastDone=k; ckReset(t); const base=t.due&&t.due>k?t.due:k; t.due=nextOcc(t.repeat,base)||t.due;
       logTask(t); giveReward(t,vip,t.title); glGain(eg()); const sv=taskSaveIn(t,k,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.${sv}`,"gain"); }
     commit(); return; }
   if(t.done){ taskSaveOut(t,t.doneOn||today()); t.done=false; t.doneOn=""; unlogTask(t); takeReward(t,vip); glGain(-eg()); addLog("Task reopened: "+t.title+"."); beep(330); }
@@ -3194,7 +3208,7 @@ function renderTop(){
 function renderTabs(){
   const box=$("tabs");
   box.className="in";
-  const T=[["tasks","☐","TASKS",todayLeft()],["save","$","SAVE",depositDue()?"!":0],["shop","⌂","SHOP",S.clients.waiting||0],["upgrade","▦","UPGRADE"],["dev","⚙","DEV"]];
+  const T=[["save","$","SAVE",depositDue()?"!":0],["shop","⌂","SHOP",S.clients.waiting||0],["tasks","☐","TASKS",todayLeft()],["upgrade","▦","UPGRADE"],["dev","⚙","DEV"]];
   box.innerHTML=T.map(([id,g,l,b])=>`<button class="tab ${id==="shop"?"center":""}" data-act="tab" data-id="${id}" ${tab===id?'aria-current="page"':""}><span class="g" aria-hidden="true">${g}</span>${l}${b?`<span class="badge">${b}</span>`:""}</button>`).join("");
 }
 
@@ -3250,8 +3264,8 @@ function taskRowT(t){
   return `<div class="trow ${on?"done":""} ${t.pri===3?"hi":t.pri===1?"lo":""}">
     <button class="tchk" data-act="task" data-id="${t.id}" aria-pressed="${!!on}" aria-label="${on?"Undo":"Complete"} ${esc(t.title)}">${on?"✓":""}</button>
     <button class="ttl" data-act="editTask" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><span>${esc(t.title)}</span>${noteLine(t)}</button>
-    <span class="tmeta">${diffTag(t)}${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
-  </div>`;
+    ${ckButton(t)}<span class="tmeta">${diffTag(t)}${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
+  </div>${ckList(t)}`;
 }
 const listById=id=>S.lists.find(l=>l.id===id);
 const dueSort=(x,y)=>((x.due||"9999")<(y.due||"9999")?-1:(x.due||"9999")>(y.due||"9999")?1:y.pri-x.pri);
@@ -3348,6 +3362,7 @@ function quickSheet(ctx){
   <form data-form="quick" class="stack">
     <div><label class="srt" for="qText">Task</label><input class="field" id="qText" maxlength="160" placeholder="Pay rent every month on the 1st !high #home" autocomplete="off" required></div>
     <div class="qprev" id="qPrev" aria-live="polite"></div>
+    <details class="sub"><summary>Checklist</summary><label class="srt" for="qItems">Checklist items, one per line</label><textarea class="field note" id="qItems" rows="4" placeholder="One item per line: milk, eggs, coffee…"></textarea></details>
     <details class="sub"><summary>More options</summary>
       <div class="formgrid">
         ${diffSelect("qDiff",null)}
@@ -3367,7 +3382,7 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(t.id==="qPri"||t.
 function addQuick(){
   const p=parseQuick(($("qText")||{}).value||""), f=quickFinal(p); const qd=$("qDiff"); if(qd&&qd.dataset.dirty) p.diff=+qd.value; if(!f.title){ toast("Give the task a name.", true); return false; }
   if(f.newList){ const l={id:uid(),name:f.listName.slice(0,24)}; S.lists.push(l); f.list=l.id; }
-  S.tasks.push(Object.assign({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined,note:($("qNote")||{}).value||"",diff:p.diff||+(($("qDiff")||{}).value)||2},readSave("q")));
+  S.tasks.push(Object.assign({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined,note:($("qNote")||{}).value||"",items:ckParse(($("qItems")||{}).value),diff:p.diff||+(($("qDiff")||{}).value)||2},readSave("q")));
   return true;
 }
 function groupedByDue(list){
@@ -3565,6 +3580,7 @@ function vHabitsTab(){
     <p class="sh">BAD HABITS</p>
     ${S.bads.length?`<div class="tlist">${S.bads.map(b=>{ const t=badCount(b,k), wk=badCount(b,weekStart(k),k);
       return `<div class="trow"><button class="ttl" data-act="editBad" data-id="${b.id}"><span>${esc(b.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week · −${b.rep} rep each</small>${noteLine(b)}</button><button class="tbtn minus" data-act="bad" data-id="${b.id}" aria-label="Log a slip-up: ${esc(b.name)}">−</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you're cutting back on. Tap − when you slip and lose a little rep.</p>`}
+    <p class="sh">HABIT SETTINGS</p>
     <div class="penal"><label for="missRep">Missed habits cost</label>
       <select class="field" id="missRep">${[0,1,2,3,5].map(n=>`<option value="${n}" ${(S.miss.on?S.miss.rep:0)===n?"selected":""}>${n?n+" rep each":"nothing (off)"}</option>`).join("")}</select></div>
     <p class="hint" style="margin:4px 0 0">Checked at the 4 AM rollover for habits scheduled that day. Times-a-week habits are checked on Sunday night.</p>
@@ -4062,6 +4078,7 @@ function taskSheet(t){
     <div><label class="fl" for="eDue">Due</label><input class="field" id="eDue" type="date" value="${t.due||""}"></div>
     <div class="full">${repeatUI("e",t.repeat,t.due)}</div>
     <div class="full"><label class="fl" for="eList">List</label><select class="field" id="eList"><option value="">No list</option>${S.lists.map(l=>`<option value="${l.id}" ${t.list===l.id?"selected":""}>${esc(l.name)}</option>`).join("")}</select></div>
+    ${ckEditHTML(t)}
     ${saveToggleUI("e",t)}
     <div class="full"><label class="fl" for="eNote">Notes</label><textarea class="field note" id="eNote" rows="2" maxlength="600" placeholder="Anything to remember…">${esc(t.note||"")}</textarea></div>
     <div class="full actions"><button type="button" class="btn danger" data-act="delTask" data-id="${t.id}">DELETE</button><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">SAVE</button></div>
@@ -5336,6 +5353,46 @@ function devFoldToggle(h){ const p=h.parentElement; if(!p||!p.dataset.fold) retu
 document.addEventListener("click",ev=>{ const h=ev.target.closest(".fold > h2"); if(h) devFoldToggle(h); });
 document.addEventListener("keydown",ev=>{ if((ev.key==="Enter"||ev.key===" ")&&ev.target.matches&&ev.target.matches(".fold > h2")){ ev.preventDefault(); devFoldToggle(ev.target); } });
 { const _render=render; render=function(){ _render.apply(this,arguments); devFold(); }; }
+
+/* ================= CHECKLISTS inside tasks (Habitica style) + folding sections on the Tasks tab ================= */
+const ckOpen=new Set();
+const ckItems=t=>Array.isArray(t&&t.items)?t.items:[];
+function ckParse(text){ return String(text||"").split(/\r?\n/).map(s=>s.replace(/^\s*(?:[-*•]|\[\s?\])\s*/,"").trim()).filter(Boolean).slice(0,60).map(s=>({id:uid(),text:s.slice(0,80),done:false})); }
+function ckButton(t){ const I=ckItems(t); if(!I.length) return ""; const d=I.filter(i=>i.done).length, open=ckOpen.has(t.id);
+  return `<button class="ckbtn ${d===I.length?"full":""}" data-act="ckToggle" data-id="${t.id}" aria-expanded="${open}" aria-label="${open?"Hide":"Show"} checklist, ${d} of ${I.length} done">☑ ${d}/${I.length} ${open?"▴":"▾"}</button>`; }
+function ckList(t){ const I=ckItems(t); if(!I.length||!ckOpen.has(t.id)) return "";
+  return `<div class="cklist">${I.map(i=>`<button class="ckitem ${i.done?"done":""}" data-act="ckItem" data-id="${t.id}:${i.id}" aria-pressed="${!!i.done}"><span class="ckbox">${i.done?"✓":""}</span><span>${esc(i.text)}</span></button>`).join("")}
+    <form data-form="ckAdd" data-id="${t.id}" class="ckadd"><label class="srt" for="cka-${t.id}">Add an item to ${esc(t.title)}</label><input class="field" id="cka-${t.id}" maxlength="80" placeholder="Add an item…" autocomplete="off"><button class="btn smallbtn" type="submit" aria-label="Add item">+</button></form></div>`; }
+function ckEditHTML(t){ const I=ckItems(t);
+  return `<div class="full"><span class="fl">Checklist${I.length?` · ${I.filter(i=>i.done).length}/${I.length}`:""}</span>
+    <div id="ckEdit">${I.map(i=>`<div class="ckerow" data-ck="${i.id}"><input type="checkbox" ${i.done?"checked":""} aria-label="Done: ${esc(i.text)}"><input class="field" maxlength="80" value="${esc(i.text)}" aria-label="Item text"><button type="button" class="btn ghost smallbtn" data-act="ckDel" aria-label="Remove ${esc(i.text)}">✕</button></div>`).join("")}</div>
+    <label class="srt" for="ckNew">Add checklist items, one per line</label><textarea class="field note" id="ckNew" rows="2" placeholder="Add items, one per line: milk, eggs, coffee…"></textarea></div>`; }
+function ckReadEdit(t){ const box=$("ckEdit"); if(!box) return; const out=[];
+  box.querySelectorAll(".ckerow").forEach(r=>{ const txt=r.querySelector("input.field").value.trim(); if(txt) out.push({id:r.dataset.ck,text:txt.slice(0,80),done:r.querySelector("input[type=checkbox]").checked}); });
+  t.items=out.concat(ckParse(($("ckNew")||{}).value)).slice(0,60); }
+function ckReset(t){ ckItems(t).forEach(i=>i.done=false); }
+document.addEventListener("click",ev=>{ const el=ev.target.closest("[data-act]"); if(!el) return; const a=el.dataset.act;
+  if(a==="ckToggle"){ const id=el.dataset.id; ckOpen.has(id)?ckOpen.delete(id):ckOpen.add(id); render(); }
+  else if(a==="ckItem"){ const [tid,iid]=el.dataset.id.split(":"), t=S.tasks.find(x=>x.id===tid), i=t&&ckItems(t).find(x=>x.id===iid); if(!i) return; i.done=!i.done; beep(i.done?880:330);
+    if(i.done&&ckItems(t).every(x=>x.done)&&!t.done) toast("Everything's checked off. Tap the box to finish the task."); commit(); }
+  else if(a==="ckDel"){ const r=el.closest(".ckerow"); if(r) r.remove(); } });
+document.addEventListener("submit",ev=>{ const f=ev.target; if(!f.dataset) return;
+  if(f.dataset.form==="ckAdd"){ ev.preventDefault(); ev.stopImmediatePropagation(); const t=S.tasks.find(x=>x.id===f.dataset.id), inp=f.querySelector("input"), v=(inp.value||"").trim(); if(!t||!v) return;
+    t.items=ckItems(t).concat(ckParse(v)).slice(0,60); commit(); const again=$("cka-"+t.id); if(again) again.focus(); }
+  else if(f.dataset.form==="taskEdit"){ const t=S.tasks.find(x=>x.id===f.dataset.id); if(t) ckReadEdit(t); } },true);
+
+/* fold any section heading on the Tasks tab; remembered on this device */
+const TASK_SHUT=["DONE","HABIT SETTINGS"];
+let taskFoldState={}; try{ taskFoldState=JSON.parse(localStorage.getItem("nightkettle.taskfold")||"{}")||{}; }catch(e){ taskFoldState={}; }
+function taskFoldApply(h,shut){ h.classList.toggle("shut",shut); h.setAttribute("aria-expanded",String(!shut)); let n=h.nextElementSibling; while(n&&!(n.matches&&n.matches("p.sh"))){ n.classList.toggle("tfold-hide",shut); n=n.nextElementSibling; } }
+function taskFold(){ if(tab!=="tasks") return;
+  document.querySelectorAll("#screen p.sh").forEach(h=>{ const title=(h.textContent||"").split("·")[0].trim(); if(!title) return; const key=taskView+":"+title;
+    const shut=key in taskFoldState?!!taskFoldState[key]:TASK_SHUT.some(s=>title.indexOf(s)===0);
+    h.classList.add("tsh"); h.dataset.tfold=key; h.setAttribute("role","button"); h.setAttribute("tabindex","0"); taskFoldApply(h,shut); }); }
+function taskFoldToggle(h){ const shut=!h.classList.contains("shut"); taskFoldState[h.dataset.tfold]=shut; try{ localStorage.setItem("nightkettle.taskfold",JSON.stringify(taskFoldState)); }catch(e){} taskFoldApply(h,shut); }
+document.addEventListener("click",ev=>{ const h=ev.target.closest("p.sh.tsh"); if(h) taskFoldToggle(h); });
+document.addEventListener("keydown",ev=>{ if((ev.key==="Enter"||ev.key===" ")&&ev.target.matches&&ev.target.matches("p.sh.tsh")){ ev.preventDefault(); taskFoldToggle(ev.target); } });
+{ const _render2=render; render=function(){ _render2.apply(this,arguments); taskFold(); }; }
 
 /* ================= SKILLS, COVERING OTHER VENUES, AND HIRING YOUR OWN CHARACTERS ================= */
 const SKILL_SLOTS=3, SLOT_MULT=[1,2,4];
