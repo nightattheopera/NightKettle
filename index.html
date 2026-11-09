@@ -738,6 +738,11 @@ body.xson{overflow:hidden}
 .wthumb img{width:100%;height:100%;object-fit:cover;object-position:top}
 .wardcfg{display:grid;grid-template-columns:auto 2fr 1fr 1.4fr 1fr;gap:5px;align-items:center}
 .wardcfg .field{padding:6px;font-size:13px;min-width:0}
+/* ---------- notes ---------- */
+.tnote{display:block;font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.field.note{resize:vertical;min-height:52px;font-size:14px}
+.savebox .formgrid{margin-top:6px}
+.tmeta .good{color:var(--good)}
 
 </style>
 </head>
@@ -2371,7 +2376,7 @@ function handleCrew(act,id,ev,el){
       if(S.credits<c.cost){ toast(`You need ${c.cost-S.credits}₵ more.`, true); return true; }
       if(staffAt(c.role).length>=VENUE_CAP){ toast(`The ${ROLES[c.role].room} is full (${VENUE_CAP} staff). Let someone go first.`, true); return true; }
       candJob(c,0); S.credits-=c.cost;
-      S.staff.push(Object.assign({},c,{id:uid(),lv:1,xp:0,serves:0,perfects:0,tips:0}));
+      S.staff.push(Object.assign({},c,{id:uid(),lv:1,xp:0,serves:0,perfects:0,tips:0,base:{skill:c.skill,charm:c.charm}}));
       board().c[c.role]=board().c[c.role].filter(x=>x.id!==id); armed=null;
       addLog(`Hired ${c.name} as ${(venueJobs(c.role).find(j=>j.id===c.job)||{name:ROLES[c.role].title}).name.toLowerCase()}. -${c.cost}₵`,"build");
       pop(ev,"HIRED!","var(--good)"); beep(660); setTimeout(()=>beep(990),90); povReset(povSec()); commit(); return true; }
@@ -2895,15 +2900,28 @@ function rollTasks(){ const k=today(), n=S.tasks.length; S.tasks=S.tasks.filter(
 function toggleTask(id,ev){
   const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3, eg=()=>S.xs?(vip?S.xs.meter.vip:S.xs.meter.task):0;
   if(isRec(t)){ const k=today();
-    if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; removeClient(vip); glGain(-eg()); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
+    if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; removeClient(vip); glGain(-eg()); taskSaveOut(t,k); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
     else { t.prevDue=t.due; t.doneLog=(t.doneLog||[]).concat(k).slice(-120); t.lastDone=k; const base=t.due&&t.due>k?t.due:k; t.due=nextOcc(t.repeat,base)||t.due;
-      logTask(t); addClient(vip,t.title); glGain(eg()); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.`,"gain"); }
+      logTask(t); addClient(vip,t.title); glGain(eg()); const sv=taskSaveIn(t,k,ev); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.${sv}`,"gain"); }
     commit(); return; }
-  if(t.done){ t.done=false; t.doneOn=""; unlogTask(t); removeClient(vip); glGain(-eg()); addLog("Task reopened: "+t.title+"."); beep(330); }
-  else { t.done=true; t.doneOn=today(); logTask(t); addClient(vip,t.title); glGain(eg()); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog("Task done: "+t.title+". "+(vip?"A VIP":"A client")+" walked in.","gain"); }
+  if(t.done){ taskSaveOut(t,t.doneOn||today()); t.done=false; t.doneOn=""; unlogTask(t); removeClient(vip); glGain(-eg()); addLog("Task reopened: "+t.title+"."); beep(330); }
+  else { t.done=true; t.doneOn=today(); logTask(t); addClient(vip,t.title); glGain(eg()); const sv=taskSaveIn(t,t.doneOn,ev); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog("Task done: "+t.title+". "+(vip?"A VIP":"A client")+" walked in."+sv,"gain"); }
   commit();
 }
 
+/* ---------- notes + money-saving tasks ---------- */
+const noteLine=o=>o&&o.note?`<small class="tnote">📝 ${esc(o.note.split("\n")[0].slice(0,90))}</small>`:"";
+function saveToggleUI(pfx,o){
+  const on=!!(o&&o.bucket&&o.save), has=S.buckets.length;
+  return `<div class="full savebox"><label class="checkrow"><input type="checkbox" id="${pfx}SaveOn" data-savetog="${pfx}" ${on?"checked":""} ${has?"":"disabled"}> Saves money</label>
+    ${has?`<div class="formgrid" id="${pfx}SaveBox" ${on?"":"hidden"}><div><label class="fl" for="${pfx}Bucket">Savings bucket</label><select class="field" id="${pfx}Bucket">${S.buckets.map(b=>`<option value="${b.id}" ${o&&o.bucket===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select></div>
+      <div><label class="fl" for="${pfx}Save">Saves ($)</label><input class="field num" id="${pfx}Save" inputmode="decimal" value="${o&&o.save?(o.save/100).toFixed(2):""}" placeholder="10.00"></div></div>`
+      :`<p class="hint" style="margin:2px 0 0">Make a bucket in the Save tab first.</p>`}</div>`;
+}
+function readSave(pfx){ const on=$(pfx+"SaveOn"); if(!on||!on.checked) return {bucket:"",save:0}; return {bucket:($(pfx+"Bucket")||{}).value||"",save:toCents(($(pfx+"Save")||{}).value||"")}; }
+document.addEventListener("change",ev=>{ const p=ev.target.dataset&&ev.target.dataset.savetog; if(!p) return; const box=$(p+"SaveBox"); if(box){ box.hidden=!ev.target.checked; if(ev.target.checked){ const s=$(p+"Save"); if(s) s.focus(); } } });
+function taskSaveIn(t,k,ev){ const b=bucketById(t.bucket); if(!b||!t.save) return ""; b.entries.push({id:uid(),d:k,c:t.save,label:t.title,task:t.id}); setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(t.save),"var(--good)"),200); return ` ${money(t.save)} to ${b.name}.`; }
+function taskSaveOut(t,k){ S.buckets.forEach(b=>{ const i=b.entries.findIndex(e=>e.task===t.id&&e.d===k); if(i>=0) b.entries.splice(i,1); }); }
 /* ---------- savings buckets ---------- */
 const bSaved=b=>b.entries.reduce((a,e)=>a+e.c,0), bDep=b=>b.deposits.reduce((a,d)=>a+d.c,0), bPend=b=>Math.max(0,bSaved(b)-bDep(b));
 const totalPending=()=>S.buckets.reduce((a,b)=>a+bPend(b),0);
@@ -3148,7 +3166,7 @@ function habitRowH(h){
   const sched=!h.days.length?"every day":h.days.length===5&&!h.days.includes(0)&&!h.days.includes(6)?"weekdays":h.days.slice().sort((x,y)=>((x+6)%7)-((y+6)%7)).map(d=>DOW3[d].slice(0,2)).join(" ");
   return `<div class="trow ${done?"done":""} ${due?"":"off"}">
     <button class="tchk" data-act="habit" data-id="${h.id}" aria-pressed="${done}" aria-label="${done?"Un-check":"Check off"} ${esc(h.name)}">${done?"✓":""}</button>
-    <button class="ttl" data-act="editHabit" data-id="${h.id}" aria-label="Edit ${esc(h.name)}"><span>${esc(h.name)}</span><small>${st?`🔥${st} · `:""}${sched}${b&&h.save?` · +${money(h.save)}`:""}</small></button>
+    <button class="ttl" data-act="editHabit" data-id="${h.id}" aria-label="Edit ${esc(h.name)}"><span>${esc(h.name)}</span><small>${st?`🔥${st} · `:""}${sched}${b&&h.save?` · +${money(h.save)}`:""}</small>${noteLine(h)}</button>
   </div>`;
 }
 function shortDue(t){
@@ -3162,8 +3180,8 @@ function taskRowT(t){
   const on=t.done||(isRec(t)&&t.lastDone===today()), l=t.list&&listById(t.list);
   return `<div class="trow ${on?"done":""} ${t.pri===3?"hi":t.pri===1?"lo":""}">
     <button class="tchk" data-act="task" data-id="${t.id}" aria-pressed="${!!on}" aria-label="${on?"Undo":"Complete"} ${esc(t.title)}">${on?"✓":""}</button>
-    <button class="ttl" data-act="editTask" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><span>${esc(t.title)}</span></button>
-    <span class="tmeta">${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
+    <button class="ttl" data-act="editTask" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><span>${esc(t.title)}</span>${noteLine(t)}</button>
+    <span class="tmeta">${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
   </div>`;
 }
 const listById=id=>S.lists.find(l=>l.id===id);
@@ -3265,6 +3283,8 @@ function quickSheet(ctx){
         <div><label class="fl" for="qDue">Due</label><input class="field" id="qDue" type="date"></div>
         <div class="full">${repeatUI("q",null,null)}</div>
         <div class="full"><label class="fl" for="qList">List</label><select class="field" id="qList"><option value="">${quickCtx.list?"This list":"No list"}</option>${S.lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join("")}</select></div>
+        ${saveToggleUI("q",null)}
+        <div class="full"><label class="fl" for="qNote">Notes</label><textarea class="field note" id="qNote" rows="2" maxlength="600" placeholder="Anything to remember…">${esc(''||"")}</textarea></div>
       </div></details>
     <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">ADD</button></div>
   </form>`);
@@ -3275,7 +3295,7 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(t.id==="qPri"||t.
 function addQuick(){
   const p=parseQuick(($("qText")||{}).value||""), f=quickFinal(p); if(!f.title){ toast("Give the task a name.", true); return false; }
   if(f.newList){ const l={id:uid(),name:f.listName.slice(0,24)}; S.lists.push(l); f.list=l.id; }
-  S.tasks.push({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined});
+  S.tasks.push(Object.assign({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined,note:($("qNote")||{}).value||""},readSave("q")));
   return true;
 }
 function groupedByDue(list){
@@ -3346,6 +3366,7 @@ function winSheet(w){
       <div><label class="fl" for="wnSave">Usual amount ($)</label><input class="field num" id="wnSave" inputmode="decimal" value="${w.save?(w.save/100).toFixed(2):""}" placeholder="10.00"></div></div>
     <label class="checkrow"><input type="checkbox" id="wnAsk" ${w.ask?"checked":""}> Ask me the amount each time</label>
     <p class="hint" style="margin:0">Turn that on when it changes, like the price of half a meal. The usual amount gets filled in so you can just adjust it.</p>
+    <div class="full"><label class="fl" for="wnNote">Notes</label><textarea class="field note" id="wnNote" rows="2" maxlength="600" placeholder="Anything to remember…">${esc(w.note||"")}</textarea></div>
     <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delWin" data-id="${w.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
   </form>`);
 }
@@ -3375,6 +3396,7 @@ function badSheet(b){
     <div><label class="fl" for="bdName">Bad habit</label><input class="field" id="bdName" maxlength="60" value="${esc(b.name)}" placeholder="Doomscrolling past midnight" required autocomplete="off"></div>
     <div><label class="fl" for="bdRep">Rep lost each slip-up</label><input class="field num" id="bdRep" type="number" min="0" max="20" value="${b.rep}"></div>
     <p class="hint" style="margin:0">Tap − whenever it happens. It's honest bookkeeping, not punishment, so log it and move on.</p>
+    <div class="full"><label class="fl" for="bdNote">Notes</label><textarea class="field note" id="bdNote" rows="2" maxlength="600" placeholder="Anything to remember…">${esc(b.note||"")}</textarea></div>
     <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delBad" data-id="${b.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
   </form>`);
 }
@@ -3462,10 +3484,10 @@ function vHabitsTab(){
     ${S.habits.length?`<div class="tlist">${[...due,...off].map(habitRowH).join("")}</div>`:`<p class="tnone">No habits yet. Tap + to add one.</p>`}
     <p class="sh">ANYTIME</p>
     ${S.wins.length?`<div class="tlist">${S.wins.map(w=>{ const t=winCount(w,k), wk=winCount(w,weekStart(k),k), b=bucketById(w.bucket);
-      return `<div class="trow"><button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week${b?` · ${w.ask?"asks amount":w.save?"+"+money(w.save):""}`:""}</small></button><button class="tbtn plus" data-act="win" data-id="${w.id}" aria-label="Log ${esc(w.name)}">+</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you log whenever they happen, like splitting a meal.</p>`}
+      return `<div class="trow"><button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week${b?` · ${w.ask?"asks amount":w.save?"+"+money(w.save):""}`:""}</small>${noteLine(w)}</button><button class="tbtn plus" data-act="win" data-id="${w.id}" aria-label="Log ${esc(w.name)}">+</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you log whenever they happen, like splitting a meal.</p>`}
     <p class="sh">BAD HABITS</p>
     ${S.bads.length?`<div class="tlist">${S.bads.map(b=>{ const t=badCount(b,k), wk=badCount(b,weekStart(k),k);
-      return `<div class="trow"><button class="ttl" data-act="editBad" data-id="${b.id}"><span>${esc(b.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week · −${b.rep} rep each</small></button><button class="tbtn minus" data-act="bad" data-id="${b.id}" aria-label="Log a slip-up: ${esc(b.name)}">−</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you're cutting back on. Tap − when you slip and lose a little rep.</p>`}
+      return `<div class="trow"><button class="ttl" data-act="editBad" data-id="${b.id}"><span>${esc(b.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week · −${b.rep} rep each</small>${noteLine(b)}</button><button class="tbtn minus" data-act="bad" data-id="${b.id}" aria-label="Log a slip-up: ${esc(b.name)}">−</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you're cutting back on. Tap − when you slip and lose a little rep.</p>`}
     <div class="penal"><label for="missRep">Missed habits cost</label>
       <select class="field" id="missRep">${[0,1,2,3,5].map(n=>`<option value="${n}" ${(S.miss.on?S.miss.rep:0)===n?"selected":""}>${n?n+" rep each":"nothing (off)"}</option>`).join("")}</select></div>
     <p class="hint" style="margin:4px 0 0">Checked at the 4 AM rollover for habits scheduled that day.</p>
@@ -3558,7 +3580,7 @@ function workerMini(p){
   <details class="sub" ${manageOpen===p.id?"open":""}><summary>Manage ${esc(p.name)}</summary>
     ${meter("NEXT LV",p.xp/(40*p.lv),`${p.xp}/${40*p.lv}`)}
     <p class="hint">${p.serves} served · ${p.serves?Math.round(p.perfects/p.serves*100):0}% perfect · ${p.tips}₵ in tips</p>
-    <div class="actions"><button class="btn ghost" data-act="renameWorker" data-id="${p.id}">RENAME</button><button class="btn" data-act="devWorker" data-id="${p.id}">ART, OUTFITS &amp; PLACEMENT ›</button><button class="btn danger" data-act="fire" data-id="${p.id}">LET GO</button></div>
+    <div class="actions"><button class="btn ghost" data-act="renameWorker" data-id="${p.id}">RENAME</button><button class="btn ghost" data-emp="reset" data-id="${p.id}">RESET STATS</button><button class="btn" data-act="devWorker" data-id="${p.id}">ART, OUTFITS &amp; PLACEMENT ›</button><button class="btn danger" data-act="fire" data-id="${p.id}">LET GO</button></div>
   </details>`;
 }
 function workerStudio(p){
@@ -3926,6 +3948,7 @@ function habitSheet(h){
     <div class="formgrid"><div><label class="fl" for="hBucket">Savings bucket</label><select class="field" id="hBucket">${bucketOptions(h.bucket)}</select></div>
       <div><label class="fl" for="hSave">Saves each time ($)</label><input class="field num" id="hSave" inputmode="decimal" value="${h.save?(h.save/100).toFixed(2):""}" placeholder="6.00"></div></div>
     <p class="hint" style="margin:0">Each check-off sends a client to your counter${S.buckets.length?", and drops the amount into the bucket":". Make a bucket in the Save tab to track money too"}.</p>
+    <div class="full"><label class="fl" for="hNote">Notes</label><textarea class="field note" id="hNote" rows="2" maxlength="600" placeholder="Anything to remember…">${esc(h.note||"")}</textarea></div>
     <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delHabit" data-id="${h.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
   </form>`);
 }
@@ -3937,6 +3960,8 @@ function taskSheet(t){
     <div><label class="fl" for="eDue">Due</label><input class="field" id="eDue" type="date" value="${t.due||""}"></div>
     <div class="full">${repeatUI("e",t.repeat,t.due)}</div>
     <div class="full"><label class="fl" for="eList">List</label><select class="field" id="eList"><option value="">No list</option>${S.lists.map(l=>`<option value="${l.id}" ${t.list===l.id?"selected":""}>${esc(l.name)}</option>`).join("")}</select></div>
+    ${saveToggleUI("e",t)}
+    <div class="full"><label class="fl" for="eNote">Notes</label><textarea class="field note" id="eNote" rows="2" maxlength="600" placeholder="Anything to remember…">${esc(t.note||"")}</textarea></div>
     <div class="full actions"><button type="button" class="btn danger" data-act="delTask" data-id="${t.id}">DELETE</button><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">SAVE</button></div>
   </form>`);
 }
@@ -4433,14 +4458,15 @@ document.addEventListener("submit",ev=>{
   const f=ev.target.closest("[data-form]"); if(!f) return; ev.preventDefault();
   const k=f.dataset.form, val=id=>($(id)?$(id).value:"").trim();
   if(k==="task"){ const title=val("tTitle"); if(!title) return; const rr=readRepeat("t",val("tDue")); S.tasks.push({id:uid(),title,pri:+val("tPri"),due:firstDue(rr,val("tDue")),list:val("tList"),done:false,repeat:rr||undefined}); commit(); const t=$("tTitle"); if(t) t.focus(); }
-  if(k==="taskEdit"){ const t=S.tasks.find(x=>x.id===f.dataset.id); if(t){ t.title=val("eTitle")||t.title; t.pri=+val("ePri"); t.list=val("eList"); const rr=readRepeat("e",val("eDue"));
+  if(k==="taskEdit"){ const t=S.tasks.find(x=>x.id===f.dataset.id); if(t){ t.title=val("eTitle")||t.title; t.pri=+val("ePri"); t.list=val("eList"); t.note=($("eNote")||{}).value||""; Object.assign(t,readSave("e")); const rr=readRepeat("e",val("eDue"));
       if(rr){ if(!isRec(t)){ t.done=false; t.doneOn=""; } t.repeat=rr; t.due=firstDue(rr,val("eDue")); } else { if(isRec(t)) delete t.repeat; t.due=val("eDue"); } } closeSheet(); commit(); }
   if(k==="habit"){
     const name=val("hName"); if(!name) return;
     let days=[...f.querySelectorAll('input[name="day"]:checked')].map(i=>+i.value); if(days.length===7) days=[];
     const bucket=val("hBucket"), saveC=toCents(val("hSave")), id=f.dataset.id;
-    if(id){ const h=S.habits.find(x=>x.id===id); if(h) Object.assign(h,{name,days,bucket,save:saveC}); }
-    else S.habits.push({id:uid(),name,days,bucket,save:saveC,hist:{},created:today()});
+    const note=($("hNote")||{}).value||"";
+    if(id){ const h=S.habits.find(x=>x.id===id); if(h) Object.assign(h,{name,days,bucket,save:saveC,note}); }
+    else S.habits.push({id:uid(),name,days,bucket,save:saveC,note,hist:{},created:today()});
     closeSheet(); commit();
   }
   if(k==="bucket"){
@@ -4449,9 +4475,9 @@ document.addEventListener("submit",ev=>{
     closeSheet(); commit();
   }
   if(k==="quick"){ if(addQuick()){ closeSheet(); commit(); toast("Task added."); } return; }
-  if(k==="bad"){ const name=val("bdName"); if(!name) return; const o={name,rep:Math.max(0,Math.min(20,Math.round(+val("bdRep")||0)))}, id=f.dataset.id;
+  if(k==="bad"){ const name=val("bdName"); if(!name) return; const o={name,rep:Math.max(0,Math.min(20,Math.round(+val("bdRep")||0))),note:($("bdNote")||{}).value||""}, id=f.dataset.id;
     if(id){ const b=badById(id); if(b) Object.assign(b,o); } else S.bads.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
-  if(k==="win"){ const name=val("wnName"); if(!name) return; const o={name,bucket:val("wnBucket"),save:toCents(val("wnSave")),ask:$("wnAsk").checked}, id=f.dataset.id;
+  if(k==="win"){ const name=val("wnName"); if(!name) return; const o={name,bucket:val("wnBucket"),save:toCents(val("wnSave")),ask:$("wnAsk").checked,note:($("wnNote")||{}).value||""}, id=f.dataset.id;
     if(id){ const w=winById(id); if(w) Object.assign(w,o); } else S.wins.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
   if(k==="winLog"){ const id=f.dataset.id, v=val("wlAmt"), c=v?Math.round((parseFloat(v.replace(/[^0-9.]/g,""))||0)*100):0; closeSheet(); logWin(id,c,null); }
   if(k==="addSave"){ const b=bucketById(f.dataset.id), c=toCents(val("svAmt")), label=val("svLabel"); if(!b||!c||!label){ toast("Add what it was and how much.", true); return; } b.entries.push({id:uid(),d:today(),c,label}); addLog(`Saved ${money(c)} to ${b.name}: ${label}.`,"gain"); closeSheet(); commit(); toast("+"+money(c)+" to "+b.name+"."); }
@@ -5293,8 +5319,15 @@ function empPanel(){
       ${venueJobs(v).length<5?`<button class="btn ghost smallbtn" data-emp="addJob" data-id="${v}" style="margin:4px 0 10px">+ JOB</button>`:""}`).join("")}
   </section>`;
 }
+/* reset an employee back to how they started: level, XP, record, progression, unlocked outfits. Art stays. */
+function startStats(w){ return w.base||(w.art==="builtin:mika"||w.id==="mika"?{skill:2,charm:3}:{skill:1,charm:1}); }
+function resetStats(w){
+  const b=startStats(w); Object.assign(w,{lv:1,xp:0,serves:0,perfects:0,tips:0,lw:0,outfit:1,wear:1,skill:b.skill,charm:b.charm,base:b});
+  Object.values(w.ward||{}).forEach(o=>{ if(o) delete o.owned; });
+  addLog(`${w.name}'s stats were reset.`); commit(); toast(`${w.name} is back to LV 1. Their art is kept.`);
+}
 function empStudioBar(p){
-  return `<div class="actions" style="margin:0 0 10px"><button class="btn" data-emp="edit" data-id="${p.id}">JOB &amp; DETAILS</button>${FRAMED?"":`<button class="btn ghost" data-emp="export" data-id="${p.id}">DOWNLOAD ${esc(p.name.toUpperCase())}</button>`}<button class="btn ghost" data-emp="copy" data-id="${p.id}">COPY AS TEXT</button></div>`;
+  return `<div class="actions" style="margin:0 0 10px"><button class="btn" data-emp="edit" data-id="${p.id}">JOB &amp; DETAILS</button><button class="btn ghost" data-emp="reset" data-id="${p.id}">RESET STATS</button>${FRAMED?"":`<button class="btn ghost" data-emp="export" data-id="${p.id}">DOWNLOAD ${esc(p.name.toUpperCase())}</button>`}<button class="btn ghost" data-emp="copy" data-id="${p.id}">COPY AS TEXT</button></div>`;
 }
 function empSheet(w){
   const isNew=!w; w=w||{name:pk(NAMES),role:"cafe",job:"",skill:2,charm:2,persona:Object.keys(PERSONAS)[0],trait:"smooth",lw:0};
@@ -5320,6 +5353,7 @@ function empSubmit(ev){
   const [role,job]=(v("empJob")||"cafe:").split(":"), id=f.dataset.id, w=id&&S.staff.find(x=>x.id===id);
   if((!w||w.role!==role)&&staffAt(role).length>=VENUE_CAP){ toast(`${SEC_NAME[role]} is full (${VENUE_CAP} staff).`, true); return; }
   const o={name,role,job,skill:+v("empSkill")||1,charm:+v("empCharm")||1,persona:v("empPersona"),trait:v("empTrait"),lw:Math.max(0,Math.round(+v("empLw")||0))};
+  o.base={skill:o.skill,charm:o.charm};
   if(w){ if(w.role!==role&&S.shift[w.role]===w.id) delete S.shift[w.role]; Object.assign(w,o); }
   else S.staff.push(Object.assign({id:uid(),look:makeLook(),lv:1,xp:0,serves:0,perfects:0,tips:0,cost:0},o));
   devWorker=w?w.id:S.staff[S.staff.length-1].id; closeSheet(); povReset(povSec()); commit(); toast(w?"Saved.":`${name} joined the ${ROLES[role].room} as ${jobTitle(S.staff.find(x=>x.id===devWorker)).toLowerCase()}.`);
@@ -5355,6 +5389,7 @@ document.addEventListener("click",ev=>{
   switch(a){
     case "shift": { const w=S.staff.find(x=>x.id===id); if(!w) return; S.shift[w.role]=w.id; commit(); toast(`${w.name} is at the ${ROLES[w.role].room} counter.`); break; }
     case "new": empSheet(null); break;
+    case "reset": { const w=S.staff.find(x=>x.id===id); if(!w) return; if(b.dataset.armed!=="1"){ b.dataset.armed="1"; b.textContent="TAP AGAIN TO RESET"; return; } resetStats(w); break; }
     case "edit": empSheet(S.staff.find(x=>x.id===id)); break;
     case "export": { const w=S.staff.find(x=>x.id===id); if(w&&!downloadText(`nightkettle-${w.name.toLowerCase().replace(/\W+/g,"-")}.json`,empExport([w]))) toast("Downloads are blocked here. Use Copy as text.", true); break; }
     case "exportAll": if(!downloadText("nightkettle-staff.json",empExport(S.staff))) toast("Downloads are blocked here. Use Copy as text.", true); break;
