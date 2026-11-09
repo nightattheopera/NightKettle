@@ -4374,11 +4374,11 @@ function sheetUploadNoBox(file,id,kind,opts){
   const w=S.staff.find(x=>x.id===id); if(!w||!file) return;
   readImage(file).then(img=>{
     const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/opts.cols, fh=H/opts.rows;
-    const cap=kind[0]==="f"?160:360, sc=Math.min(1,cap/fw,cap/fh,Math.sqrt(16e6/(W*H)));
-    const cv=document.createElement("canvas"); cv.width=Math.max(1,Math.round(W*sc)); cv.height=Math.max(1,Math.round(H*sc));
-    const g=cv.getContext("2d"); g.imageSmoothingEnabled=false; g.drawImage(img,0,0,cv.width,cv.height);
-    return storeArt(cv.toDataURL("image/png")).then(ref=>{ w.anim=w.anim||{}; const old=w.anim[kind]&&w.anim[kind].ref; if(old&&old!==ref) dropArt(old);
-      w.anim[kind]=Object.assign({flip:false},opts,{ref}); addLog(`Uploaded a ${kind==="fidle"?"standing":"walking"} sprite for ${w.name}.`,"build"); commit(); toast(`Uploaded ${opts.cols*opts.rows} frames to ${w.name}. Check the Inside view.`); });
+    const cap=kind[0]==="f"?480:720, sc=Math.min(1,cap/fw,cap/fh,Math.sqrt(16e6/(W*H)));
+    const cv=sc<1?hqResize(img,W,H,Math.max(1,Math.round(W*sc)),Math.max(1,Math.round(H*sc))):(()=>{ const c=document.createElement("canvas"); c.width=W; c.height=H; c.getContext("2d").drawImage(img,0,0); return c; })();
+    let data=cv.toDataURL("image/png"); if(data.length>2.5e6) data=cv.toDataURL("image/webp",.92);
+    return storeArt(data).then(ref=>{ w.anim=w.anim||{}; const old=w.anim[kind]&&w.anim[kind].ref; if(old&&old!==ref) dropArt(old);
+      w.anim[kind]=Object.assign({flip:false},opts,{ref}); addLog(`Uploaded a ${kind==="fidle"?"standing":"walking"} sprite for ${w.name}.`,"build"); commit(); toast(`Uploaded ${opts.cols*opts.rows} frames to ${w.name} at full detail${fw>128||fh>128?" (too big to edit pixel by pixel, so they skipped the editor)":""}. Check the Inside view.`); });
   }).catch(()=>toast(imgErr(file), true));
 }
 function slotName(slot){ if(!slot) return "base"; const n=+slot.slice(1); return slot[0]==="w"?(S.wardrobe.names[n-1]||"Outfit "+n):(S.prog.names[n-1]||"Outfit "+n); }
@@ -4592,7 +4592,9 @@ function routeUpload(t){
 
 function routeSS(t){
   if(t.id==="ssImport"&&t.files&&t.files[0]){ const n=Math.max(1,Math.min(16,+($("ssAcross").value)||1)), m=Math.max(1,Math.min(8,+($("ssDown").value)||1)); SS.upCols=n; SS.upRows=m;
-    readImage(t.files[0]).then(img=>{ const c=document.createElement("canvas"); c.width=img.width||img.naturalWidth; c.height=img.height||img.naturalHeight; c.getContext("2d").drawImage(img,0,0); ssLoadSheet(c.toDataURL("image/png"),n,m,()=>{ ssSaveDraft(); render(); toast(`Uploaded ${n*m} frame${n*m===1?"":"s"} to edit.`); }); }).catch(()=>toast(imgErr(t.files[0]), true)); }
+    readImage(t.files[0]).then(img=>{ const IW=img.width||img.naturalWidth, IH=img.height||img.naturalHeight;
+      if(IW/n>128||IH/m>128){ const w=S.staff.find(x=>x.id===SS.wid); if(w){ sheetUploadNoBox(t.files[0],w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; } }
+      const c=document.createElement("canvas"); c.width=IW; c.height=IH; c.getContext("2d").drawImage(img,0,0); ssLoadSheet(c.toDataURL("image/png"),n,m,()=>{ ssSaveDraft(); render(); toast(`Uploaded ${n*m} frame${n*m===1?"":"s"} to edit.`); }); }).catch(()=>toast(imgErr(t.files[0]), true)); }
   if(t.id==="ssDirect"&&t.files&&t.files[0]){ const w=S.staff.find(x=>x.id===SS.wid); if(!w){ toast("Pick a worker first.", true); return; }
     const n=Math.max(1,Math.min(16,+($("ssAcross").value)||1)), m=Math.max(1,Math.min(8,+($("ssDown").value)||1)); SS.upCols=n; SS.upRows=m;
     sheetUploadNoBox(t.files[0],w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; }
