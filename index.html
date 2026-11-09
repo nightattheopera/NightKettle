@@ -777,6 +777,7 @@ body.xson{overflow:hidden}
 .shifts{margin-top:10px}
 .shiftrow{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-top:1px solid var(--line)}
 .shiftrow .shiftsel{width:100%}
+.wardcfg.nolv{grid-template-columns:auto 2fr 1.4fr 1fr}
 
 </style>
 </head>
@@ -2303,9 +2304,11 @@ function board(){
 function hintsMax(w){ const t=traitOf(w); return Math.max(0,w.skill+((t.hint&&traitApplies(w,t))?t.hint:0)+(perkOf(w)==="service"?1:0)+hintAdj(w)); }
 function hintsUsed(w){ const d=S.serves[today()]; return (d&&d.hints&&d.hints[w.id])||0; }
 function tipFor(w,grade){ const t=traitOf(w); const g=(grade==="miss"&&t.missTip)?"close":grade; return Math.max(1,Math.round(REWARD[g]*(1+.1*(w.charm-1)+(t.tip||0)))); }
+/* worker XP per level: steeper than linear, so levels keep coming for months */
+function lvNeed(lv){ return Math.round(40*Math.pow(Math.max(1,lv||1),1.5)); }
 function workerXP(w,grade){
   const lv0=w.lv||1, t=traitOf(w); w.xp+=Math.round((grade==="perfect"?15:10)*(t.xp||1)*(hasSkill(w,"learner")?1.25:1)); let msg=null;
-  while(w.xp>=40*w.lv){ w.xp-=40*w.lv; w.lv++;
+  while(w.xp>=lvNeed(w.lv)){ w.xp-=lvNeed(w.lv); w.lv++;
     if(w.skill<5&&(w.lv%2===0||w.charm>=5)){ w.skill++; msg=`${w.name} reached LV ${w.lv}. Skill up: one more hint a day.`; }
     else if(w.charm<5){ w.charm++; msg=`${w.name} reached LV ${w.lv}. Charm up: bigger tips.`; }
     else msg=`${w.name} reached LV ${w.lv}.`;
@@ -2372,7 +2375,7 @@ function crewPanel(){
         <div class="statl"><span class="px">CHARM</span><span class="pip">${pips(p.charm)}</span><span class="muted">+${(p.charm-1)*10}% tips</span></div>
         <p style="margin:6px 0 0"><span class="tag">${esc(t.name)}</span> <span class="muted">${esc(t.desc)}</span></p>
         ${isCand?`<div class="actions" style="margin-top:10px"><button class="btn ${S.credits>=p.cost?"solid":""}" data-act="hire" data-id="${p.id}" ${S.credits>=p.cost?"":"disabled"}>HIRE · ${p.cost}₵</button></div>`
-          :`<div style="margin-top:8px">${meter("NEXT LV",p.xp/(40*p.lv),`${p.xp}/${40*p.lv}`)}</div>
+          :`<div style="margin-top:8px">${meter("NEXT LV",p.xp/lvNeed(p.lv),`${p.xp}/${lvNeed(p.lv)}`)}</div>
             <p class="hint">${p.serves} served · ${p.serves?Math.round(p.perfects/p.serves*100):0}% perfect · ${p.tips}₵ in tips</p>
             <div class="actions" style="margin-top:8px">${p.skill<5?`<button class="btn" data-act="train" data-id="${p.id}" ${S.credits>=90*p.skill?"":"disabled"}>TRAIN · ${90*p.skill}₵</button>`:""}
               <label class="btn ghost" for="workerArt" style="text-align:center">${p.art?"NEW ART":"LOAD ART"}</label><input type="file" id="workerArt" class="srt" accept="image/*" data-id="${p.id}">
@@ -2733,7 +2736,9 @@ function povLights(C){
 }
 const money=c=>(c<0?"-":"")+"$"+(Math.abs(c)/100).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const toCents=v=>{ const n=parseFloat(String(v).replace(/[^0-9.]/g,"")); return isFinite(n)&&n>0?Math.round(n*100):0; };
-const RANK2=[[0,"Street Kid"],[10,"Barback"],[30,"Barista"],[60,"Bartender"],[100,"Night Manager"],[160,"Fixer"],[240,"Proprietor"],[350,"Block Boss"],[500,"Legend of the District"]];
+const RANK2=[[0,"Street Kid"],[15,"Dishwasher"],[40,"Barback"],[80,"Line Cook"],[140,"Barista"],[220,"Bartender"],[330,"Bookseller"],[480,"Night Manager"],[700,"Fixer"],[1000,"Proprietor"],[1500,"Block Boss"],[2400,"Legend of the District"]];
+/* ambience tip boost: climbs fast early, levels off toward x4 so late upgrades stay a grind */
+const ambMult=amb=>1+3*amb/(amb+120);
 function rankInfo(){ let i=0; RANK2.forEach((r,k)=>{ if(S.rep>=r[0]) i=k; }); const nxt=RANK2[i+1]; return {name:RANK2[i][1],lv:i+1,lo:RANK2[i][0],hi:nxt?nxt[0]:RANK2[i][0]+1,next:nxt&&nxt[1]}; }
 const SEC_ROOMS={cafe:["espresso","pastry","roaster","booths"],books:["shelves","nook","press","archive"],bar:["counter","still","jukebox","lounge"],club:["stage","booth","vip","lights"]};
 const SEC_OF_ROLE={cafe:"CAFE",books:"BOOKS",bar:"BAR",club:"CLUB"};
@@ -2753,8 +2758,8 @@ function defaultFavors(){
   ];
 }
 /* ---------- worker progression stat + outfit tiers ---------- */
-function defaultProg(){ return {label:"Lewdness",need:[0,3,8,15,25],bonus:[0,10,20,35,50],names:["Base outfit","Outfit 2","Outfit 3","Outfit 4","Outfit 5"]}; }
-const PL=()=>(S&&S.prog&&S.prog.label)||"Lewdness";
+function defaultProg(){ return {label:"Corruption",need:[0,3,8,15,25],bonus:[0,10,20,35,50],names:["Base outfit","Outfit 2","Outfit 3","Outfit 4","Outfit 5"]}; }
+const PL=()=>(S&&S.prog&&S.prog.label)||"Corruption";
 function progLevel(w){ const n=S.prog.need; let l=1; for(let i=1;i<5;i++) if((w.lw||0)>=n[i]) l=i+1; return l; }
 function progNext(w){ const l=progLevel(w); return l>=5?null:S.prog.need[l]; }
 function outfitArt(w){ return lewdOutfitArt(w)||wardArt(w); }
@@ -2805,7 +2810,7 @@ function migrate(o){
   if(!o.miss||typeof o.miss!=="object") o.miss={on:true,rep:1,since:today(),last:addDays(today(),-1)};
   if(!Array.isArray(o.taskLog)){ o.taskLog=[]; o.tasks.forEach(t=>{ if(t.repeat&&t.repeat.type&&t.repeat.type!=="none") (t.doneLog||[]).forEach(d=>o.taskLog.push({id:uid(),d,tid:t.id,title:t.title})); else if(t.done&&t.doneOn) o.taskLog.push({id:uid(),d:t.doneOn,tid:t.id,title:t.title}); }); }
   if(!o.favors||!Array.isArray(o.favors.deck)) o.favors=b.favors;
-  o.prog=Object.assign(defaultProg(),o.prog||{}); ["need","bonus","names"].forEach(k=>{ if(!Array.isArray(o.prog[k])||o.prog[k].length!==5) o.prog[k]=defaultProg()[k]; });
+  o.prog=Object.assign(defaultProg(),o.prog||{}); if(!o.prog.label||o.prog.label==="Lewdness") o.prog.label="Corruption"; ["need","bonus","names"].forEach(k=>{ if(!Array.isArray(o.prog[k])||o.prog[k].length!==5) o.prog[k]=defaultProg()[k]; });
   o.staff.forEach(w=>{ w.lw=+w.lw||0; w.outfits=w.outfits||{}; w.outfit=w.outfit||1; });
   o.staff.forEach(w=>{ if(w.anim) ["fidle","fwalk"].forEach(k=>{ const r=w.anim[k]&&w.anim[k].ref; if(typeof r==="string"&&r.indexOf("builtin:mika")===0) delete w.anim[k]; }); });
   o.habits.forEach(h=>{ h.hist=h.hist||{}; h.days=Array.isArray(h.days)?h.days:[]; h.created=h.created||today(); });
@@ -3014,7 +3019,7 @@ function srvFinish(res,ev){
   if(g==="close"&&!saved&&hasSkill(w,"steady")&&Math.random()<.15){ g="perfect"; saved=true; savedBy="Steady Hands"; }
   const d=serveDay(); d.n++; if(g==="perfect") d.perf[serveSide(sec)]++;
   const amb=totals(SIDE_SECS[serveSide(sec)]).amb;
-  const tip=Math.max(1,Math.round(tipFor(w,g)*(1+amb/40)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)*skillTipMult(w,sec)));
+  const tip=Math.max(1,Math.round(tipFor(w,g)*ambMult(amb)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)*skillTipMult(w,sec)));
   S.credits+=tip; S.xp+=tip; d.tips=(d.tips||0)+tip;
   S.stats.served++; if(g==="perfect") S.stats.perfect++; S.stats.tips+=tip;
   S.rep+=g==="perfect"?2:g==="close"?1:0;
@@ -3609,15 +3614,15 @@ function workerMini(p){
   const t=TRAITS[p.trait]||{name:"",desc:""}, cost=90*p.skill;
   return `<div class="wmini">
     <div class="cport sm">${p.art?`<img src="${artSrc(p)}" alt="">`:`<canvas width="72" height="72" data-port="w:${p.role}:${p.id}" aria-hidden="true"></canvas>`}</div>
-    <div class="rinfo"><b>${esc(p.name)}</b> <span class="muted">LV ${p.lv} · ${PERSONAS[p.persona].label}${adultOn()?` · ${esc(PL())} ${progLevel(p)}`:""}</span>
-      <small>Skill <span class="pip">${pips(p.skill)}</span> Charm <span class="pip">${pips(p.charm)}</span></small>
+    <div class="rinfo"><b>${esc(p.name)}</b> <span class="muted">LV ${p.lv} · ${PERSONAS[p.persona].label}</span>
+      <small>Skill <span class="pip">${pips(p.skill)}</span> Charm <span class="pip">${pips(p.charm)}</span> ${esc(PL())} <span class="pip">${pips(progLevel(p))}</span></small>
       <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc)}</small><small class="muted">${esc(jobTitle(p))}: ${esc((PERKS[perkOf(p)]||{}).desc||"")}</small></div>
     ${p.skill<5?`<button class="btn ${S.credits>=cost?"solid":""} rbtn" data-act="train" data-id="${p.id}" ${S.credits>=cost?"":"disabled"}>TRAIN<br>${cost}₵</button>`:`<span class="px muted">MAX</span>`}
   </div>
   ${wardBlock(p)}
   ${skillBlock(p)}
   <details class="sub" ${manageOpen===p.id?"open":""}><summary>Manage ${esc(p.name)}</summary>
-    ${meter("NEXT LV",p.xp/(40*p.lv),`${p.xp}/${40*p.lv}`)}
+    ${meter("NEXT LV",p.xp/lvNeed(p.lv),`${p.xp}/${lvNeed(p.lv)}`)}
     <p class="hint">${p.serves} served · ${p.serves?Math.round(p.perfects/p.serves*100):0}% perfect · ${p.tips}₵ in tips</p>
     <div class="actions"><button class="btn ghost" data-act="renameWorker" data-id="${p.id}">RENAME</button><button class="btn ghost" data-emp="reset" data-id="${p.id}">RESET STATS</button><button class="btn" data-act="devWorker" data-id="${p.id}">ART, OUTFITS &amp; PLACEMENT ›</button><button class="btn danger" data-act="fire" data-id="${p.id}">LET GO</button></div>
   </details>`;
@@ -3670,7 +3675,7 @@ function areaPanel([key,sec,icon,label,when]){
 function vUpgrade(){
   if(!openAreas) openAreas=defaultOpenAreas();
   const t=totals();
-  return `<section class="panel upsum"><div><span class="px">CREDS</span><b class="num">₵ ${S.credits.toLocaleString()}</b></div><div><span class="px">TIP BOOST</span><b class="num">+${Math.round(t.amb/40*100)}%</b></div><div><span class="px">SEATS</span><b class="num">${t.seats}</b></div></section>
+  return `<section class="panel upsum"><div><span class="px">CREDS</span><b class="num">₵ ${S.credits.toLocaleString()}</b></div><div><span class="px">TIP BOOST</span><b class="num">+${Math.round((ambMult(t.amb)-1)*100)}%</b></div><div><span class="px">SEATS</span><b class="num">${t.seats}</b></div></section>
   ${AREAS.map(areaPanel).join("")}
   <p class="hint" style="padding:0 4px">Ambience raises every tip. Seats fill the street scene. Staff work their own counter.</p>`;
 }
@@ -4556,7 +4561,7 @@ document.addEventListener("submit",ev=>{
   if(k==="list"){ const name=val("lName").slice(0,24); if(!name) return; const id=f.dataset.id; if(id){ const l=listById(id); if(l) l.name=name; } else { const l={id:uid(),name}; S.lists.push(l); taskView="tasks"; taskFilter="list:"+l.id; } closeSheet(); commit(); }
   if(k==="rename"||k==="rename2"){ const n=val(k==="rename"?"shopName":"shopName2").toUpperCase().slice(0,22); if(n){ S.shopName=n; closeSheet(); commit(); toast("Shop renamed."); } }
   if(k==="renameWorker"){ const w=S.staff.find(x=>x.id===f.dataset.id), n=val("wName").slice(0,16); if(w&&n){ w.name=n; closeSheet(); commit(); } }
-  if(k==="prog"){ const nm=val("pgLabel").slice(0,20)||"Lewdness"; const need=[0], bonus=[], names=[];
+  if(k==="prog"){ const nm=val("pgLabel").slice(0,20)||"Corruption"; const need=[0], bonus=[], names=[];
     for(let i=0;i<5;i++){ names.push(val("pgN"+i).slice(0,24)||(i?"Outfit "+(i+1):"Base outfit")); bonus.push(Math.max(0,Math.min(300,Math.round(+val("pgB"+i)||0)))); if(i) need.push(Math.max(need[i-1]+1,Math.round(+val("pgP"+i)||0))); }
     S.prog={label:nm,need,bonus,names}; commit(); toast("Progression saved."); }
   if(k==="lines"){ const split=id=>val(id).split("\n").map(s=>s.trim()).filter(Boolean); S.lines={flirts:split("lnFlirt"),charmAct:split("lnAct"),charmReact:split("lnReact")}; applyLines(); commit(); toast("Lines saved."); }
@@ -5192,32 +5197,34 @@ document.addEventListener("click",ev=>{
   if(b.dataset.skill==="forget"){ if(b.dataset.armed!=="1"){ b.dataset.armed="1"; b.textContent="SURE?"; return; } w.skills=(w.skills||[]).filter(x=>x!==k); skillOpen.add(w.id); commit(); toast(`${w.name} forgot ${skillName(k)}. The slot is free.`); }
 });
 
-/* ================= WARDROBE: outfits unlocked by employee level (XP from serving) or bought early ================= */
+/* ================= WARDROBE: outfits bought with creds (not tied to XP) ================= */
 function defaultWardrobe(){ return {names:["Uniform","Casual","Sharp","Party","Signature"],needLv:[1,3,6,10,15],price:[0,300,900,2400,6000],bonus:[0,2,4,7,10]}; }
 function wardMigrate(o){
   const d=defaultWardrobe(); o.wardrobe=Object.assign(d,o.wardrobe||{}); ["names","needLv","price","bonus"].forEach(k=>{ if(!Array.isArray(o.wardrobe[k])||o.wardrobe[k].length!==5) o.wardrobe[k]=d[k]; });
-  (o.staff||[]).forEach(w=>{ if(!w.ward||typeof w.ward!=="object") w.ward={}; if(!w.wear) w.wear=1; });
+  (o.staff||[]).forEach(w=>{ if(!w.ward||typeof w.ward!=="object") w.ward={}; if(!w.wear) w.wear=1;
+    /* outfits used to unlock by level: keep any that were already earned that way */
+    if(!o.wardrobe.buyOnly){ for(let t=2;t<=5;t++) if((w.lv||1)>=o.wardrobe.needLv[t-1]) (w.ward[t]=w.ward[t]||{}).owned=true; } });
+  o.wardrobe.buyOnly=true;
 }
 const WCFG=()=>S.wardrobe;
-function wardOwned(w,t){ return t===1||(w.lv||1)>=WCFG().needLv[t-1]||!!(w.ward&&w.ward[t]&&w.ward[t].owned); }
+function wardOwned(w,t){ return t===1||!!(w.ward&&w.ward[t]&&w.ward[t].owned); }
 function wardArt(w){ if(!w) return null; const t=w.wear||1; if(t<2||!wardOwned(w,t)) return null; const o=w.ward&&w.ward[t]; return o&&o.art?resolveArt(o.art):null; }
 function wardBonus(w){ if(!w) return 0; const t=w.wear||1; return wardOwned(w,t)?(WCFG().bonus[t-1]||0)/100:0; }
-function wardUnlockMsg(w,lv0){ const C=WCFG(); for(let t=2;t<=5;t++){ if(lv0<C.needLv[t-1]&&(w.lv||1)>=C.needLv[t-1]&&!(w.ward&&w.ward[t]&&w.ward[t].owned)){ addLog(`${w.name} unlocked the ${C.names[t-1]} outfit.`,"build"); return `${C.names[t-1]} outfit unlocked.`; } } return null; }
-const xpNeed=w=>40*(w.lv||1);
+function wardUnlockMsg(w,lv0){ return null; const C=WCFG(); for(let t=2;t<=5;t++){ if(lv0<C.needLv[t-1]&&(w.lv||1)>=C.needLv[t-1]&&!(w.ward&&w.ward[t]&&w.ward[t].owned)){ addLog(`${w.name} unlocked the ${C.names[t-1]} outfit.`,"build"); return `${C.names[t-1]} outfit unlocked.`; } } return null; }
+const xpNeed=w=>lvNeed(w.lv||1);
 
 /* ---------- outfits inside each employee card (Upgrade page) ---------- */
 const wardOpen=new Set();
 function wardBlock(w){
   const C=WCFG(), need=xpNeed(w), nextT=[2,3,4,5].find(t=>!wardOwned(w,t)), cur=w.wear||1;
   return `<details class="sub wardsub" data-wardopen="${w.id}" ${wardOpen.has(w.id)?"open":""}><summary>Outfits · ${esc(C.names[cur-1])}${C.bonus[cur-1]?` · +${C.bonus[cur-1]}% tips`:""}</summary>
-    ${meter("XP",Math.min(1,(w.xp||0)/need),`${w.xp||0}/${need}`)}
-    <p class="hint" style="margin:4px 0 8px">${nextT?`Serving earns XP. ${esc(C.names[nextT-1])} unlocks at LV ${C.needLv[nextT-1]}, or buy it now.`:"Every outfit unlocked."}</p>
+    <p class="hint" style="margin:0 0 8px">${nextT?`Buy outfits with creds. Each one adds to ${esc(w.name)}'s tips while worn.`:"Every outfit owned."}</p>
     <div class="wardrow">${[1,2,3,4,5].map(t=>{ const o=(w.ward||{})[t]||{}, src=t===1?artHalf(w):(o.art?resolveArt(o.art):null), own=wardOwned(w,t), on=cur===t&&own, p=C.price[t-1]||0, can=S.credits>=p;
       return `<div class="wslot ${own?"":"locked"} ${on?"on":""}">
         <div class="wthumb">${src?`<img src="${src}" alt="">`:`<span aria-hidden="true">${own?"👕":"🔒"}</span>`}</div>
         <b>${esc(C.names[t-1])}</b><small>${C.bonus[t-1]?`+${C.bonus[t-1]}%`:"no bonus"}</small>
         ${on?`<span class="viptag">WEARING</span>`:own?`<button class="btn smallbtn" data-ward="wear" data-id="${w.id}:${t}">WEAR</button>`
-          :`<small class="muted">LV ${C.needLv[t-1]}</small><button class="btn smallbtn ${can?"solid":""}" data-ward="buy" data-id="${w.id}:${t}" ${can?"":"disabled"}>${p.toLocaleString()}₵</button>`}
+          :`<button class="btn smallbtn ${can?"solid":""}" data-ward="buy" data-id="${w.id}:${t}" ${can?"":"disabled"}>${p.toLocaleString()}₵</button>`}
       </div>`; }).join("")}</div>
     ${[2,3,4,5].some(t=>!((w.ward||{})[t]||{}).art)?`<p class="hint" style="margin:6px 0 0">Load outfit art in Dev › Workers. Without art they look the same but still get the tip bonus.</p>`:""}
   </details>`;
@@ -5231,16 +5238,15 @@ function wardDevPanel(p){
     <p class="hint" style="margin:0 0 8px">Outfit art uses the same position sliders as the main art, so make each outfit from the same base pose.</p>
     <div class="cgal">${[2,3,4,5].map(t=>{ const o=(p.ward||{})[t]||{}, a=o.art&&resolveArt(o.art), fid=`wd-${t}-${p.id}`;
       return `<div class="cslot">${a?`<div class="cthumb"><img src="${a}" alt=""></div>`:`<div class="cthumb empty"><span>👕</span></div>`}
-        <b>${esc(C.names[t-1])}</b><small class="muted">LV ${C.needLv[t-1]} · ${wardOwned(p,t)?"unlocked":"locked"}</small>
+        <b>${esc(C.names[t-1])}</b><small class="muted">${(C.price[t-1]||0).toLocaleString()}₵ · ${wardOwned(p,t)?"owned":"not bought"}</small>
         <div class="rowflex" style="gap:4px"><label class="btn ghost smallbtn" for="${fid}" style="text-align:center">${a?"REPLACE":"LOAD"}</label><input type="file" id="${fid}" class="srt" accept="image/*" data-up="ward" data-id="${p.id}" data-kind="${t}">
         ${a?`<button class="btn ghost smallbtn" data-ward="clear" data-id="${p.id}:${t}" aria-label="Remove ${esc(C.names[t-1])} art">✕</button>`:""}</div></div>`; }).join("")}</div>
     <p class="alabel" style="margin-top:12px">OUTFIT ANIMATIONS</p>
     ${outfitAnimBlock(p,"w")}
   </section>
   <section class="panel"><h2><span>OUTFIT SETTINGS</span><span>ALL STAFF</span></h2>
-    <div class="wardcfg"><span></span><span class="fl">Name</span><span class="fl">LV</span><span class="fl">Price ₵</span><span class="fl">Tip %</span>
+    <div class="wardcfg nolv"><span></span><span class="fl">Name</span><span class="fl">Price ₵</span><span class="fl">Tip %</span>
       ${[0,1,2,3,4].map(i=>`<b>${i+1}</b><input class="field" data-wcfg="names:${i}" maxlength="20" value="${esc(C.names[i])}" aria-label="Outfit ${i+1} name">
-        <input class="field num" data-wcfg="needLv:${i}" type="number" min="1" max="99" value="${C.needLv[i]}" ${i===0?"disabled":""} aria-label="Outfit ${i+1} level">
         <input class="field num" data-wcfg="price:${i}" type="number" min="0" max="999999" value="${C.price[i]}" ${i===0?"disabled":""} aria-label="Outfit ${i+1} price">
         <input class="field num" data-wcfg="bonus:${i}" type="number" min="0" max="100" value="${C.bonus[i]}" aria-label="Outfit ${i+1} tip bonus">`).join("")}</div>
   </section>`;
@@ -5869,7 +5875,7 @@ function empSheet(w,venue){
       <div><label class="fl" for="empPersona">Personality</label><select class="field" id="empPersona">${Object.entries(PERSONAS).map(([k,P])=>`<option value="${k}" ${w.persona===k?"selected":""}>${esc(P.label)}</option>`).join("")}</select></div>
       <div><label class="fl" for="empTrait">Trait</label><select class="field" id="empTrait">${Object.entries(TRAITS).map(([k,T])=>`<option value="${k}" ${w.trait===k?"selected":""}>${esc(T.name)}</option>`).join("")}</select></div>
       ${isHired(w)&&!isNew?"":`<div class="full"><label class="fl" for="empCost">Hire cost ₵ (0 = automatic)</label><input class="field num" id="empCost" type="number" min="0" max="999999" value="${w.cost||0}"></div>`}
-      <div class="full" ${adultOn()?"":"hidden"}><label class="fl" for="empLw">${esc(PL())} points</label><input class="field num" id="empLw" type="number" min="0" max="9999" value="${w.lw||0}"></div>
+      <div class="full"><label class="fl" for="empLw">${esc(PL())} points <span class="muted">(levels at ${S.prog.need.slice(1).join(" / ")}; no way to earn yet, set it here)</span></label><input class="field num" id="empLw" type="number" min="0" max="9999" value="${w.lw||0}"></div>
     </div>
     ${isNew?`<p class="hint" style="margin:0">After saving, their editor opens below: faces, outfits, animations and the counter position.</p>`:""}
     <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"CREATE":"SAVE"}</button></div>
