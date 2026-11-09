@@ -764,6 +764,15 @@ body.xson{overflow:hidden}
 .bdrow{border-top:1px solid var(--line);padding:10px 0;display:flex;flex-direction:column;gap:6px}
 .bdprev{width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;border:1px solid var(--line);background:#0a0812}
 .actions.wrap{flex-wrap:wrap}
+.slotrow{display:flex;gap:10px;align-items:flex-start}
+.slotprev{width:90px;height:120px;background:#1e1430;border:1px solid var(--line);flex:none}
+.slotstrip{display:flex;gap:6px;overflow-x:auto;flex:1;padding-bottom:4px}
+.slotcell{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted,#9a94b0)}
+.slotfr{height:96px;width:auto;background:#1e1430;border:1px solid var(--line)}
+.fitwrap{background:#0a0812;border:1px solid var(--line);line-height:0;margin-top:8px}
+.fitcv{width:100%;height:auto;aspect-ratio:16/9;display:block}
+.fitctl{display:flex;flex-direction:column;gap:6px}
+.fitctl input[type=range]{width:100%}
 
 </style>
 </head>
@@ -3804,8 +3813,10 @@ function vSprites(){
       <label class="btn solid" for="ssImport" style="text-align:center;flex:1">UPLOAD TO EDIT</label><input type="file" id="ssImport" class="srt" accept="image/*">
       <label class="btn" for="ssDirect" style="text-align:center;flex:1">UPLOAD STRAIGHT TO SLOT</label><input type="file" id="ssDirect" class="srt" accept="image/*">
     </div>
-    <p class="hint" style="margin:6px 0 0"><b>To edit</b> opens it here, shrunk to fit 64px if it's bigger. <b>Straight to slot</b> skips the editor and keeps it at full detail, using the speed and height below.</p>
+    <p class="hint" style="margin:6px 0 0">Frames are found automatically when the sheet has a clear background between figures. <b>To edit</b> opens small pixel art here (up to 128px a frame). Anything bigger, and <b>Straight to slot</b>, saves at full detail. Check the result in the slot below.</p>
   </section>
+  ${ssSlotHTML()}
+  ${ssFitHTML()}
   <section class="panel ssedwrap">
     ${ssToolsHTML()}
     <div class="sspal">${SS_PAL.map(c=>`<button class="ssc ${SS.color===c?"on":""}" style="background:${c}" data-act="ssColor" data-id="${c}" aria-label="Color ${c}"></button>`).join("")}
@@ -3836,7 +3847,7 @@ function ssPreviewTick(){
 }
 setInterval(()=>{ if(tab==="dev"&&devSub==="sprites") ssPreviewTick(); },60);
 function ssLoadSheet(src,cols,rows,done){
-  const im=new Image(); im.onload=()=>{ let fw=Math.floor(im.naturalWidth/cols), fh=Math.floor(im.naturalHeight/rows); const sc=Math.min(1,64/fh,64/fw), tw=Math.max(1,Math.round(fw*sc)), th=Math.max(1,Math.round(fh*sc));
+  const im=new Image(); im.onload=()=>{ let fw=Math.floor(im.naturalWidth/cols), fh=Math.floor(im.naturalHeight/rows); const sc=Math.min(1,128/fh,128/fw), tw=Math.max(1,Math.round(fw*sc)), th=Math.max(1,Math.round(fh*sc));
     const frames=[]; for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){ const cv=document.createElement("canvas"); cv.width=tw; cv.height=th; const g=cv.getContext("2d"); g.imageSmoothingEnabled=false; g.drawImage(im,c*fw,r*fh,fw,fh,0,0,tw,th); frames.push(g.getImageData(0,0,tw,th).data); }
     Object.assign(SS,{w:tw,h:th,frames,cur:0,undo:[],redo:[]}); if(!SS.height||SS.height>100) SS.height=Math.min(100,th); done&&done(); };
   im.onerror=()=>toast("Couldn't read that image.", true); im.src=src;
@@ -3973,7 +3984,7 @@ function render(){
   document.body.classList.toggle("night",clockSide()==="night");
   renderTop(); renderTabs();
   $("screen").innerHTML=({dev:vDev,shop:vShop,tasks:vTasks,save:vSave,upgrade:vUpgrade,favors:vFavors,more:vMore}[tab]||vShop)();
-  startCity(); startFloor(); startScene(); if(tab==="dev"&&devSub==="scene") scnDrawBackdrops(); drawPorts(); if(tab==="dev"&&devSub==="sprites"){ ssDraw(); ssThumbs(); } S.staff.forEach(drawFramePreview);
+  startCity(); startFloor(); startScene(); if(tab==="dev"&&devSub==="scene") scnDrawBackdrops(); drawPorts(); if(tab==="dev"&&devSub==="sprites"){ ssDraw(); ssThumbs(); ssSlotDraw(); } S.staff.forEach(drawFramePreview);
 }
 
 /* ---------- sheets ---------- */
@@ -4362,12 +4373,13 @@ function sheetUpload(file,id,kind,slot){
   const bag0=animBag(w,slot)||{}, a=Object.assign({cols:4,rows:1,fps:8},bag0[kind]||{}), box=$(`sh-${kind}-${id}${slot?"-"+slot:""}`);
   if(box){ a.cols=+box.querySelector('[data-anim=cols]').value||1; a.rows=+box.querySelector('[data-anim=rows]').value||1; a.fps=+box.querySelector('[data-anim=fps]').value||8; }
   readImage(file).then(img=>{
+    const det=sheetDetect(img); if(det&&(det.cols!==a.cols||det.rows!==a.rows)){ a.cols=det.cols; a.rows=det.rows; a._found=true; }
     const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/a.cols, fh=H/a.rows;
-    const cap=kind[0]==="f"?420:720, sc=Math.min(1,cap/fw,cap/fh,Math.sqrt(16e6/(W*H)));
+    const cap=kind[0]==="f"?480:720, sc=Math.min(1,cap/fw,cap/fh,Math.sqrt(16e6/(W*H)));
     const cv=hqResize(img,W,H,Math.max(1,Math.round(W*sc)),Math.max(1,Math.round(H*sc)));
     let data=cv.toDataURL("image/png"); if(data.length>1.6e6) data=cv.toDataURL("image/webp",.9);
     return storeArt(data).then(ref=>{ const bag=animBag(w,slot,true); if(bag[kind]) dropArt(bag[kind].ref); bag[kind]=Object.assign(a,{ref}); if(!w.frame&&kind[0]!=="f") w.frame={s:1,x:0,y:0}; manageOpen=w.id;
-      addLog(`${[...SHEETS,...FSHEETS].find(s=>s[0]===kind)[1]} animation loaded for ${w.name}${slot?` (${slotName(slot)})`:""}.`,"build"); commit(); toast(kind[0]==="f"?`${a.cols*a.rows} frames loaded. Check the Inside view on the Shop tab.`:`${a.cols*a.rows} frames loaded. Position them with the sliders.`); });
+      addLog(`${[...SHEETS,...FSHEETS].find(s=>s[0]===kind)[1]} animation loaded for ${w.name}${slot?` (${slotName(slot)})`:""}.`,"build"); const fd=a._found?"Found and loaded ":""; delete a._found; commit(); toast(kind[0]==="f"?`${fd||""}${a.cols*a.rows} frames${fd?"":" loaded"}. Check the Inside view on the Shop tab.`:`${fd||""}${a.cols*a.rows} frames${fd?"":" loaded"}. Position them with the sliders.`); });
   }).catch(()=>toast(imgErr(file), true));
 }
 function sheetUploadNoBox(file,id,kind,opts){
@@ -4378,7 +4390,7 @@ function sheetUploadNoBox(file,id,kind,opts){
     const cv=sc<1?hqResize(img,W,H,Math.max(1,Math.round(W*sc)),Math.max(1,Math.round(H*sc))):(()=>{ const c=document.createElement("canvas"); c.width=W; c.height=H; c.getContext("2d").drawImage(img,0,0); return c; })();
     let data=cv.toDataURL("image/png"); if(data.length>2.5e6) data=cv.toDataURL("image/webp",.92);
     return storeArt(data).then(ref=>{ w.anim=w.anim||{}; const old=w.anim[kind]&&w.anim[kind].ref; if(old&&old!==ref) dropArt(old);
-      w.anim[kind]=Object.assign({flip:false},opts,{ref}); addLog(`Uploaded a ${kind==="fidle"?"standing":"walking"} sprite for ${w.name}.`,"build"); commit(); toast(`Uploaded ${opts.cols*opts.rows} frames to ${w.name} at full detail${fw>128||fh>128?" (too big to edit pixel by pixel, so they skipped the editor)":""}. Check the Inside view.`); });
+      w.anim[kind]=Object.assign({flip:false},opts,{ref}); addLog(`Uploaded a ${kind==="fidle"?"standing":"walking"} sprite for ${w.name}.`,"build"); commit(); toast(`Saved ${opts.cols*opts.rows} frame${opts.cols*opts.rows===1?"":"s"} to ${w.name} at full detail${fw>128||fh>128?" (too big for the pixel editor)":""}. They're shown under In the slot.`); });
   }).catch(()=>toast(imgErr(file), true));
 }
 function slotName(slot){ if(!slot) return "base"; const n=+slot.slice(1); return slot[0]==="w"?(S.wardrobe.names[n-1]||"Outfit "+n):(S.prog.names[n-1]||"Outfit "+n); }
@@ -4397,7 +4409,7 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(!t.dataset||!t.da
   const k=t.dataset.kind, bag=animBag(w,t.dataset.slot||"",true); bag[k]=bag[k]||{cols:4,rows:1,fps:8};
   if(t.type==="checkbox") bag[k][t.dataset.anim]=t.checked;
   else { const lim={cols:16,rows:8,fps:30,h:100}[t.dataset.anim]; bag[k][t.dataset.anim]=Math.max(t.dataset.anim==="h"?16:1,Math.min(lim,Math.round(+t.value)||1)); }
-  save(); drawFramePreview(w); });
+  save(); drawFramePreview(w); if(typeof ssSlotDraw==="function") ssSlotDraw(); });
 setInterval(()=>{ if(tab!=="dev") return; S.staff.forEach(w=>{ if(sheetFor(w,"idle")) drawFramePreview(w); }); },80);
 function drawFramePreview(w){
   const cv=document.getElementById("framePrev-"+w.id); if(!cv) return; cv.getContext("2d").setTransform(cv.width/SW,0,0,cv.height/SH,0,0);
@@ -4591,13 +4603,20 @@ function routeUpload(t){
 }
 
 function routeSS(t){
-  if(t.id==="ssImport"&&t.files&&t.files[0]){ const n=Math.max(1,Math.min(16,+($("ssAcross").value)||1)), m=Math.max(1,Math.min(8,+($("ssDown").value)||1)); SS.upCols=n; SS.upRows=m;
-    readImage(t.files[0]).then(img=>{ const IW=img.width||img.naturalWidth, IH=img.height||img.naturalHeight;
-      if(IW/n>128||IH/m>128){ const w=S.staff.find(x=>x.id===SS.wid); if(w){ sheetUploadNoBox(t.files[0],w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; } }
-      const c=document.createElement("canvas"); c.width=IW; c.height=IH; c.getContext("2d").drawImage(img,0,0); ssLoadSheet(c.toDataURL("image/png"),n,m,()=>{ ssSaveDraft(); render(); toast(`Uploaded ${n*m} frame${n*m===1?"":"s"} to edit.`); }); }).catch(()=>toast(imgErr(t.files[0]), true)); }
-  if(t.id==="ssDirect"&&t.files&&t.files[0]){ const w=S.staff.find(x=>x.id===SS.wid); if(!w){ toast("Pick a worker first.", true); return; }
-    const n=Math.max(1,Math.min(16,+($("ssAcross").value)||1)), m=Math.max(1,Math.min(8,+($("ssDown").value)||1)); SS.upCols=n; SS.upRows=m;
-    sheetUploadNoBox(t.files[0],w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; }
+  if((t.id!=="ssImport"&&t.id!=="ssDirect")||!t.files||!t.files[0]) return;
+  const file=t.files[0], direct=t.id==="ssDirect";
+  readImage(file).then(img=>{
+    let n=Math.max(1,Math.min(16,+($("ssAcross")||{}).value||1)), m=Math.max(1,Math.min(8,+($("ssDown")||{}).value||1));
+    const det=sheetDetect(img); let found="";
+    if(det&&(det.cols!==n||det.rows!==m)){ n=det.cols; m=det.rows; found=`Found ${n*m} frame${n*m===1?"":"s"}${m>1?` (${n} across, ${m} down)`:""}. `; }
+    SS.upCols=n; SS.upRows=m;
+    const IW=img.width||img.naturalWidth, IH=img.height||img.naturalHeight, w=S.staff.find(x=>x.id===SS.wid);
+    if(direct||IW/n>128||IH/m>128){ if(!w){ toast("Pick a worker first.", true); return; }
+      if(found) toast(found);
+      sheetUploadNoBox(file,w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; }
+    const c=document.createElement("canvas"); c.width=IW; c.height=IH; c.getContext("2d").drawImage(img,0,0);
+    ssLoadSheet(c.toDataURL("image/png"),n,m,()=>{ ssSaveDraft(); render(); toast(`${found}Loaded ${n*m} frame${n*m===1?"":"s"} to edit.`); });
+  }).catch(()=>toast(imgErr(file), true));
 }
 /* ---------- background remover (opens on image import) ---------- */
 const BX={};
@@ -4768,7 +4787,7 @@ function scnPool(sec){
   PATRON_BUILTIN.forEach(p=>{ if(!S.patronOff[p.id]) out.push({id:p.id,walk:{src:p.walk,n:6},idle:{src:p.idle,n:4},sit:{src:p.sit,n:1},h:144,foot:3/72,hip:54/72,fps:8}); });
   S.patronDefs.forEach(p=>{ if(p.off||(p.venues&&p.venues.length&&!p.venues.includes(sec))) return; const w=p.walk&&resolveArt(p.walk.ref); if(!w) return;
     const sh=k=>p[k]&&p[k].ref&&resolveArt(p[k].ref)?{src:resolveArt(p[k].ref),n:p[k].n||1}:null;
-    out.push({id:p.id,walk:{src:w,n:p.walk.n||1},idle:sh("idle")||{src:w,n:1},sit:sh("sit"),h:+p.h||140,foot:(+p.foot||0)/100,hip:(+p.hip||62)/100,fps:+p.fps||8,flip:!!p.flip}); });
+    out.push({id:p.id,walk:{src:w,n:p.walk.n||1},idle:sh("idle")||{src:w,n:1},sit:sh("sit"),h:+p.h||140,foot:(+p.foot||0)/100,hip:(+p.hip||62)/100,fps:+p.fps||8,flip:!!p.flip,trim:p.trim!==false}); });
   return out;
 }
 function scnState(sec){ let st=scnSt[sec]; if(!st){ st=scnSt[sec]={pats:[],next:0,staff:{},last:0}; } return st; }
@@ -4819,14 +4838,38 @@ function scnUpdate(sec,now){
   const goal=q&&Math.random()<.02?Math.max(M.staff.x0,Math.min(M.staff.x1,q.x+16)):sf.tx; if(q) sf.tx=goal;
   const ddx=sf.tx-sf.x; sf.moving=Math.abs(ddx)>.6; if(sf.moving){ sf.x+=Math.sign(ddx)*Math.min(Math.abs(ddx),22*dt); sf.dir=ddx>0?1:-1; } else if(q) sf.dir=q.x<sf.x?-1:1;
 }
-function scnSheet(g,sh,k,x,base,h,dir,foot,flip){
-  if(!sh) return; const im=imgFor(sh.src); if(!(im.complete&&im.naturalWidth)) return;
-  const n=Math.max(1,sh.n|0), fw=im.naturalWidth/n, fh=im.naturalHeight, w=fw*h/fh; let Q=1; try{ Q=Math.abs(g.getTransform().d)||1; }catch(e){} const ratio=h*Q/fh;
-  let src=im, m=1; if(ratio<.5&&typeof mipFor==="function"){ src=mipFor(im,Math.min(6,Math.floor(Math.log2(1/ratio)))); m=(src.naturalHeight||src.height)/fh; }
-  const rq=v=>Math.round(v*Q)/Q, top=rq(base-h*(1-foot)), left=rq(x-w/2), f=((k%n)+n)%n;
-  g.save(); g.imageSmoothingEnabled=ratio<1&&Math.abs(ratio-Math.round(ratio))>.01; g.imageSmoothingQuality="high";
+/* trim: the union box of every frame's visible pixels, so the figure (not the empty frame) is what gets sized */
+const SCN_TRIM=new Map();
+function sheetTrim(im,cols,rows){
+  const key=im.src.length+":"+im.src.slice(-48)+"|"+cols+"|"+rows; if(SCN_TRIM.has(key)) return SCN_TRIM.get(key);
+  let r=null;
+  try{ const W=im.naturalWidth, H=im.naturalHeight, s=Math.min(1,1600/W,1600/H), cw=Math.max(1,Math.round(W*s)), ch=Math.max(1,Math.round(H*s));
+    const c=document.createElement("canvas"); c.width=cw; c.height=ch; const g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(im,0,0,cw,ch);
+    const d=g.getImageData(0,0,cw,ch).data, fw=cw/cols, fh=ch/rows; let x0=1e9,y0=1e9,x1=-1,y1=-1,clear=0;
+    for(let y=0;y<ch;y++){ const ly=y-Math.floor(y/fh)*fh; for(let x=0;x<cw;x++){ if(d[(y*cw+x)*4+3]<24){ clear++; continue; } const lx=x-Math.floor(x/fw)*fw; if(lx<x0) x0=lx; if(lx>x1) x1=lx; if(ly<y0) y0=ly; if(ly>y1) y1=ly; } }
+    if(clear>cw*ch*0.03&&x1>=0){ const p=1; r={x:Math.max(0,(x0-p)/s),y:Math.max(0,(y0-p)/s),w:Math.min(W/cols,(x1-x0+1+2*p)/s),h:Math.min(H/rows,(y1-y0+1+2*p)/s)}; }
+  }catch(e){ r=null; }
+  SCN_TRIM.set(key,r); return r;
+}
+function scnSheet(g,sh,k,x,base,h,dir,foot,flip,opt){
+  if(!sh) return; const im=imgFor(sh.src); if(!(im.complete&&im.naturalWidth)) return; opt=opt||{};
+  const cols=Math.max(1,sh.n|0), rows=Math.max(1,sh.rows|0||1), count=Math.max(1,Math.min(cols*rows,sh.count|0||cols*rows)), fw=im.naturalWidth/cols, fh=im.naturalHeight/rows, f=((k%count)+count)%count;
+  let sx=(f%cols)*fw, sy=Math.floor(f/cols)*fh, sw=fw, shh=fh;
+  const cr=opt.trim?sheetTrim(im,cols,rows):null; if(cr){ sx+=cr.x; sy+=cr.y; sw=cr.w; shh=cr.h; foot=0; }
+  const w=sw*h/shh; let Q=1; try{ Q=Math.abs(g.getTransform().d)||1; }catch(e){} const ratio=h*Q/shh;
+  let src=im, m=1; if(ratio<.5&&typeof mipFor==="function"){ src=mipFor(im,Math.min(6,Math.floor(Math.log2(1/ratio)))); m=(src.naturalHeight||src.height)/im.naturalHeight; }
+  const rq=v=>Math.round(v*Q)/Q, top=rq(base-h*(1-foot)), left=rq(x-w/2);
+  g.save(); g.imageSmoothingEnabled=ratio<1||(!opt.crisp&&Math.abs(ratio-Math.round(ratio))>.01&&ratio<2.5); g.imageSmoothingQuality="high";
   if((dir<0)!==!!flip){ g.translate(rq(x)*2,0); g.scale(-1,1); }
-  g.drawImage(src,f*fw*m,0,fw*m,fh*m,left,top,rq(w),rq(h)); g.restore();
+  g.drawImage(src,sx*m,sy*m,sw*m,shh*m,left,top,rq(w),rq(h)); g.restore();
+}
+/* one staff member, using their own sheet + fit settings, or the default barista */
+function scnFit(w){ const f=(w&&w.scn)||{}; return {h:+f.h||+S.scnStaffH||136,dy:+f.dy||0,trim:f.trim!==false,crisp:!!f.crisp}; }
+function scnDrawStaff(g,w,x,base,dir,moving,now,phase){
+  const own=(moving&&sheetFor(w,"fwalk"))||sheetFor(w,"fidle");
+  if(own){ const fr=sheetFrames(own.a), fps=Math.max(1,Math.min(30,+own.a.fps||8)), F=scnFit(w);
+    scnSheet(g,{src:own.src,n:fr.c,rows:fr.r,count:fr.n},Math.floor((now+(phase||0))/(1000/fps)),x,base-F.dy,F.h,dir,0,!!own.a.flip,{trim:F.trim,crisp:F.crisp}); }
+  else { const sh=moving?{src:STAFF_SPRITE.walk,n:6}:{src:STAFF_SPRITE.idle,n:4}; scnSheet(g,sh,Math.floor((now+(phase||0))/(moving?125:420)),x,base,144,dir,3/72,false); }
 }
 function scnStaffList(sec){ const a=workerFor(sec); const L=a?[a]:[]; staffAt(sec).forEach(w=>{ if(L.length<3&&!L.includes(w)) L.push(w); }); return L; }
 const pxs=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"-");
@@ -4842,17 +4885,15 @@ function drawFloorScene(g,sec,now){
   const st=scnState(sec), sf=st.staff;
   if(!cs.roof&&cs.built&&cs.open&&M.staff){ const L=scnStaffList(sec);
     L.forEach((w,i)=>{ const span=M.staff.x1-M.staff.x0, x=i===0?(sf.x??(M.staff.x0+span/2)):M.staff.x0+((i*0.37+0.2)%1)*span, base=M.staff.base*K, mv=i===0&&sf.moving, dir=i===0?sf.dir:(i%2?1:-1);
-      const own=(mv&&sheetFor(w,"fwalk"))||sheetFor(w,"fidle");
-      if(own){ const fr=sheetFrames(own.a), fps=Math.max(1,Math.min(30,+own.a.fps||8)); scnSheet(g,{src:own.src,n:fr.c},Math.floor(now/(1000/fps)),x*K,base,+S.scnStaffH||136,dir,0,!!own.a.flip); }
-      else { const sh=mv?{src:STAFF_SPRITE.walk,n:6}:{src:STAFF_SPRITE.idle,n:4}; scnSheet(g,sh,Math.floor((now+i*700)/(mv?125:420)),x*K,base,144,dir,3/72,false); } });
+      scnDrawStaff(g,w,x*K,base,dir,mv,now,i*700); });
   }
   img(scnLayer(sec,"mid"));
   const pool={}; scnPool(sec).forEach(p=>pool[p.id]=p);
   let bubble=false;
   st.pats.slice().sort((a,b)=>a.b-b.b).forEach(p=>{ const d=pool[p.def]; if(!d) return;
-    if(p.state==="sit"&&d.sit){ const s=M.seats[p.dest.i]; const top=s.hip*K-d.h*d.hip, base=top+d.h*(1-d.foot); scnSheet(g,d.sit,0,p.x*K,base,d.h,p.dir,d.foot,d.flip); return; }
+    if(p.state==="sit"&&d.sit){ const s=M.seats[p.dest.i]; const top=s.hip*K-d.h*d.hip, base=top+d.h*(1-d.foot); scnSheet(g,d.sit,0,p.x*K,base,d.h,p.dir,d.foot,d.flip,{trim:d.trim}); return; }
     const walking=p.state==="go"||p.state==="out", sh=walking?d.walk:d.idle, fps=walking?d.fps:3;
-    scnSheet(g,sh,Math.floor((now+p.ph)/(1000/fps)),p.x*K,p.b*K,d.h,p.dir,d.foot,d.flip);
+    scnSheet(g,sh,Math.floor((now+p.ph)/(1000/fps)),p.x*K,p.b*K,d.h,p.dir,d.foot,d.flip,{trim:d.trim});
     if(!bubble&&cs.ok&&!cs.roof&&S.clients.waiting>0&&p.state==="wait"&&M.spots[p.dest.i].kind==="queue"){ bubble=true; const by=Math.round(p.b*K-d.h*(1-d.foot)-18+Math.sin(now/240)*2), bx=Math.round(p.x*K);
       g.fillStyle="#1a0f22"; g.fillRect(bx-8,by-2,16,16); g.fillStyle="#ffd23f"; g.fillRect(bx-6,by,12,12); g.fillStyle="#1a0f22"; g.fillRect(bx-1,by+2,2,6); g.fillRect(bx-1,by+9,2,2); g.fillStyle="#ffd23f"; g.fillRect(bx-2,by+12,4,2); g.fillRect(bx-1,by+14,2,2); }
   });
@@ -4971,8 +5012,8 @@ function scnDrawBackdrops(){ document.querySelectorAll("canvas[data-bd]").forEac
   ["back","mid","fg"].forEach(l=>{ const s=scnLayer(v,l); if(!s) return; const im=imgFor(s), go=()=>{ g.imageSmoothingEnabled=im.naturalWidth>320; g.drawImage(im,0,0,320,180); }; if(im.complete&&im.naturalWidth) go(); else im.addEventListener("load",()=>scnDrawBackdrops(),{once:true}); }); }); }
 function scnUpload(t,file){
   if(!file) return;
-  if(t.dataset.up==="scnpat"){ const p=S.patronDefs.find(x=>x.id===t.dataset.id); if(!p) return; const k=t.dataset.k, box=document.querySelector(`[data-pf=n][data-k=${k}][data-id="${p.id}"]`), n=Math.max(1,Math.min(16,+(box&&box.value)||1));
-    return readImage(file).then(img=>{ const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/n, sc=Math.min(1,480/H,640/fw,Math.sqrt(16e6/(W*H)));
+  if(t.dataset.up==="scnpat"){ const p=S.patronDefs.find(x=>x.id===t.dataset.id); if(!p) return; const k=t.dataset.k, box=document.querySelector(`[data-pf=n][data-k=${k}][data-id="${p.id}"]`); let n=Math.max(1,Math.min(16,+(box&&box.value)||1));
+    return readImage(file).then(img=>{ const det=sheetDetect(img); if(det&&det.rows===1) n=det.cols; const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/n, sc=Math.min(1,480/H,640/fw,Math.sqrt(16e6/(W*H)));
       const cv=sc<1?hqResize(img,W,H,Math.max(1,Math.round(W*sc)),Math.max(1,Math.round(H*sc))):(()=>{ const c=document.createElement("canvas"); c.width=W; c.height=H; c.getContext("2d").drawImage(img,0,0); return c; })();
       let data=cv.toDataURL("image/png"); if(data.length>1.6e6) data=cv.toDataURL("image/webp",.92);
       return storeArt(data).then(ref=>{ if(p[k]&&p[k].ref) dropArt(p[k].ref); p[k]={ref,n}; commit(); toast(`${n} frame${n===1?"":"s"} loaded for ${p.name||"your patron"}.`); }); }).catch(()=>toast(imgErr(file),true)); }
@@ -5003,6 +5044,99 @@ document.addEventListener("change",ev=>{ const t=ev.target;
   else if(f==="venue"){ const v=t.dataset.v; p.venues=(p.venues||[]).filter(x=>x!==v); if(t.checked) p.venues.push(v); }
   else { const lim={h:[40,300],fps:[1,30],foot:[0,40],hip:[20,95]}[f]; if(lim) p[f]=Math.max(lim[0],Math.min(lim[1],+t.value||lim[0])); }
   save(); });
+
+/* ---------- sprite sheet frame detection: finds the figures and counts them, so "Frames across" fixes itself ---------- */
+function sheetDetect(img){
+  try{
+    const IW=img.width||img.naturalWidth, IH=img.height||img.naturalHeight, sc=Math.min(1,1200/IW,800/IH), W=Math.max(1,Math.round(IW*sc)), H=Math.max(1,Math.round(IH*sc));
+    const c=document.createElement("canvas"); c.width=W; c.height=H; const g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(img,0,0,W,H);
+    const d=g.getImageData(0,0,W,H).data; let clear=0; for(let i=3;i<d.length;i+=16) if(d[i]<16) clear++;
+    const useAlpha=clear>(d.length/16)*0.05;
+    const corners=[[1,1],[W-2,1],[1,H-2],[W-2,H-2]].map(([x,y])=>{ const o=(y*W+x)*4; return [d[o],d[o+1],d[o+2]]; });
+    const bg=corners[0];
+    const empty=o=>useAlpha?d[o+3]<24:(Math.abs(d[o]-bg[0])+Math.abs(d[o+1]-bg[1])+Math.abs(d[o+2]-bg[2])<70);
+    const colN=new Array(W).fill(0), rowN=new Array(H).fill(0);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){ if(!empty((y*W+x)*4)){ colN[x]++; rowN[y]++; } }
+    const runs=(arr,len,other)=>{ const thr=Math.max(1,other*0.004), gapMin=Math.max(2,len*0.012), out=[]; let s=-1, gap=0;
+      for(let i=0;i<=len;i++){ const on=i<len&&arr[i]>thr;
+        if(on){ if(s<0) s=i; gap=0; } else if(s>=0){ gap++; if(gap>=gapMin||i===len){ out.push([s,i-gap+1]); s=-1; gap=0; } } }
+      return out.filter(([a,b])=>b-a>len*0.01); };
+    const cr=runs(colN,W,H), rr=runs(rowN,H,W);
+    const even=(rs,len)=>{ const n=rs.length; if(n<2) return n===1; const cell=len/n; return rs.every(([a,b],i)=>{ const mid=(a+b)/2; return mid>i*cell&&mid<(i+1)*cell; }); };
+    const cols=cr.length>=1&&cr.length<=16&&even(cr,W)?cr.length:0, rows=rr.length>=1&&rr.length<=8&&even(rr,H)?rr.length:0;
+    if(!cols) return null; return {cols,rows:rows||1};
+  }catch(e){ return null; }
+}
+/* what's saved in the current Sprites slot: every frame + a live preview, so you can see the cut */
+function ssSlotHTML(){
+  const w=S.staff.find(x=>x.id===SS.wid), a=w&&w.anim&&w.anim[SS.kind], has=!!(a&&a.ref&&resolveArt(a.ref)), n=has?sheetFrames(a).n:0;
+  return `<section class="panel"><h2><span>IN THE SLOT</span><span>${w?esc(w.name.toUpperCase())+" · ":""}${SS.kind==="fidle"?"STANDING":"WALKING"}${has?` · ${n} FRAME${n===1?"":"S"}`:""}</span></h2>
+    ${has?`<div class="slotrow"><canvas id="ssSlotPrev" class="slotprev" width="120" height="160" aria-label="Animated preview of the saved sprite"></canvas>
+      <div class="slotstrip" id="ssSlotStrip" aria-label="Saved frames"></div></div>
+      <div class="sheetnums" style="margin-top:8px"><label>Frames across<input class="field num" type="number" min="1" max="16" data-anim="cols" data-kind="${SS.kind}" data-id="${w.id}" data-slot="" value="${a.cols||1}"></label>
+        <label>Frames down<input class="field num" type="number" min="1" max="8" data-anim="rows" data-kind="${SS.kind}" data-id="${w.id}" data-slot="" value="${a.rows||1}"></label>
+        <label>Speed (fps)<input class="field num" type="number" min="1" max="30" data-anim="fps" data-kind="${SS.kind}" data-id="${w.id}" data-slot="" value="${a.fps||8}"></label></div>
+      <p class="hint" style="margin:6px 0 0">If the frames above are cut wrong, fix Frames across and down here. No need to upload again.</p>`
+      :`<p class="empty" style="margin:0">Nothing saved here yet. Upload a sheet above.</p>`}</section>`;
+}
+function ssSlotDraw(){
+  const strip=$("ssSlotStrip"); if(!strip) return; const w=S.staff.find(x=>x.id===SS.wid), a=w&&w.anim&&w.anim[SS.kind]; if(!a) return;
+  const im=imgFor(resolveArt(a.ref)); if(!(im.complete&&im.naturalWidth)){ im.addEventListener("load",ssSlotDraw,{once:true}); return; }
+  const {c,r,n}=sheetFrames(a), fw=im.naturalWidth/c, fh=im.naturalHeight/r, th=96, tw=Math.max(8,Math.round(fw*th/fh));
+  strip.innerHTML=""; for(let k=0;k<n;k++){ const cv=document.createElement("canvas"); cv.width=tw*2; cv.height=th*2; cv.className="slotfr"; const g=cv.getContext("2d"); g.imageSmoothingEnabled=fh>th*2; g.imageSmoothingQuality="high";
+    g.drawImage(im,(k%c)*fw,Math.floor(k/c)*fh,fw,fh,0,0,cv.width,cv.height); const wrap=document.createElement("div"); wrap.className="slotcell"; wrap.appendChild(cv); const lab=document.createElement("span"); lab.textContent=k+1; wrap.appendChild(lab); strip.appendChild(wrap); }
+}
+setInterval(()=>{ const cv=$("ssSlotPrev"); if(!cv) return; const w=S.staff.find(x=>x.id===SS.wid), a=w&&w.anim&&w.anim[SS.kind]; if(!a||!a.ref) return; const im=imgFor(resolveArt(a.ref)); if(!(im.complete&&im.naturalWidth)) return;
+  const {c,r,n}=sheetFrames(a), fw=im.naturalWidth/c, fh=im.naturalHeight/r, k=Math.floor(performance.now()/(1000/Math.max(1,+a.fps||8)))%n, g=cv.getContext("2d"), s=Math.min(cv.width/fw,cv.height/fh);
+  g.clearRect(0,0,cv.width,cv.height); g.imageSmoothingEnabled=s<1; g.imageSmoothingQuality="high"; g.drawImage(im,(k%c)*fw,Math.floor(k/c)*fh,fw,fh,(cv.width-fw*s)/2,cv.height-fh*s,fw*s,fh*s); },90);
+document.addEventListener("input",ev=>{ const t=ev.target; if(t.id==="ssAcross") SS.upCols=Math.max(1,Math.min(16,+t.value||1)); if(t.id==="ssDown") SS.upRows=Math.max(1,Math.min(8,+t.value||1)); });
+
+/* ---------- Dev › Sprites: fit the worker into the scene ---------- */
+const FIT={venue:null,zoom:false,walk:false};
+function ssFitHTML(){
+  const w=S.staff.find(x=>x.id===SS.wid); if(!w) return "";
+  if(!FIT.venue||!SCENE_META[FIT.venue]) FIT.venue=SCENE_META[w.role]?w.role:"cafe";
+  const F=scnFit(w), own=!!(sheetFor(w,"fidle")||sheetFor(w,"fwalk")), V=["cafe","books","bar","club"];
+  return `<section class="panel"><h2><span>FIT IN THE SCENE</span><span>${esc(w.name.toUpperCase())}</span></h2>
+    <div class="povtabs" style="grid-template-columns:repeat(4,1fr)" role="group" aria-label="Preview venue">${V.map(v=>`<button class="povtab ${FIT.venue===v?"on":""}" data-act="fitVenue" data-id="${v}" aria-pressed="${FIT.venue===v}">${esc(pxs(SEC_NAME[v]).toUpperCase())}</button>`).join("")}</div>
+    <div class="fitwrap"><canvas id="ssFit" class="fitcv" width="640" height="360" aria-label="${esc(w.name)} placed in the ${esc(SEC_NAME[FIT.venue])}, with a patron for scale"></canvas></div>
+    <div class="actions" style="margin:8px 0"><button class="btn ghost smallbtn" data-act="fitZoom" aria-pressed="${FIT.zoom}">${FIT.zoom?"ZOOM OUT":"ZOOM 2×"}</button><button class="btn ghost smallbtn" data-act="fitWalk" aria-pressed="${FIT.walk}">${FIT.walk?"SHOW STANDING":"SHOW WALKING"}</button><button class="btn ghost smallbtn" data-act="fitReset">RESET</button></div>
+    ${own?`<div class="fitctl"><label class="fl" for="fitH">Size <b id="fitHv">${F.h}</b></label><input type="range" id="fitH" min="60" max="320" step="2" data-fit="h" value="${F.h}">
+      <label class="fl" for="fitDy">Raise / lower <b id="fitDyv">${F.dy}</b></label><input type="range" id="fitDy" min="-60" max="160" step="2" data-fit="dy" value="${F.dy}">
+      <label class="checkrow"><input type="checkbox" data-fit="trim" ${F.trim?"checked":""}> Trim empty space around the figure</label>
+      <label class="checkrow"><input type="checkbox" data-fit="crisp" ${F.crisp?"checked":""}> Crisp pixels (for pixel art; leave off for detailed art)</label></div>
+      <p class="hint" style="margin:6px 0 0">Size is the figure's height in the scene (patrons are about 124). Changes save as you go and show on the Shop tab right away.</p>`
+    :`<p class="hint" style="margin:0">${esc(w.name)} is using the default barista. Upload a standing sheet above to fit your own art here.</p>`}
+  </section>`;
+}
+function ssFitDraw(now){
+  const cv=$("ssFit"); if(!cv) return; const w=S.staff.find(x=>x.id===SS.wid); if(!w) return;
+  const css=cv.clientWidth||320, Q=Math.max(.5,Math.min(3,css*(window.devicePixelRatio||1)/SCN_W)), cw=Math.round(SCN_W*Q), ch=Math.round(SCN_H*Q);
+  if(cv.width!==cw||cv.height!==ch){ cv.width=cw; cv.height=ch; }
+  const g=cv.getContext("2d"), sec=FIT.venue, M=scnMeta(sec), K=SCN_K, F=scnFit(w);
+  const sx=(M.staff.x0+M.staff.x1)/2*K, base=M.staff.base*K;
+  g.setTransform(1,0,0,1,0,0); g.fillStyle="#0a0812"; g.fillRect(0,0,cw,ch);
+  if(FIT.zoom){ const cx=sx, cy=base-F.dy-F.h*.55, tx=Math.max(-SCN_W,Math.min(0,SCN_W/2-2*cx)), ty=Math.max(-SCN_H,Math.min(0,SCN_H/2-2*cy)); g.setTransform(Q*2,0,0,Q*2,Q*tx,Q*ty); }
+  else g.setTransform(Q,0,0,Q,0,0);
+  g.imageSmoothingEnabled=false;
+  const img=s=>{ if(!s) return; const im=imgFor(s); if(im.complete&&im.naturalWidth){ g.imageSmoothingEnabled=im.naturalWidth>SCN_W; g.drawImage(im,0,0,SCN_W,SCN_H); g.imageSmoothingEnabled=false; } };
+  img(scnLayer(sec,"back"));
+  scnDrawStaff(g,w,sx,base,-1,FIT.walk,now,0);
+  img(scnLayer(sec,"mid"));
+  const spot=M.spots.find(s=>s.kind==="queue")||M.spots[0], P=PATRON_BUILTIN[0];
+  if(spot&&P) scnSheet(g,{src:P.idle,n:4},Math.floor(now/333),spot.x*K-(spot.x*K>sx?0:0),spot.b*K,144,spot.x*K<sx?1:-1,3/72,false);
+  img(scnLayer(sec,"fg"));
+}
+setInterval(()=>{ if(tab==="dev"&&devSub==="sprites") ssFitDraw(performance.now()); },70);
+document.addEventListener("click",ev=>{ const el=ev.target.closest("[data-act]"); if(!el) return; const a=el.dataset.act;
+  if(a==="fitVenue"){ FIT.venue=el.dataset.id; render(); }
+  else if(a==="fitZoom"){ FIT.zoom=!FIT.zoom; render(); }
+  else if(a==="fitWalk"){ FIT.walk=!FIT.walk; render(); }
+  else if(a==="fitReset"){ const w=S.staff.find(x=>x.id===SS.wid); if(w){ delete w.scn; commit(); toast("Fit reset."); } } });
+document.addEventListener("input",ev=>{ const t=ev.target; if(!t.dataset||!t.dataset.fit||t.type!=="range") return; const w=S.staff.find(x=>x.id===SS.wid); if(!w) return;
+  w.scn=Object.assign({},scnFit(w),w.scn||{}); w.scn[t.dataset.fit]=+t.value; const o=$(t.dataset.fit==="h"?"fitHv":"fitDyv"); if(o) o.textContent=t.value; clearTimeout(ssFitDraw.t); ssFitDraw.t=setTimeout(save,300); });
+document.addEventListener("change",ev=>{ const t=ev.target; if(!t.dataset||!t.dataset.fit||t.type!=="checkbox") return; const w=S.staff.find(x=>x.id===SS.wid); if(!w) return;
+  w.scn=Object.assign({},scnFit(w),w.scn||{}); w.scn[t.dataset.fit]=t.checked; save(); });
 
 /* ================= SKILLS, COVERING OTHER VENUES, AND HIRING YOUR OWN CHARACTERS ================= */
 const SKILL_SLOTS=3, SLOT_MULT=[1,2,4];
