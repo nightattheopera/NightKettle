@@ -706,6 +706,24 @@ body.xson{overflow:hidden}
 .cthumb img{width:100%;height:100%;object-fit:cover}
 .cthumb.empty{display:grid;place-items:center;color:var(--dim);cursor:default}
 .cview{display:block;width:100%;max-height:70vh;object-fit:contain;background:#000;margin:0 0 6px}
+/* ---------- energy bar minigame ---------- */
+.glbar{position:relative;height:20px;border:1px solid var(--accent);background:#0a0910}
+.glbar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#7a5aff,var(--accent));transition:width .4s}
+.glbar span{position:relative;display:block;text-align:center;font-family:var(--pixel);font-size:9px;line-height:18px;color:#fff;text-shadow:0 1px 2px #000}
+.glpanel.glready{border-color:var(--accent);box-shadow:0 0 18px var(--glow)}
+.glpanel.glready .glbar i{animation:glpulse 1.2s ease-in-out infinite}
+@keyframes glpulse{50%{filter:brightness(1.4)}}
+@media (prefers-reduced-motion:reduce){.glpanel.glready .glbar i{animation:none}}
+.glteam{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.glpick{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;background:#140c1c;border:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer;text-align:center}
+.glpick img,.glpick .ci{width:100%;height:64px;object-fit:cover;object-position:top;background:#1e1430;display:grid;place-items:center;color:var(--accent)}
+.glpick b{font-size:13px} .glpick small{font-size:11px;color:var(--dim)}
+.glpick:not(:disabled):hover{border-color:var(--accent)}
+.glpick:disabled{opacity:.45;cursor:not-allowed}
+.xsqueue{display:flex;gap:4px;margin-left:auto;font-size:13px}
+.xsqueue span{color:var(--dim)} .xsqueue .cur{color:var(--accent)} .xsqueue .done{color:var(--good)}
+.xcard .price{position:absolute;top:2px;left:2px;background:#0a0910;border:1px solid var(--good);color:var(--good);font-family:var(--pixel);font-size:8px;padding:2px 4px;z-index:1}
+.xcard .lvl{font-family:var(--pixel);font-size:7px;color:#ff8cc4;letter-spacing:.06em}
 
 </style>
 </head>
@@ -1300,8 +1318,8 @@ function startCity(){
 function cityScene(){
   const side=viewSide(), tagBottom=((CH-206)/CH*100).toFixed(1);
   return `<div class="city"><div class="cityin">
-      <canvas id="city" width="${CW}" height="${CH}" role="img" aria-label="${esc(S.shopName)}, a tiny ${side==="day"?"coffee shop and bookshop":"bar and club"} squeezed between megatower skyscrapers"></canvas>
-      <button class="shoptag" data-act="rename" aria-label="Rename the shop" style="bottom:${tagBottom}%">${esc(S.shopName)} ✎<span>${side==="day"?"COFFEE · BOOKS":"BAR · CLUB"}</span></button>
+      <canvas id="city" width="${CW}" height="${CH}" role="img" aria-label="${esc(S.shopName)}, a tiny ${side==="day"?"coffee shop and bookshop":"bar and "+ROLES.club.room} squeezed between megatower skyscrapers"></canvas>
+      <button class="shoptag" data-act="rename" aria-label="Rename the shop" style="bottom:${tagBottom}%">${esc(S.shopName)} ✎<span>${side==="day"?"COFFEE · BOOKS":"BAR · "+SEC_NAME.club.toUpperCase()}</span></button>
     </div></div>
     <div class="rowflex" style="margin-top:12px">
       <button class="btn ghost" style="flex:1" data-act="tab" data-id="build">BUILD</button>
@@ -1507,7 +1525,7 @@ function povConfig(sec){
       R(148,11,172,3,"#c8a040");
       const on=Math.sin(t/140)>-.9;
       if(on){ g.globalAlpha=.22; R(58,38,76,26,"#d06aff"); g.globalAlpha=1; }
-      R(62,42,68,18,"#0a0812"); pixText(g,"CLUB",73,45,on?"#f0c8ff":"#3a1a48",2); R(64,64,64,1,on?"#ff3d8b":"#3a1a48");
+      R(62,42,68,18,"#0a0812"); pixText(g,adultOn()?"CLUB":"LIVE",73,45,on?"#f0c8ff":"#3a1a48",2); R(64,64,64,1,on?"#ff3d8b":"#3a1a48");
       if(lv("booth")){ R(8,86,46,38,"#0a0812"); R(9,87,44,36,"#24152e"); R(12,82,40,6,"#4a4860"); R(14,83,12,4,"#1a1424"); R(30,83,12,4,"#1a1424"); const b=Math.floor(t/250);
         for(let i=0;i<6;i++) R(12+i*7,98,4,2,(b+i)%3?"#3ef2e0":"#ff3d8b"); R(12,106,38,1,"#d06aff"); for(let k=0;k<5;k++){ const h=1+((b+k*3)%5); R(40+k*2,80-h,1,h,"#ffd23f"); } }
       if(lv("vip")){ for(let x=4;x<60;x+=3) for(let y=56;y<150;y+=4) if((x+y+((t/220)|0))%5) R(x,y,1,2,y%8?"#c8a040":"#ff8ad8"); }
@@ -1515,7 +1533,8 @@ function povConfig(sec){
     C.counter=(g,t)=>{
       const R=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(a,b,w,h);};
       if(!lv("stage")){ R(160,128,150,4,"#2a1830"); return; }
-      R(235,16,3,114,"#8a88a2"); R(235,16,1,114,"#e6e4f2"); R(232,14,9,3,"#4a4860"); R(232,128,9,3,"#4a4860");
+      if(adultOn()){ R(235,16,3,114,"#8a88a2"); R(235,16,1,114,"#e6e4f2"); R(232,14,9,3,"#4a4860"); R(232,128,9,3,"#4a4860"); }
+      else { R(214,98,1,30,"#8a88a2"); R(210,127,9,2,"#4a4860"); R(212,94,5,5,"#2a2440"); R(213,95,3,3,"#8a88a2"); R(272,108,18,20,"#1a1426"); R(274,110,14,14,"#2a2440"); R(278,114,6,6,"#0a0812"); R(279,115,4,4,"#4a4860"); }
       if(C.open) lampGlow(g,236,18,128,"#ff8ad8",.42);
       R(150,128,165,4,"#3a1a48"); R(150,128,165,1,"#d06aff"); R(150,132,165,12,"#140a1c");
       for(let x=154;x<314;x+=6) R(x,136,2,2,((x/6|0)+Math.floor(t/300))%2?"#ff3d8b":"#3ef2e0");
@@ -2284,7 +2303,7 @@ function crewPanel(){
             <div class="actions" style="margin-top:8px">${p.skill<5?`<button class="btn" data-act="train" data-id="${p.id}" ${S.credits>=90*p.skill?"":"disabled"}>TRAIN · ${90*p.skill}₵</button>`:""}
               <label class="btn ghost" for="workerArt" style="text-align:center">${p.art?"NEW ART":"LOAD ART"}</label><input type="file" id="workerArt" class="srt" accept="image/*" data-id="${p.id}">
               ${p.art?`<button class="btn ghost" data-act="clearWorkerArt" data-id="${p.id}">CODE ART</button>`:""}
-              ${true?`<label class="btn ghost charmbtn" for="charmArt" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
+              ${FEATURES.charm?`<label class="btn ghost charmbtn" for="charmArt" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
               <button class="btn danger" data-act="fire" data-id="${p.id}">LET GO</button></div>`}
       </div></div>`; };
   return `<section class="panel">
@@ -2390,8 +2409,8 @@ function sceneBack(g,sec,t){
     g.globalAlpha=.3; for(let i=0;i<5;i++) R(50+i*32+Math.round(Math.sin(t/900+i)*3),12,5,88,"#9fd0e8"); g.globalAlpha=1;
     for(let x=0;x<40;x+=3) R(x,0,3,104,(x/3)%2?"#7a1040":"#9a2458"); for(let x=200;x<SW;x+=3) R(x,0,3,104,(x/3)%2?"#7a1040":"#9a2458");
     R(0,0,SW,3,"#c8a040");
-    R(158,0,3,104,"#8a88a2"); R(158,0,1,104,"#e6e4f2");
-    const on=Math.sin(t/140)>-.9; if(on){ g.globalAlpha=.25; R(204,10,32,14,"#d06aff"); g.globalAlpha=1; } pixText(g,"CLUB",208,14,on?"#f0c8ff":"#3a1a48",1);
+    if(adultOn()){ R(158,0,3,104,"#8a88a2"); R(158,0,1,104,"#e6e4f2"); }
+    const on=Math.sin(t/140)>-.9; if(on){ g.globalAlpha=.25; R(204,10,32,14,"#d06aff"); g.globalAlpha=1; } pixText(g,adultOn()?"CLUB":"LIVE",208,14,on?"#f0c8ff":"#3a1a48",1);
     if(S.modules.lights){ const k=Math.floor(t/150)%6; R(12,10,14,14,"#8a88a2"); for(let i=0;i<9;i++) R(13+(i%3)*4,11+((i/3)|0)*4,3,3,(i+k)%4?"#c8c6d8":"#ffffff"); }
   } else {
     R(0,0,SW,SH,"#14222a");
@@ -2614,6 +2633,18 @@ function shrinkArt(file,max,done){
    Favors are a data-driven deck you write or import yourself.
    ===================================================================== */
 const LS2="nightkettle.v2";
+/* features switched off for now (code and saved art stay; flip to true to bring them back) */
+const FEATURES={charm:false,deckBuilding:false};
+/* adult content switch (Dev › Tools). Off: progression stat + outfits, the energy-bar minigame and adult favors are hidden, and the club runs as a music lounge. Nothing is deleted. */
+const adultOn=()=>!!(S&&S.adult);
+function applyAdult(){
+  const on=adultOn(); SEC_NAME.club=on?"Club":"Lounge"; ROLES.club.title=on?"Dancer":"Performer"; ROLES.club.room=on?"club":"lounge"; ROOM_LABEL.club=on?"CLUB":"LOUNGE";
+  const a=AREAS.find(x=>x[0]==="club"); if(a) a[3]=SEC_NAME.club;
+  MODULES.stage.desc=on?"A mirrored stage and a chrome pole under one hot-pink spotlight.":"A small stage, a mic stand and one hot-pink spotlight. Live music every night.";
+  MODULES.stage.line=on?"The spotlight finds the stage and the whole room goes quiet.":"The spotlight finds the stage and the room goes quiet for the first song.";
+  if(typeof PERKS!=="undefined") PERKS.entertain.desc=on?"Clients ask favors twice as often, and favors give +1 extra progression":"Clients ask favors twice as often";
+  const js=S&&S.jobs&&S.jobs.club; if(js) js.forEach(j=>{ const sw=on?{Performer:"Dancer","VIP Host":"VIP Entertainer"}:{Dancer:"Performer","VIP Entertainer":"VIP Host"}; if(sw[j.name]) j.name=sw[j.name]; });
+}
 const FRAMED=(()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
 let S=null, peek=null, armed=null, tab="shop", taskView="today", showDoneTasks=false, favFilter="all";
 const viewSide=()=>peek||clockSide();
@@ -2652,10 +2683,10 @@ function defaultProg(){ return {label:"Lewdness",need:[0,3,8,15,25],bonus:[0,10,
 const PL=()=>(S&&S.prog&&S.prog.label)||"Lewdness";
 function progLevel(w){ const n=S.prog.need; let l=1; for(let i=1;i<5;i++) if((w.lw||0)>=n[i]) l=i+1; return l; }
 function progNext(w){ const l=progLevel(w); return l>=5?null:S.prog.need[l]; }
-function outfitArt(w){ if(!w) return null; const t=w.outfit||1; if(t<2||progLevel(w)<t) return null; const o=w.outfits&&w.outfits[t]; return o&&o.art?resolveArt(o.art):null; }
-function outfitBonus(w){ const t=Math.min(w&&w.outfit||1,progLevel(w)); return (S.prog.bonus[t-1]||0)/100; }
+function outfitArt(w){ if(!w||!adultOn()) return null; const t=w.outfit||1; if(t<2||progLevel(w)<t) return null; const o=w.outfits&&w.outfits[t]; return o&&o.art?resolveArt(o.art):null; }
+function outfitBonus(w){ if(!adultOn()) return 0; const t=Math.min(w&&w.outfit||1,progLevel(w)); return (S.prog.bonus[t-1]||0)/100; }
 function gainProg(w,n){
-  if(!w||!n) return; const before=progLevel(w); w.lw=Math.max(0,(w.lw||0)+n); const after=progLevel(w);
+  if(!w||!n||!adultOn()) return; const before=progLevel(w); w.lw=Math.max(0,(w.lw||0)+n); const after=progLevel(w);
   if(after>before){ const nm=S.prog.names[after-1]||("Outfit "+after); const o=w.outfits&&w.outfits[after];
     if(o&&o.art) w.outfit=after;
     addLog(`${w.name} reached ${PL()} ${after}. ${nm} unlocked${o&&o.art?" and equipped":""}.`,"build");
@@ -2667,7 +2698,8 @@ function favorEligible(f,sec){
   if(f.when==="day"&&clockSide()!=="day") return false;
   if(f.when==="night"&&clockSide()!=="night") return false;
   if(f.worker&&f.worker!=="any"){ const w=workerFor(sec); if(!w||w.id!==f.worker) return false; }
-  if(f.needLw){ const w=workerFor(sec); if(!w||progLevel(w)<f.needLw) return false; }
+  if(!adultOn()&&((f.needLw||0)>1||(f.lwGain||0)>0||f.art||(f.anim&&f.anim.ref))) return false;
+  if(f.needLw&&adultOn()){ const w=workerFor(sec); if(!w||progLevel(w)<f.needLw) return false; }
   return true;
 }
 function pickFavor(sec){
@@ -2702,7 +2734,7 @@ function migrate(o){
   o.staff.forEach(w=>{ if(w.anim) ["fidle","fwalk"].forEach(k=>{ const r=w.anim[k]&&w.anim[k].ref; if(typeof r==="string"&&r.indexOf("builtin:mika")===0) delete w.anim[k]; }); });
   o.habits.forEach(h=>{ h.hist=h.hist||{}; h.days=Array.isArray(h.days)?h.days:[]; h.created=h.created||today(); });
   o.buckets.forEach(x=>{ x.entries=x.entries||[]; x.deposits=x.deposits||[]; });
-  jobsMigrate(o); charmMigrate(o);
+  jobsMigrate(o); charmMigrate(o); xsMigrate(o);
   return o;
 }
 function loadState(){ try{ const raw=localStorage.getItem(LS2); S=migrate(raw?JSON.parse(raw):freshState()); }catch(e){ S=migrate(freshState()); } }
@@ -2736,7 +2768,7 @@ async function storeArt(dataUrl){
   return "idb:"+k;
 }
 function dropArt(ref){ if(typeof ref==="string"&&ref.indexOf("idb:")===0){ const k=ref.slice(4); delete ART[k]; ArtDB.del(k); } }
-function artRefsInUse(){ const s=new Set(); S.staff.forEach(w=>{ [w.art,w.charmArt,...Object.values(w.charmArts||{}),...Object.values(w.anim||{}).map(x=>x&&x.ref),...Object.values(w.faces||{}),...Object.values(w.outfits||{}).map(o=>o&&o.art)].forEach(v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }); }); const ad=v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }; if(S.xs){ S.xs.cards.forEach(c=>{ ad(c.art); ad(c.anim&&c.anim.ref); }); Object.values(S.xs.rooms||{}).forEach(r=>ad(r&&r.art)); } S.staff.forEach(w=>Object.values(w.xsArt||{}).forEach(v=>{ ad(v&&v.art); ad(v&&v.anim&&v.anim.ref); }));
+function artRefsInUse(){ const s=new Set(); S.staff.forEach(w=>{ [w.art,w.charmArt,...Object.values(w.charmArts||{}),...Object.values(w.anim||{}).map(x=>x&&x.ref),...Object.values(w.faces||{}),...Object.values(w.outfits||{}).map(o=>o&&o.art)].forEach(v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }); }); const ad=v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }; if(S.xs){ S.xs.cards.forEach(c=>{ ad(c.art); ad(c.anim&&c.anim.ref); }); Object.values(S.xs.rooms||{}).forEach(r=>ad(r&&r.art)); ad(S.xs.room&&S.xs.room.art); } S.staff.forEach(w=>Object.values(w.xsArt||{}).forEach(v=>{ ad(v&&v.art); ad(v&&v.anim&&v.anim.ref); }));
   S.favors.deck.forEach(f=>{ if(f.art&&f.art.indexOf("idb:")===0) s.add(f.art.slice(4)); const r=f.anim&&f.anim.ref; if(typeof r==="string"&&r.indexOf("idb:")===0) s.add(r.slice(4)); }); return s; }
 function cleanArt(){ const keep=artRefsInUse(); let n=0; Object.keys(ART).forEach(k=>{ if(!keep.has(k)){ delete ART[k]; ArtDB.del(k); n++; } }); return n; }
 /* import size: display art keeps up to this many pixels on its longest side (Dev › Tools) */
@@ -2785,8 +2817,8 @@ const streak=h=>runFrom(h,h.hist[today()]?today():addDays(today(),-1));
 const bucketById=id=>S.buckets.find(b=>b.id===id);
 function toggleHabit(id,ev){
   const h=S.habits.find(x=>x.id===id); if(!h) return; const k=today();
-  if(h.hist[k]){ delete h.hist[k]; removeClient(false); const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); } addLog("Habit un-checked: "+h.name+"."); beep(330); }
-  else { h.hist[k]=1; addClient(false,h.name); const b=bucketById(h.bucket); if(b&&h.save){ b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id}); setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(h.save),"var(--good)"),200); }
+  if(h.hist[k]){ delete h.hist[k]; removeClient(false); glGain(-S.xs.meter.habit); const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); } addLog("Habit un-checked: "+h.name+"."); beep(330); }
+  else { h.hist[k]=1; addClient(false,h.name); glGain(S.xs.meter.habit); const b=bucketById(h.bucket); if(b&&h.save){ b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id}); setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(h.save),"var(--good)"),200); }
     pop(ev,"+1 CLIENT","var(--good)"); addLog("Habit done: "+h.name+". A client walked in."+(b&&h.save?" "+money(h.save)+" to "+b.name+".":""),"gain"); }
   commit();
 }
@@ -2824,14 +2856,14 @@ function unlogTask(t){ for(let i=S.taskLog.length-1;i>=0;i--){ const l=S.taskLog
 /* end of day: finished one-off tasks are cleared out; repeating ones are already waiting on their next date */
 function rollTasks(){ const k=today(), n=S.tasks.length; S.tasks=S.tasks.filter(t=>isRec(t)||!t.done||t.doneOn===k); if(S.tasks.length!==n){ addLog(`Cleared ${n-S.tasks.length} finished task${n-S.tasks.length===1?"":"s"} from yesterday.`); save(); } }
 function toggleTask(id,ev){
-  const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3;
+  const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3, eg=()=>S.xs?(vip?S.xs.meter.vip:S.xs.meter.task):0;
   if(isRec(t)){ const k=today();
-    if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; removeClient(vip); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
+    if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; removeClient(vip); glGain(-eg()); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
     else { t.prevDue=t.due; t.doneLog=(t.doneLog||[]).concat(k).slice(-120); t.lastDone=k; const base=t.due&&t.due>k?t.due:k; t.due=nextOcc(t.repeat,base)||t.due;
-      logTask(t); addClient(vip,t.title); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.`,"gain"); }
+      logTask(t); addClient(vip,t.title); glGain(eg()); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.`,"gain"); }
     commit(); return; }
-  if(t.done){ t.done=false; t.doneOn=""; unlogTask(t); removeClient(vip); addLog("Task reopened: "+t.title+"."); beep(330); }
-  else { t.done=true; t.doneOn=today(); logTask(t); addClient(vip,t.title); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog("Task done: "+t.title+". "+(vip?"A VIP":"A client")+" walked in.","gain"); }
+  if(t.done){ t.done=false; t.doneOn=""; unlogTask(t); removeClient(vip); glGain(-eg()); addLog("Task reopened: "+t.title+"."); beep(330); }
+  else { t.done=true; t.doneOn=today(); logTask(t); addClient(vip,t.title); glGain(eg()); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog("Task done: "+t.title+". "+(vip?"A VIP":"A client")+" walked in.","gain"); }
   commit();
 }
 
@@ -2855,7 +2887,7 @@ function srvNewCustomer(){
     lines:[{who:"w",text:fillT(pk(P.greet),{shop:prettyShop()})},{who:"c",text:req.line},{who:"w",text:pk(srv.sec==="books"||srv.sec==="club"?P.book:P.ack)}],
     step:0,typed:0,wait:0,tipMod:0,charmed:false,charmFlash:0,flirt:null,favor:null,favorState:null,favorMult:1,showFavorArt:false,charmPick:false,charmMove:null,showCharmArt:false});
   if(S.favors.on&&Math.random()<Math.min(.95,S.favors.chance*(perkOf(w)==="entertain"?2:1))){ const f=pickFavor(srv.sec); if(f){ srv.favor=f; srv.favorState="ask"; srv.lines.push({who:"c",text:favText(f.ask)||"Can I ask you a favor?"}); } }
-  if(!srv.favor&&(srv.sec==="cafe"||srv.sec==="club")&&Math.random()<.3){ const f=pk(FLIRTS); srv.lines.splice(2,0,{who:"c",text:f}); srv.lines.pop(); srv.flirt={line:f,pending:true}; }
+  if(FEATURES.charm&&!srv.favor&&(srv.sec==="cafe"||srv.sec==="club")&&Math.random()<.3){ const f=pk(FLIRTS); srv.lines.splice(2,0,{who:"c",text:f}); srv.lines.pop(); srv.flirt={line:f,pending:true}; }
 }
 function favText(s){ return s?fillT(s,{w:srv.worker.name,c:srv.cust.name,shop:prettyShop()}):""; }
 function serveOpen(sec){
@@ -2927,7 +2959,7 @@ function handleFavor(act,ev){
 function favorBlock(){
   if(!srv.favor||srv.favorState!=="ask"||srv.result) return "";
   const f=srv.favor, w=srv.worker, short=(w.charm||0)<(f.minCharm||0);
-  const bits=[f.reward?`+${f.reward}₵ now`:"", (f.tipMult||1)!==1?`tip ×${f.tipMult}`:"", f.rep?`+${f.rep} rep`:"", f.repDecline?`decline costs ${f.repDecline} rep`:"", f.lwGain?`+${f.lwGain} ${PL()}`:""].filter(Boolean).join(" · ");
+  const bits=[f.reward?`+${f.reward}₵ now`:"", (f.tipMult||1)!==1?`tip ×${f.tipMult}`:"", f.rep?`+${f.rep} rep`:"", f.repDecline?`decline costs ${f.repDecline} rep`:"", f.lwGain&&adultOn()?`+${f.lwGain} ${PL()}`:""].filter(Boolean).join(" · ");
   return `<div class="favbox"><span class="px">FAVOR · ${esc(f.title.toUpperCase())}</span>
     <p class="muted" style="margin:6px 0 0">${esc(bits||"No reward set")}${f.minCharm?` · needs Charm ${f.minCharm}`:""}</p>
     <div class="actions" style="margin-top:8px"><button class="btn solid" data-act="favAccept" ${short?"disabled":""}>ACCEPT</button><button class="btn ghost" data-act="favDecline">DECLINE</button></div>
@@ -2937,12 +2969,12 @@ function renderServe(){
   const el=$("srv"); document.body.classList.toggle("serving",!!srv.open); if(!srv.open){ el.hidden=true; return; }
   el.hidden=false;
   const w=srv.worker, C=srv.cust, sec=srv.sec, done=!!srv.result, left=ticketsLeft(), hl=hintsMax(w)-hintsUsed(w);
-  const title={cafe:"☀ CAFÉ COUNTER",bar:"☾ BAR",books:"☀ BOOKSHOP DESK",club:"☾ CLUB STAGE"}[sec];
+  const title={cafe:"☀ CAFÉ COUNTER",bar:"☾ BAR",books:"☀ BOOKSHOP DESK",club:`☾ ${SEC_NAME.club.toUpperCase()} STAGE`}[sec];
   let station;
   if(done){
     const r=srv.result, col=r.grade==="perfect"?"var(--good)":r.grade==="close"?"var(--accent)":"var(--bad)";
     station=`<div class="station"><div class="result" style="border-color:${col};color:${col}">${r.grade.toUpperCase()} · +${r.tip}₵</div>
-      <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":sec==="club"?"danced to":"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>
+      <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":sec==="club"?(adultOn()?"danced to":"performed"):"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>
       <div class="actions">${left>0?`<button class="btn solid" data-act="srvNext">NEXT CLIENT · ${left}</button>`:`<p class="hint" style="margin:0;flex-basis:100%">That's everyone. Finish a task or habit to bring in the next client.</p>`}<button class="btn ghost" data-act="srvClose">BACK TO THE SHOP</button></div></div>`;
   } else station=sec==="bar"?stationBar():sec==="cafe"?stationCafe():stationBooks();
   const favAnim=srv.showFavorArt&&srv.favor&&srv.favor.anim&&srv.favor.anim.ref&&resolveArt(srv.favor.anim.ref);
@@ -3021,7 +3053,7 @@ function meter(label,frac,val,cls){ const p=Math.max(0,Math.min(1,frac))*100; re
 function renderTop(){
   const r=rankInfo(), side=clockSide();
   $("top").innerHTML=`
-    <div class="px">${esc(S.shopName)} · ${side==="day"?"☀ CAFÉ + BOOKS HOURS":"☾ BAR + CLUB HOURS"}</div>
+    <div class="px">${esc(S.shopName)} · ${side==="day"?"☀ CAFÉ + BOOKS HOURS":`☾ BAR + ${SEC_NAME.club.toUpperCase()} HOURS`}</div>
     <div class="topright"><span class="px clock" id="clock">${clockText()}</span><button class="morebtn" data-act="tab" data-id="more" aria-label="More: settings, backup and art storage" ${tab==="more"?'aria-current="page"':""}>≡</button></div>
     <div class="wallet"><b>₵</b>${S.credits.toLocaleString()}</div>
     <div class="rank">${esc(r.name)} · ${S.rep} REP</div>
@@ -3052,6 +3084,7 @@ function vShop(){
     <div class="ctrs">${counters}</div>
     <p class="hint">Every finished habit or task sends a client. High-priority tasks send VIPs (×1.5 tips). One walk-in shows up each day.</p>
   </section>
+  ${glPanel()}
   <section class="panel">
     <h2><span>${shopView==="inside"?"INSIDE":"THE BLOCK"}</span><span>${esc(r.name)}</span></h2>
     <div class="povtabs" style="grid-template-columns:1fr 1fr" role="group" aria-label="Shop view">${[["inside","INSIDE"],["outside","OUTSIDE"]].map(([v,l])=>`<button class="povtab ${shopView===v?"on":""}" data-act="shopView" data-id="${v}" aria-pressed="${shopView===v}">${l}</button>`).join("")}</div>
@@ -3236,7 +3269,7 @@ const winCount=(w,from,to)=>w.log.filter(l=>l.d>=from&&l.d<=(to||from)).length;
 function logWin(id,c,ev){
   const w=winById(id); if(!w) return; const k=today(), n=winCount(w,k);
   const lg={id:uid(),d:k,c:c||0,client:n<WIN_CLIENT_CAP}; w.log.push(lg);
-  if(lg.client) addClient(false,w.name);
+  if(lg.client) addClient(false,w.name); glGain(S.xs.meter.win);
   const b=bucketById(w.bucket); if(b&&lg.c>0) b.entries.push({id:uid(),d:k,c:lg.c,label:w.name,win:w.id,logId:lg.id});
   pop(ev,lg.client?"+1 CLIENT":"LOGGED","var(--good)");
   if(b&&lg.c>0) setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(lg.c),"var(--good)"),200);
@@ -3246,7 +3279,7 @@ function logWin(id,c,ev){
 }
 function undoWin(wid,lid){
   const w=winById(wid); if(!w) return; const i=w.log.findIndex(l=>l.id===lid); if(i<0) return; const lg=w.log[i]; w.log.splice(i,1);
-  if(lg.client&&lg.d===today()) removeClient(false);
+  if(lg.client&&lg.d===today()) removeClient(false); if(lg.d===today()) glGain(-S.xs.meter.win);
   S.buckets.forEach(b=>{ b.entries=b.entries.filter(e=>e.logId!==lid); });
   addLog(`Removed a ${w.name} entry.`); commit();
 }
@@ -3479,7 +3512,7 @@ function workerMini(p){
   const t=TRAITS[p.trait]||{name:"",desc:""}, cost=90*p.skill;
   return `<div class="wmini">
     <div class="cport sm">${p.art?`<img src="${artSrc(p)}" alt="">`:`<canvas width="72" height="72" data-port="w:${p.role}:${p.id}" aria-hidden="true"></canvas>`}</div>
-    <div class="rinfo"><b>${esc(p.name)}</b> <span class="muted">LV ${p.lv} · ${PERSONAS[p.persona].label} · ${esc(PL())} ${progLevel(p)}</span>
+    <div class="rinfo"><b>${esc(p.name)}</b> <span class="muted">LV ${p.lv} · ${PERSONAS[p.persona].label}${adultOn()?` · ${esc(PL())} ${progLevel(p)}`:""}</span>
       <small>Skill <span class="pip">${pips(p.skill)}</span> Charm <span class="pip">${pips(p.charm)}</span></small>
       <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc)}</small><small class="muted">${esc(jobTitle(p))}: ${esc((PERKS[perkOf(p)]||{}).desc||"")}</small></div>
     ${p.skill<5?`<button class="btn ${S.credits>=cost?"solid":""} rbtn" data-act="train" data-id="${p.id}" ${S.credits>=cost?"":"disabled"}>TRAIN<br>${cost}₵</button>`:`<span class="px muted">MAX</span>`}
@@ -3496,12 +3529,12 @@ function workerStudio(p){
     <div class="actions">
       <label class="btn ghost" for="workerArt-${p.id}" style="text-align:center">${p.art?"NEW ART":"LOAD ART"}</label><input type="file" id="workerArt-${p.id}" data-up="worker" class="srt" accept="image/*" data-id="${p.id}">
       ${p.art?`<button class="btn ghost" data-act="clearWorkerArt" data-id="${p.id}">CODE ART</button>`:""}
-      ${true?`<label class="btn ghost charmbtn" for="charmArt-${p.id}" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt-${p.id}" data-up="charm" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
+      ${FEATURES.charm?`<label class="btn ghost charmbtn" for="charmArt-${p.id}" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt-${p.id}" data-up="charm" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
     </div>
     <details class="sub" ${p.anim&&Object.values(p.anim).some(x=>x&&x.ref)?"open":""}><summary>Animations · sprite sheets</summary>
       <p class="hint" style="margin:4px 0 8px">One image with every frame the same size, side by side or in a grid. Set how many frames go across and down before loading. Animated workers skip the automatic breathing.</p>
       ${sheetRows(p)}</details>
-    <details class="sub" ${outfitOpen===p.id?"open":""}><summary>${esc(PL())} ${progLevel(p)} · Outfits</summary>${outfitRows(p)}</details>
+    <details class="sub" ${outfitOpen===p.id?"open":""} ${adultOn()?"":"hidden"}><summary>${esc(PL())} ${progLevel(p)} · Outfits</summary>${outfitRows(p)}</details>
     <details class="sub" ${faceOpen===p.id?"open":""}><summary>Dialogue expressions</summary>
       <p class="hint" style="margin:4px 0 8px">Faces for the portrait in the dialogue box. Square head-and-shoulders crops work best; wider images are cropped to a square from the top. Only Neutral is needed, the rest fall back to it.${p.art==="builtin:mika"?" Loading any face here replaces Mika's built-in set.":""}</p>
       ${faceRows(p)}</details>
@@ -3562,14 +3595,14 @@ function vFavors(){
   </section>
   <section class="panel">
     <h2><span>FAVOR DECK</span><span>${show.length}</span></h2>
-    <div class="povtabs" style="grid-template-columns:repeat(5,1fr)">${[["all","ALL"],["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club","CLUB"]].map(([v,l])=>`<button class="povtab ${favFilter===v?"on":""}" data-act="favFilter" data-id="${v}">${l}</button>`).join("")}</div>
+    <div class="povtabs" style="grid-template-columns:repeat(5,1fr)">${[["all","ALL"],["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club",SEC_NAME.club.toUpperCase()]].map(([v,l])=>`<button class="povtab ${favFilter===v?"on":""}" data-act="favFilter" data-id="${v}">${l}</button>`).join("")}</div>
     <div class="list">${show.map(f=>{ const a=resolveArt(f.art); return `<div class="favrow ${f.on?"":"off"}">
       <div class="favthumb">${a?`<img src="${a}" alt="">`:`<span>${f.anim&&f.anim.ref?"▶":"✦"}</span>`}</div>
       <button class="info" data-act="editFavor" data-id="${f.id}"><span class="nm">${esc(f.title)}</span><span class="meta"><span class="tag">${f.where.map(x=>x==="cafe"?"CAFÉ":x.toUpperCase()).join(" ")}</span><span>${f.when==="any"?"any time":f.when}</span><span>${f.reward?"+"+f.reward+"₵":""}${(f.tipMult||1)!==1?" tip ×"+f.tipMult:""}</span>${f.needLw?`<span class="acc">Lv ${f.needLw}+</span>`:""}${f.lwGain?`<span class="good">+${f.lwGain} ${esc(PL())}</span>`:""}</span></button>
       <button class="btn ${f.on?"":"ghost"} smallbtn" data-act="favOn" data-id="${f.id}" aria-pressed="${f.on}">${f.on?"ON":"OFF"}</button></div>`; }).join("")||`<p class="empty">No favors here.</p>`}</div>
     <div class="actions"><button class="btn solid" data-act="newFavor">+ NEW FAVOR</button></div>
   </section>
-  <section class="panel">
+  <section class="panel" ${adultOn()?"":"hidden"}>
     <h2><span>${esc(PL().toUpperCase())} · OUTFITS</span><span>PROGRESSION</span></h2>
     <p style="margin:0 0 10px">Each worker has their own ${esc(PL())} level. Favors raise it. Each level unlocks the next outfit slot, and the outfit a worker wears adds its tip bonus. Load the outfit art per worker under Upgrade › Manage.</p>
     <form data-form="prog" class="stack">
@@ -3767,22 +3800,28 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(!t.id||t.id.index
 
 let devSub="workers", devWorker=null;
 function vDev(){
-  const subs=[["workers","WORKERS"],["sprites","SPRITES"],["favors","FAVORS"],["tools","TOOLS"]];
+  const subs=[["workers","WORKERS"],["sprites","SPRITES"],["favors","FAVORS"],...(adultOn()?[["service","GAME"]]:[]),["tools","TOOLS"]]; if(devSub==="service"&&!adultOn()) devSub="workers";
   let body="";
   if(devSub==="workers"){
     if(!S.staff.length) body=empPanel()+`<section class="panel"><p class="empty">No staff yet. Hire someone in the Upgrade tab, or create one above.</p></section>`;
     else { if(!S.staff.some(w=>w.id===devWorker)) devWorker=S.staff[0].id; const p=S.staff.find(w=>w.id===devWorker);
-      body=`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${charmGallery(p)}${charmMovesPanel()}${empPanel()}`; }
+      body=`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${FEATURES.charm?charmGallery(p)+charmMovesPanel():""}${empPanel()}`; }
   } else if(devSub==="sprites") body=S.staff.length?vSprites():`<section class="panel"><p class="empty">Hire someone first, then draw their sprites here.</p></section>`;
   else if(devSub==="favors") body=vFavors();
+  else if(devSub==="service") body=vService();
   else body=devTools();
   return `<section class="panel devhead"><h2><span>DEV TOOLS</span><span>ART · FAVORS · PLACEMENT</span></h2>
-    <div class="povtabs" style="grid-template-columns:repeat(4,1fr);margin:0" role="group" aria-label="Dev tools section">${subs.map(([v,l])=>`<button class="povtab ${devSub===v?"on":""}" data-act="devSub" data-id="${v}" aria-pressed="${devSub===v}">${l}</button>`).join("")}</div></section>
+    <div class="povtabs" style="grid-template-columns:repeat(${subs.length},1fr);margin:0" role="group" aria-label="Dev tools section">${subs.map(([v,l])=>`<button class="povtab ${devSub===v?"on":""}" data-act="devSub" data-id="${v}" aria-pressed="${devSub===v}">${l}</button>`).join("")}</div></section>
   ${body}`;
 }
 function devTools(){
   const kb=Math.round(artSize()/1024);
   return `  <section class="panel">
+    <h2><span>ADULT CONTENT</span><span>${adultOn()?"ON":"OFF"}</span></h2>
+    <p style="margin:0 0 10px">${adultOn()?"On: the progression stat and outfits, the energy-bar minigame and all favors are active, and the night venue is the club.":"Off: the progression stat and outfits, the energy-bar minigame and favors with art or progression are hidden, and the night venue is a music lounge. Nothing is deleted."}</p>
+    <div class="spread" style="align-items:center"><span>Adult content</span><button class="btn ${adultOn()?"solid":"ghost"}" data-act="adultToggle" aria-pressed="${adultOn()}">${adultOn()?"ON":"OFF"}</button></div>
+  </section>
+  <section class="panel">
     <h2><span>ART STORAGE</span><span>${Object.keys(ART).length} IMAGES · ${kb} KB</span></h2>
     <p style="margin:0 0 10px">Uploaded art stays in this browser's storage, never inside the app file.</p>
     <div class="spread" style="align-items:center;margin:0 0 10px;gap:10px"><label for="artMax">Import size (longest side)</label><select class="field" id="artMax" style="width:auto">${[[1024,"1024 px · light"],[2048,"2048 px · sharp"],[4096,"4096 px · max"]].map(([v,l])=>`<option value="${v}" ${artCap()===v?"selected":""}>${l}</option>`).join("")}</select></div>
@@ -3791,7 +3830,7 @@ function devTools(){
   </section>
   <section class="panel">
     <h2><span>TEST TOOLS · CHEATS</span><span>₵ ${S.credits.toLocaleString()}</span></h2>
-    <div class="actions" style="margin-top:0"><button class="btn" data-act="testCreds" data-id="500">+500₵</button><button class="btn" data-act="testCreds" data-id="5000">+5,000₵</button><button class="btn" data-act="testCreds" data-id="50000">+50,000₵</button><button class="btn ghost" data-act="zeroCreds">SET CREDS TO 0</button><button class="btn" data-act="testClients">+10 CLIENTS</button><button class="btn" data-act="testProg">+5 ${esc(PL().toUpperCase())} ALL STAFF</button><button class="btn ghost" data-act="testBoard">NEW HIRING BOARD</button></div>
+    <div class="actions" style="margin-top:0"><button class="btn" data-act="testCreds" data-id="500">+500₵</button><button class="btn" data-act="testCreds" data-id="5000">+5,000₵</button><button class="btn" data-act="testCreds" data-id="50000">+50,000₵</button><button class="btn ghost" data-act="zeroCreds">SET CREDS TO 0</button><button class="btn" data-act="testClients">+10 CLIENTS</button><button class="btn" data-act="testProg" ${adultOn()?"":"hidden"}>+5 ${esc(PL().toUpperCase())} ALL STAFF</button><button class="btn ghost" data-act="testBoard">NEW HIRING BOARD</button></div>
   </section>
 
   <section class="panel">
@@ -3810,7 +3849,7 @@ function vMore(){
     <div class="spread" style="margin-top:14px;align-items:center"><span>Sound effects</span><button class="btn ${S.sound?"":"ghost"}" data-act="sound" aria-pressed="${S.sound}">${S.sound?"ON":"OFF"}</button></div>
     <span class="fl" style="margin-top:14px">Shop clock</span>
     <div class="povtabs" style="grid-template-columns:repeat(3,1fr);margin:0">${[["auto","REAL TIME"],["day","☀ ALWAYS DAY"],["night","☾ ALWAYS NIGHT"]].map(([v,l])=>`<button class="povtab ${(S.clockMode||"auto")===v?"on":""}" data-act="clockMode" data-id="${v}">${l}</button>`).join("")}</div>
-    <p class="hint">Real time: café and bookshop 6 AM to 5 PM, bar and club after 5 PM. The day rolls over at 4 AM.</p>
+    <p class="hint">Real time: café and bookshop 6 AM to 5 PM, bar and ${ROLES.club.room} after 5 PM. The day rolls over at 4 AM.</p>
   </section>
   <section class="panel">
     <h2><span>BACKUP</span><span></span></h2>
@@ -3901,13 +3940,13 @@ function favorSheet(f){
   openSheet(`<h3>${d._isNew?"NEW FAVOR":"EDIT FAVOR"}</h3>
   <form data-form="favor" class="stack">
     ${T("fTitle","Title",d.title,"Short name for the deck")}
-    <div><span class="fl">Where</span><div class="seg">${[["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club","CLUB"]].map(([v,l])=>`<input type="checkbox" name="fwhere" id="fw-${v}" value="${v}" ${d.where.includes(v)?"checked":""}><label for="fw-${v}">${l}</label>`).join("")}</div></div>
+    <div><span class="fl">Where</span><div class="seg">${[["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club",SEC_NAME.club.toUpperCase()]].map(([v,l])=>`<input type="checkbox" name="fwhere" id="fw-${v}" value="${v}" ${d.where.includes(v)?"checked":""}><label for="fw-${v}">${l}</label>`).join("")}</div></div>
     <div class="formgrid"><div><label class="fl" for="fWhen">When</label><select class="field" id="fWhen">${[["any","Any time"],["day","Day only"],["night","Night only"]].map(([v,l])=>`<option value="${v}" ${d.when===v?"selected":""}>${l}</option>`).join("")}</select></div>
       <div><label class="fl" for="fWeight">How often (1–5)</label><input class="field num" id="fWeight" type="number" min="1" max="5" value="${d.weight||2}"></div>
       <div><label class="fl" for="fWorker">Only for</label><select class="field" id="fWorker"><option value="any">Any worker</option>${S.staff.map(w=>`<option value="${w.id}" ${d.worker===w.id?"selected":""}>${esc(w.name)} (${ROLES[w.role].title})</option>`).join("")}</select></div>
       <div><label class="fl" for="fMinCharm">Needs Charm</label><input class="field num" id="fMinCharm" type="number" min="0" max="5" value="${d.minCharm||0}"></div>
-      <div><label class="fl" for="fNeedLw">Needs ${esc(PL())} level</label><input class="field num" id="fNeedLw" type="number" min="0" max="5" value="${d.needLw||0}"></div>
-      <div><label class="fl" for="fLwGain">Raises ${esc(PL())} by</label><input class="field num" id="fLwGain" type="number" min="0" max="20" value="${d.lwGain||0}"></div></div>
+      <div ${adultOn()?"":"hidden"}><label class="fl" for="fNeedLw">Needs ${esc(PL())} level</label><input class="field num" id="fNeedLw" type="number" min="0" max="5" value="${d.needLw||0}"></div>
+      <div ${adultOn()?"":"hidden"}><label class="fl" for="fLwGain">Raises ${esc(PL())} by</label><input class="field num" id="fLwGain" type="number" min="0" max="20" value="${d.lwGain||0}"></div></div>
     <p class="hint" style="margin:0">Only workers at or above the needed level get asked. Favors at a worker's current level come up twice as often, so the deck escalates as they level.</p>
     ${T("fAsk","Client asks",d.ask,"What the client asks for",1)}
     ${T("fAccept","Worker accepts",d.accept,"Your worker's reply",1)}
@@ -4018,7 +4057,7 @@ function floorTick(now){
 }
 function startFloor(){ if(!$("floor")) return; if(!floorRAF) floorRAF=requestAnimationFrame(floorTick); else drawFloor($("floor"),performance.now()); }
 function floorBlock(){
-  return `<div class="floorwrap"><canvas id="floor" width="${FW}" height="${FH}" data-act="floorTap" role="img" aria-label="Cutaway of ${esc(S.shopName)}: rooftop, ${viewSide()==="day"?"bookshop loft and café":"club loft and bar"} on the ground floor, with staff and clients moving around"></canvas></div>
+  return `<div class="floorwrap"><canvas id="floor" width="${FW}" height="${FH}" data-act="floorTap" role="img" aria-label="Cutaway of ${esc(S.shopName)}: rooftop, ${viewSide()==="day"?"bookshop loft and café":ROLES.club.room+" loft and bar"} on the ground floor, with staff and clients moving around"></canvas></div>
   <p class="comms floorcap" id="floorcap">${floorCap.s?`<b>${ROOM_LABEL[floorCap.sec]||""}</b> ${esc(floorCap.s)}`:"Tap a counter to serve the next client."}<span class="cursor" aria-hidden="true"></span></p>
   <div class="rowflex"><button class="btn ghost" style="flex:1" data-act="peek">${viewSide()==="day"?"☾ PEEK AT NIGHT":"☀ PEEK AT DAY"}</button><button class="btn ghost" style="flex:1" data-act="tab" data-id="upgrade">BUILD</button></div>`;
 }
@@ -4072,7 +4111,8 @@ function sceneProps(g,sec,t){
     /* champagne bucket, tip jar, a feather boa draped along the stage lip */
     R(24,top-12,12,12,"#8a88a2"); R(25,top-11,10,10,"#c8c6d8"); R(27,top-20,3,9,"#2a5a3a"); R(28,top-22,1,2,"#ffd23f"); R(31,top-18,3,7,"#2a5a3a"); g.save(); g.globalAlpha=.5; R(25,top-11,2,10,"#ffffff"); g.restore();
     R(200,top-11,10,11,"#9fd0e8"); g.save(); g.globalAlpha=.4; R(201,top-10,8,9,"#dff2ff"); g.restore(); R(201,top-5,8,5,"#3fbf6a"); R(203,top-7,4,2,"#7fe0a0"); pixText(g,"TIPS",197,top-17,"#f0c8ff",1);
-    for(let x=60;x<180;x+=3){ const y=top-1+Math.round(Math.sin(x/6+t/700)); R(x,y,2,1,(x/3|0)%2?"#ff8ad8":"#ffb0e0"); }
+    if(adultOn()){ for(let x=60;x<180;x+=3){ const y=top-1+Math.round(Math.sin(x/6+t/700)); R(x,y,2,1,(x/3|0)%2?"#ff8ad8":"#ffb0e0"); } }
+    else { R(70,top-3,22,3,"#2a2440"); R(72,top-2,4,1,"#3ef2e0"); R(84,top-2,4,1,"#ff3d8b"); R(150,top-3,22,3,"#2a2440"); R(152,top-2,4,1,"#ff3d8b"); R(164,top-2,4,1,"#3ef2e0"); }
   } else {
     /* book stack, tea mug with steam, reading lamp pool on the counter */
     ["#3ef2e0","#ff3d8b","#ffd23f","#7a5aff"].forEach((c,i)=>{ R(20+(i%2),top-4-i*4,18-i*2,4,c); R(20+(i%2),top-1-i*4,18-i*2,1,"rgba(0,0,0,.3)"); });
@@ -4218,7 +4258,7 @@ function sheetUploadNoBox(file,id,kind,opts){
 }
 function sheetRows(p,list){
   const floor=list===FSHEETS;
-  return (list||SHEETS).filter(([k])=>true).map(([k,l,d])=>{ const a=(p.anim&&p.anim[k])||{cols:4,rows:1,fps:8}, has=!!(a.ref&&resolveArt(a.ref)), fr=has?sheetFrames(a).n:0;
+  return (list||SHEETS).filter(([k])=>k!=="charm"||FEATURES.charm).map(([k,l,d])=>{ const a=(p.anim&&p.anim[k])||{cols:4,rows:1,fps:8}, has=!!(a.ref&&resolveArt(a.ref)), fr=has?sheetFrames(a).n:0;
     return `<div class="sheetrow" id="sh-${k}-${p.id}"><div class="spread"><b>${l}</b><span class="muted">${has?fr+" frames":"none"}</span></div><p class="hint" style="margin:2px 0 6px">${d}</p>
       <div class="sheetnums"><label>Across<input class="field num" type="number" min="1" max="16" data-anim="cols" data-kind="${k}" data-id="${p.id}" value="${a.cols||4}"></label>
         <label>Down<input class="field num" type="number" min="1" max="8" data-anim="rows" data-kind="${k}" data-id="${p.id}" value="${a.rows||1}"></label>
@@ -4265,6 +4305,7 @@ document.addEventListener("click",ev=>{
     case "delTask": if(!twoTap()) return; S.tasks=S.tasks.filter(t=>t.id!==id); closeSheet(); commit(); break;
     case "taskView": taskView=id; render(); window.scrollTo(0,0); break;
     case "taskFilter": taskFilter=id; render(); break;
+    case "adultToggle": S.adult=!adultOn(); applyAdult(); peek=null; commit(); toast(adultOn()?"Adult content is on.":"Adult content is off."); break;
     case "bgOffer": S.bgOffer=S.bgOffer===false; commit(); toast(S.bgOffer?"Background removal will open on import.":"Images import as-is now."); break;
     case "fab": if(taskView==="habits") addSheetHabits(); else quickSheet({today:taskView==="today",list:taskFilter.indexOf("list:")===0?taskFilter.slice(5):""}); break;
     case "bad": tapBad(id,ev); break;
@@ -4328,7 +4369,7 @@ document.addEventListener("click",ev=>{
     case "cleanArt": { const n=cleanArt(); toast(`Removed ${n} unused image${n===1?"":"s"}.`); render(); break; }
     case "purgeArt": if(!twoTap("TAP AGAIN TO DELETE ALL")) return; S.staff.forEach(w=>{ if(w.art&&w.art!=="builtin:mika") w.art=null; w.charmArt=null; w.charmArts={}; w.anim={}; w.faces={}; w.outfits={}; w.outfit=1; }); S.favors.deck.forEach(f=>{ f.art=null; f.anim=null; }); Object.keys(ART).forEach(k=>{ delete ART[k]; ArtDB.del(k); }); S.sprites={}; Object.keys(spriteCache).forEach(k=>delete spriteCache[k]); addLog("All uploaded art deleted.","warn"); commit(); toast("All uploaded art deleted."); break;
     case "sound": S.sound=!S.sound; commit(); break;
-    case "clockMode": S.clockMode=id==="auto"?undefined:id; peek=null; commit(); toast(id==="auto"?"Back on real time.":id==="day"?"It's daytime. The café and bookshop are open.":"It's night. The bar and club are open."); break;
+    case "clockMode": S.clockMode=id==="auto"?undefined:id; peek=null; commit(); toast(id==="auto"?"Back on real time.":id==="day"?"It's daytime. The café and bookshop are open.":`It's night. The bar and ${ROLES.club.room} are open.`); break;
     case "testCreds": S.credits+=+id; addLog("Test creds: +"+id+"₵."); commit(); break;
     case "zeroCreds": if(armed!==act){ armed=act; el.textContent="TAP AGAIN"; return; } armed=null; S.credits=0; addLog("Test: creds set to 0."); commit(); break;
     case "testClients": S.clients.waiting+=10; addLog("Test: 10 clients walked in."); commit(); break;
@@ -4412,6 +4453,7 @@ function routeUpload(t){
   if(t.dataset&&t.dataset.up==="sheet") return sheetUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="outfit") return outfitUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="face") return faceUpload(file,t.dataset.id,t.dataset.kind);
+  if(t.dataset&&t.dataset.up&&t.dataset.up.indexOf("xs")===0) return xsUpload(t,file);
   if(t.id==="artFile") return shrinkArt(file,96,data=>{ S.sprites[t.dataset.id]=data; delete spriteCache[t.dataset.id]; commit(); toast("Room art loaded."); });
   if(t.id==="packFile"&&file){ const r=new FileReader(); r.onload=()=>importPack(String(r.result)); r.readAsText(file); return; }
   if(t.id==="saveFile"&&file){ const r=new FileReader(); r.onload=()=>restoreSave(String(r.result)); r.readAsText(file); return; }
@@ -4570,6 +4612,422 @@ function bxInput(ev){ const t=ev.target;
   if(t.id==="bgxSpecks"){ BX.specks=t.checked; bxSoon(); }
 }
 window.addEventListener("resize",()=>{ if(BX.open) bxFit(); });
+/* ================= SIDE ROOM: energy-bar card / deck-builder minigame =================
+   Finishing tasks and habits fills an energy bar. When it's full, pick an employee to work a round.
+   After a good serve, a client may ask for extra service. If the worker's progression level
+   meets the room's gate, you can offer it or turn it down. The round is a small deck-builder:
+   energy per turn, a hand of cards, a satisfaction target, limited turns, client likes/dislikes.
+   Every name, line, card and piece of art is editable in Dev › Service. */
+const XS_SECS=["cafe","books","bar","club"];
+function xsDefault(){
+  const room={name:"Back Room",needLv:1,art:null,rounds:3,baseTurns:2,clientsMin:1,clientsMax:3,targetMin:8,targetMax:16,perClient:30,bonus:60,lwGain:1,
+    intro:"{w} heads into the {room}. A client is waiting.",win:"{c} leaves very satisfied, with a generous tip.",lose:"{c} shrugs. Maybe next time."};
+  const C=(o)=>Object.assign({id:uid(),name:"New card",text:"",line:"",cost:1,pl:0,heat:0,draw:0,en:0,pat:0,tag:"",needLv:1,starter:0,exhaust:false,rooms:[],art:null,anim:null},o);
+  return {on:true,energy:3,hand:5,tags:["soft","sweet","playful","bold"],room,
+    meter:{val:0,max:100,task:10,vip:20,habit:10,win:5},
+    cards:[
+      C({name:"Warm Up",cost:1,pl:3,tag:"soft",starter:4,line:"{w} takes it slow."}),
+      C({name:"Sweet Talk",cost:1,pl:2,heat:1,tag:"sweet",starter:3,line:"{w} says something that makes {c} blush."}),
+      C({name:"Catch Your Breath",cost:0,en:1,exhaust:true,starter:1,line:"{w} pauses and smiles."}),
+      C({name:"Tease",cost:1,pl:1,heat:2,tag:"playful",line:"{w} plays coy."}),
+      C({name:"Keep Going",cost:1,pl:2,draw:2,tag:"soft",line:"{w} doesn't stop."}),
+      C({name:"Bold Move",cost:2,pl:7,tag:"bold",needLv:2,line:"{w} takes charge."}),
+      C({name:"Slow Burn",cost:2,pl:3,heat:3,tag:"soft",needLv:2,line:"{w} draws it out."}),
+      C({name:"Take Your Time",cost:1,pat:1,exhaust:true,tag:"sweet",needLv:2,line:"{w} lets the moment last."}),
+      C({name:"Second Wind",cost:0,en:2,exhaust:true,needLv:3,line:"{w} finds a second wind."}),
+      C({name:"Grand Finale",cost:3,pl:10,tag:"bold",needLv:3,line:"{w} pulls out all the stops."})
+    ]};
+}
+function xsMigrate(o){
+  const d=xsDefault(); if(!o.xs||typeof o.xs!=="object"){ o.xs=d; return; }
+  const x=o.xs; ["on","energy","hand","tags"].forEach(k=>{ if(x[k]==null) x[k]=d[k]; });
+  if(!x.room){ const old=x.rooms&&(x.rooms.club||x.rooms.cafe); x.room=Object.assign({},d.room,old?{art:old.art||null}:{}); }
+  x.room=Object.assign({},d.room,x.room); x.meter=Object.assign({},d.meter,x.meter||{});
+  if(!Array.isArray(x.cards)) x.cards=d.cards;
+}
+const xsCard=id=>S.xs.cards.find(c=>c.id===id);
+const xsFill=(s,o)=>String(s||"").replace(/\{w\}/g,o.w||"").replace(/\{c\}/g,o.c||"").replace(/\{room\}/g,o.room||"").replace(/\{shop\}/g,prettyShop());
+const xsFor=(c,w)=>!c.worker||c.worker==="any"||(w&&c.worker===w.id);
+function xsStarter(w){ const d=[]; S.xs.cards.forEach(c=>{ if(xsFor(c,w)) for(let i=0;i<(c.starter|0);i++) d.push(c.id); }); return d; }
+function xsAutoDeck(w){ const lv=progLevel(w), d=[]; S.xs.cards.forEach(c=>{ if(xsFor(c,w)&&(c.needLv||1)<=lv&&(!c.rooms||!c.rooms.length||c.rooms.includes(w.role))) for(let i=0;i<Math.max(1,c.starter|0);i++) d.push(c.id); }); return d.length?d:S.xs.cards.slice(0,1).map(c=>c.id); }
+function xsDeck(w){ if(!FEATURES.deckBuilding) return xsAutoDeck(w); if(!Array.isArray(w.deck)) w.deck=xsStarter(w); w.deck=w.deck.filter(xsCard); if(!w.deck.length) w.deck=xsStarter(w); return w.deck; }
+/* a worker's own version of a card: their art, animation, name and line, falling back to the library card */
+function xsView(c,w){ const o=(w&&w.xsArt&&w.xsArt[c.id])||{}; return {name:o.name||c.name,line:o.line||c.line,art:o.art||c.art,anim:o.anim&&o.anim.ref?o.anim:c.anim,own:!!(o.art||(o.anim&&o.anim.ref)||o.name||o.line)}; }
+function xsEffects(c){ const b=[]; if(c.pl) b.push(`+${c.pl} ♥`); if(c.heat) b.push(`+${c.heat} heat`); if(c.draw) b.push(`draw ${c.draw}`); if(c.en) b.push(`+${c.en} energy`); if(c.pat) b.push(`+${c.pat} turn`); if(c.exhaust) b.push("once"); return b.join(" · ")||"no effect"; }
+
+/* ---------- energy bar ---------- */
+const glName=()=>(S.xs.room.name||"Back Room");
+function glGain(n,why){
+  if(!S.xs||!S.xs.on||!n||!adultOn()) return; const M=S.xs.meter, was=M.val>=M.max; M.val=Math.max(0,Math.min(M.max,M.val+n));
+  if(!was&&M.val>=M.max) setTimeout(()=>{ toast(`⚡ The ${glName()} is ready. Pick someone to work it on the Shop page.`); beep(1320); setTimeout(()=>beep(1760),120); },700);
+}
+function glReady(){ return S.xs.on&&S.xs.meter.val>=S.xs.meter.max; }
+function glPanel(){
+  if(!S.xs.on||!adultOn()) return ""; const M=S.xs.meter, r=S.xs.room, pct=Math.round(M.val/M.max*100), ready=glReady();
+  const team=S.staff.map(w=>{ const ok=progLevel(w)>=r.needLv, a=artSrc(w);
+    return `<button class="glpick" data-xs="work" data-id="${w.id}" ${ok&&ready?"":"disabled"}>${a?`<img src="${a}" alt="">`:`<span class="ci" aria-hidden="true">✦</span>`}<b>${esc(w.name)}</b><small>${ok?esc(jobTitle(w)):`${esc(PL())} ${r.needLv} needed`}</small></button>`; }).join("");
+  return `<section class="panel glpanel ${ready?"glready":""}"><h2><span>⚡ ${esc(glName().toUpperCase())}</span><span>${ready?"READY":pct+"%"}</span></h2>
+    <div class="glbar" role="img" aria-label="Energy ${M.val} of ${M.max}"><i style="width:${pct}%"></i><span>${M.val} / ${M.max}</span></div>
+    ${ready?`<p style="margin:8px 0 6px">Pick who works the ${esc(r.name)}: ${r.rounds} rounds, ${r.perClient}₵+ per client, ${r.bonus}₵ bonus for clearing them all.</p><div class="glteam">${team||`<p class="hint">Hire someone first.</p>`}</div>`
+      :`<p class="hint" style="margin:6px 0 0">Tasks +${M.task} · high-priority +${M.vip} · habits +${M.habit}${M.win?` · anytime +${M.win}`:""}. Fill it to open the ${esc(r.name)}.</p>`}
+  </section>`;
+}
+/* ---------- the run: several rounds, a random line of clients each, a card shop in between ---------- */
+let XG=null;
+const shuffle=a=>{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const rint=(a,b)=>a+Math.floor(Math.random()*(Math.max(a,b)-a+1));
+function xsPrice(c){ return c.price>0?c.price:20+15*(c.needLv||1)+10*(c.cost|0); }
+function xsStart(w,test){
+  const r=S.xs.room;
+  XG={w,test:!!test,room:r,round:0,rounds:Math.max(1,r.rounds|0),purse:0,pleased:0,spent:0,phase:"play",over:null,line:"",show:null,showT:0,shop:[],bought:[]};
+  xsNewRound(); XG.line=xsFill(r.intro,{w:w.name,c:XG.clients[0].name,room:r.name}); xsRender(); beep(660);
+}
+function xsNewRound(){
+  const G=XG, r=G.room, tags=S.xs.tags.filter(Boolean); G.round++; G.phase="play";
+  const n=Math.max(1,Math.min(8,rint(r.clientsMin|0||1,r.clientsMax|0||1)+Math.floor((G.round-1)/2))), mult=1+.2*(G.round-1);
+  G.clients=Array.from({length:n},()=>{ const look=makeLook(), likes=tags.length?pk(tags):"", dislikes=tags.length>1?pk(tags.filter(t=>t!==likes)):""; let port=null; try{ port=paintPortrait(look,"happy",false,false,G.w.role).toDataURL(); }catch(e){}
+    return {name:pk(NAMES),look,port,likes,dislikes,sat:0,done:false,target:Math.max(1,Math.round(rint(r.targetMin|0||5,r.targetMax|0||10)*mult))}; });
+  G.ci=0; G.turns=Math.max(1,(r.baseTurns|0)+n); G.turn=1; G.heat=0; G.draw=shuffle(xsDeck(G.w).slice()); G.disc=[]; G.gone=[]; G.hand=[];
+  if(G.round>1) G.line=`Round ${G.round}: ${n} client${n===1?"":"s"}, ${G.turns} turns.`;
+  xsNewTurn();
+}
+function xsDrawN(n){ for(let i=0;i<n;i++){ if(!XG.draw.length){ if(!XG.disc.length) break; XG.draw=shuffle(XG.disc); XG.disc=[]; } XG.hand.push(XG.draw.pop()); } }
+function xsNewTurn(){ XG.energy=Math.max(0,S.xs.energy|0); xsDrawN(Math.max(1,S.xs.hand|0)); }
+const xsCur=()=>XG&&XG.clients[XG.ci];
+function xsGain(c,cl){ if(!c.pl||!cl) return 0; let m=1; if(c.tag&&c.tag===cl.likes) m=1.5; else if(c.tag&&c.tag===cl.dislikes) m=.5; return Math.max(0,Math.round((c.pl+XG.heat)*m)); }
+const xsPay=()=>Math.round((XG.room.perClient|0)*(1+.25*(XG.round-1)));
+function xsPlay(i,ev){
+  const G=XG; if(!G||G.phase!=="play") return; const id=G.hand[i], c=xsCard(id); if(!c) return;
+  if((c.cost|0)>G.energy){ toast(`Needs ${c.cost} energy.`, true); return; }
+  G.energy-=c.cost|0; G.hand.splice(i,1); let g=xsGain(c,xsCur()), shown=g; G.heat+=c.heat|0; G.energy+=c.en|0; G.turns+=c.pat|0;
+  (c.exhaust?G.gone:G.disc).push(id); if(c.draw) xsDrawN(c.draw);
+  const V=xsView(c,G.w), cl=xsCur();
+  G.line=V.line?xsFill(V.line,{w:G.w.name,c:cl.name,room:G.room.name}):`${G.w.name} plays ${V.name}.`;
+  if(V.art||(V.anim&&V.anim.ref)){ G.show=c.id; G.showT=performance.now(); }
+  /* ♥ fills the current client; anything past their target spills onto the next one in line */
+  while(g>0&&xsCur()){ const k=xsCur(), need=k.target-k.sat, use=Math.min(need,g); k.sat+=use; g-=use;
+    if(k.sat>=k.target){ k.done=true; G.pleased++; const p=xsPay(); G.purse+=p; G.line+=` ${k.name} is satisfied. +${p}₵`; G.ci++; } }
+  if(shown) pop(ev,`+${shown} ♥`,c.tag&&cl&&c.tag===cl.likes?"var(--good)":"var(--accent)"); beep(shown?700+Math.min(800,shown*40):520);
+  if(!xsCur()) return xsRoundClear();
+  xsRender();
+}
+function xsEndTurn(){
+  const G=XG; if(!G||G.phase!=="play") return; G.disc.push(...G.hand); G.hand=[]; G.heat=Math.floor(G.heat/2);
+  if(G.turn>=G.turns) return xsFinish(false);
+  G.turn++; xsNewTurn(); G.line=`Turn ${G.turn} of ${G.turns}.`; beep(440); xsRender();
+}
+function xsRoundClear(){
+  const G=XG; beep(1046); setTimeout(()=>beep(1568),120);
+  if(G.round>=G.rounds) return xsFinish(true);
+  if(!FEATURES.deckBuilding){ G.shop=[]; G.phase="shop"; G.line=`Round ${G.round} cleared. ${G.rounds-G.round} to go.`; return xsRender(); }
+  const lv=progLevel(G.w), pool=S.xs.cards.filter(c=>xsFor(c,G.w)&&(c.needLv||1)<=lv&&(!c.rooms||!c.rooms.length||c.rooms.includes(G.w.role)));
+  /* the shop leans toward the riskiest cards this employee has unlocked */
+  const weighted=[]; pool.forEach(c=>{ for(let i=0;i<(c.needLv||1);i++) weighted.push(c.id); });
+  const offers=[]; shuffle(weighted).forEach(id=>{ if(offers.length<3&&!offers.includes(id)) offers.push(id); });
+  G.shop=offers; G.bought=[]; G.phase="shop"; G.line=`Round ${G.round} cleared. Spend tips on new cards, or save them for the payout.`; xsRender();
+}
+function xsBuy(id){ const G=XG, c=xsCard(id); if(!G||G.phase!=="shop"||!c||G.bought.includes(id)) return; const p=xsPrice(c);
+  if(G.purse<p){ toast(`Needs ${p}₵. You have ${G.purse}₵.`, true); return; } const d=xsDeck(G.w); if(d.length>=40){ toast("That deck is full (40).", true); return; }
+  G.purse-=p; G.spent+=p; G.bought.push(id); d.push(id); save(); beep(990); toast(`${xsView(c,G.w).name} added to ${G.w.name}'s deck.`); xsRender(); }
+const xsRemoveCost=()=>15+10*(XG?XG.round:1);
+function xsRemove(id){ const G=XG; if(!G||G.phase!=="remove") return; const d=xsDeck(G.w), c=xsRemoveCost();
+  if(d.length<=5){ toast("A deck needs at least 5 cards.", true); return; } if(G.purse<c){ toast(`Removing costs ${c}₵.`, true); return; }
+  const i=d.indexOf(id); if(i<0) return; d.splice(i,1); G.purse-=c; G.spent+=c; G.removed=true; G.phase="shop"; save(); toast("Card removed."); xsRender(); }
+function xsFinish(win){
+  const G=XG, w=G.w, r=G.room; G.phase="over"; G.over=win?"win":"lose";
+  const cl=xsCur()||G.clients[G.clients.length-1];
+  G.line=xsFill(win?r.win:r.lose,{w:w.name,c:cl?cl.name:"",room:r.name});
+  G.payout=Math.round((G.purse+(win?(r.bonus|0):0))*(1+outfitBonus(w)));
+  if(!G.test){ if(G.payout){ S.credits+=G.payout; S.xp+=G.payout; w.tips+=G.payout; const d=serveDay(); d.tips=(d.tips||0)+G.payout; }
+    S.stats.xs=(S.stats.xs||0)+1; if(win){ S.rep+=1; if(r.lwGain) gainProg(w,r.lwGain); }
+    addLog(`${w.name} worked the ${r.name}: ${G.pleased} client${G.pleased===1?"":"s"} pleased${win?", every round cleared":""}. +${G.payout}₵`,"gain"); }
+  win?(beep(1046),setTimeout(()=>beep(1568),120)):beep(300); save(); renderTop(); xsRender();
+}
+function xsClose(){
+  const G=XG; if(G&&G.phase!=="over"){ xsFinish(false); return; }
+  XG=null; const el=$("xs"); if(el) el.remove(); document.body.classList.remove("xson"); render();
+}
+function xsCardHTML(c0,i,dis,act,extra){
+  const c=Object.assign({},c0,xsView(c0,XG&&XG.w)), a=c.art&&resolveArt(c.art), cl=xsCur(), lk=c.tag&&cl&&c.tag===cl.likes, dk=c.tag&&cl&&c.tag===cl.dislikes;
+  return `<button class="xcard ${lk?"lk":""} ${dk?"dk":""}" data-xa="${act||"play"}" data-i="${i==null?"":i}" data-id="${c0.id}" ${dis?"disabled":""} aria-label="${esc(c.name)}, costs ${c.cost}: ${esc(xsEffects(c))}">
+    <span class="xcost">${c.cost|0}</span>${a?`<img src="${a}" alt="">`:`<span class="xart" aria-hidden="true">${c.anim&&c.anim.ref?"▶":"✦"}</span>`}
+    <b>${esc(c.name)}</b><small>${esc(xsEffects(c))}</small>${c.text?`<em>${esc(c.text)}</em>`:""}${c.tag?`<span class="tag">${esc(c.tag)}</span>`:""}${(c.needLv||1)>1?`<span class="lvl">${esc(PL())} ${c.needLv}</span>`:""}${extra||""}</button>`;
+}
+function xsRender(){
+  let el=$("xs"); if(!XG){ if(el) el.remove(); return; }
+  if(!el){ el=document.createElement("div"); el.id="xs"; el.className="xs"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label",XG.room.name); document.body.appendChild(el); document.body.classList.add("xson"); el.addEventListener("click",xsClick); }
+  const G=XG, r=G.room, bg=r.art&&resolveArt(r.art), wa=artSrc(G.w), cl=xsCur(), sc=G.show&&xsCard(G.show)&&xsView(xsCard(G.show),G.w), sa=sc&&sc.anim&&sc.anim.ref&&resolveArt(sc.anim.ref), si=!sa&&sc&&sc.art&&resolveArt(sc.art);
+  const queue=`<div class="xsqueue" aria-label="Clients this round">${G.clients.map((k,i)=>`<span class="${k.done?"done":i===G.ci?"cur":""}" title="${esc(k.name)}">${k.done?"♥":i===G.ci?"●":"○"}</span>`).join("")}</div>`;
+  let mid="", bottom="";
+  if(G.phase==="play"){
+    const pct=Math.min(100,Math.round(cl.sat/cl.target*100));
+    mid=`<div class="xsmeter" role="img" aria-label="${esc(cl.name)}: ${cl.sat} of ${cl.target}"><i style="width:${pct}%"></i><span>${esc(cl.name)} · ♥ ${cl.sat} / ${cl.target}</span></div>
+      <div class="xsstats"><span>⚡ <b>${G.energy}</b> energy</span><span>🔥 <b>${G.heat}</b> heat</span><span>⏳ turn <b>${G.turn}/${G.turns}</b></span>${queue}</div>
+      ${cl.likes?`<div class="xsprefs"><span>Likes <span class="tag good">${esc(cl.likes)}</span></span>${cl.dislikes?`<span>Not into <span class="tag bad">${esc(cl.dislikes)}</span></span>`:""}</div>`:""}`;
+    bottom=`<div class="xhand">${G.hand.map((id,i)=>{ const c=xsCard(id); return c?xsCardHTML(c,i,(c.cost|0)>G.energy):""; }).join("")||`<p class="muted">No cards left in hand.</p>`}</div>
+      <div class="xsact"><span class="muted">Draw ${G.draw.length} · Discard ${G.disc.length}${G.gone.length?` · Used ${G.gone.length}`:""}</span><button class="btn solid" data-xa="end">${G.turn>=G.turns?"LAST TURN · END":"END TURN"}</button></div>`;
+  } else if(G.phase==="shop"||G.phase==="remove"){
+    const d=xsDeck(G.w);
+    mid=`<div class="xsres win"><b>ROUND ${G.round} OF ${G.rounds} CLEARED</b><span class="muted">Tips this run: <b class="good">${G.purse}₵</b>. Whatever you don't spend is paid out at the end.</span></div>`;
+    if(!FEATURES.deckBuilding){ mid=`<div class="xsres win"><b>ROUND ${G.round} OF ${G.rounds} CLEARED</b><span class="muted">Tips so far: <b class="good">${G.purse}₵</b></span></div>`; bottom=`<div class="actions"><button class="btn solid wide" data-xa="next">NEXT ROUND ›</button></div>`; }
+    else bottom=G.phase==="shop"?`<p class="px" style="margin:8px 0 6px">CARD SHOP · ${esc(G.w.name.toUpperCase())}'S DECK (${d.length})</p>
+      <div class="xhand picks">${G.shop.map(id=>{ const c=xsCard(id); if(!c) return ""; const p=xsPrice(c), got=G.bought.includes(id); return xsCardHTML(c,null,got||G.purse<p,"buy",`<span class="price">${got?"BOUGHT":p+"₵"}</span>`); }).join("")||`<p class="muted">Nothing for sale. Raise ${esc(G.w.name)}'s ${esc(PL())} to unlock more cards.</p>`}</div>
+      <div class="actions"><button class="btn ghost" data-xa="removeMode" ${G.removed||d.length<=5?"disabled":""}>REMOVE A CARD · ${xsRemoveCost()}₵</button><button class="btn solid" data-xa="next">NEXT ROUND ›</button></div>`
+      :`<p class="px" style="margin:8px 0 6px">TAP A CARD TO REMOVE IT · ${xsRemoveCost()}₵</p>
+      <div class="xhand picks">${[...new Set(d)].map(id=>{ const c=xsCard(id); if(!c) return ""; const n=d.filter(x=>x===id).length; return xsCardHTML(c,null,false,"remove",n>1?`<span class="price">×${n}</span>`:""); }).join("")}</div>
+      <div class="actions"><button class="btn ghost" data-xa="backShop">‹ BACK TO SHOP</button></div>`;
+  } else {
+    mid=`<div class="xsres ${G.over}"><b>${G.over==="win"?`ALL ${G.rounds} ROUNDS CLEARED`:`ENDED IN ROUND ${G.round}`}</b>
+      <span>${G.pleased} client${G.pleased===1?"":"s"} pleased · paid out <b class="good">+${G.payout}₵</b>${G.over==="win"&&G.room.bonus?` (incl. ${G.room.bonus}₵ bonus)`:""}</span>${G.test?`<span class="muted">Test run: no rewards.</span>`:""}</div>`;
+    bottom=`<div class="actions"><button class="btn solid wide" data-xa="close">DONE</button></div>`;
+  }
+  const showCl=G.phase==="play"&&cl;
+  el.innerHTML=`<div class="xstop"><span class="px">${esc(r.name.toUpperCase())} · ${esc(G.w.name.toUpperCase())} · ROUND ${G.round}/${G.rounds}${G.test?" · TEST":""}</span><span class="px good">${G.purse}₵</span><button class="modechip" data-xa="quit" aria-label="Leave the room">✕</button></div>
+  <div class="xsstage" ${bg?`style="background-image:url('${bg}')"`:""}>
+    ${sa?`<canvas id="xsAnim" class="xscg" width="960" height="540"></canvas>`:si?`<img class="xscg" src="${si}" alt="">`:`${wa?`<img class="xsw" src="${wa}" alt="${esc(G.w.name)}">`:""}${showCl&&cl.port?`<img class="xsc" src="${cl.port}" alt="${esc(cl.name)}">`:""}`}
+    ${!bg&&!sa&&!si?`<span class="xsroom px">${esc(r.name.toUpperCase())}</span>`:""}
+    <p class="xsline">${esc(G.line)}</p>
+  </div>
+  ${mid}${bottom}`;
+}
+function xsClick(ev){
+  const b=ev.target.closest("[data-xa]"); if(!b||!b.dataset.xa) return; const a=b.dataset.xa;
+  if(a==="play") xsPlay(+b.dataset.i,ev);
+  else if(a==="end") xsEndTurn();
+  else if(a==="buy") xsBuy(b.dataset.id);
+  else if(a==="removeMode"){ XG.phase="remove"; xsRender(); }
+  else if(a==="remove") xsRemove(b.dataset.id);
+  else if(a==="backShop"){ XG.phase="shop"; xsRender(); }
+  else if(a==="next"){ XG.show=null; xsNewRound(); xsRender(); beep(660); }
+  else if(a==="close") xsClose();
+  else if(a==="quit"){ if(XG&&XG.phase!=="over"&&!b.dataset.armed){ b.dataset.armed="1"; b.textContent="END RUN?"; return; } xsClose(); }
+}
+setInterval(()=>{ const cv=$("xsAnim"); if(cv&&XG&&XG.show){ const c=xsCard(XG.show), V=c&&xsView(c,XG.w); if(V&&V.anim) drawSheetFit(cv,V.anim,XG.showT,performance.now()); } },40);
+
+/* ---------- Dev › Service ---------- */
+let xsDevWorker=null, xsDraft=null, xsArm=null;
+function vService(){
+  const X=S.xs, LV=[1,2,3,4,5];
+  if(!S.staff.some(w=>w.id===xsDevWorker)) xsDevWorker=S.staff[0]&&S.staff[0].id; const dw=S.staff.find(w=>w.id===xsDevWorker);
+  const counts={}; if(dw) xsDeck(dw).forEach(id=>counts[id]=(counts[id]||0)+1);
+  return `<section class="panel">
+    <h2><span>${esc(glName().toUpperCase())} · MINIGAME</span><span>${X.on?"ON":"OFF"}</span></h2>
+    <p style="margin:0 0 10px">Finishing tasks and habits fills the energy bar on the Shop page. When it's full, pick an employee to work a run: a set number of rounds, each with a random line of clients to satisfy before the turns run out. Pleased clients tip into the run's purse, paid out at the end plus a bonus for clearing every round. ${FEATURES.deckBuilding?`Between rounds, spend tips in the card shop (higher ${esc(PL())} unlocks riskier cards).`:`Each employee's deck is every card their ${esc(PL())} level has unlocked, so riskier cards join as they level up.`}</p>
+    <div class="spread" style="align-items:center"><span>Energy bar + minigame</span><button class="btn ${X.on?"solid":"ghost"}" data-xs="toggle" aria-pressed="${X.on}">${X.on?"ON":"OFF"}</button></div>
+    <div class="formgrid" style="margin-top:10px">
+      <div><label class="fl" for="glMax">Bar size</label><input class="field num" id="glMax" type="number" min="10" max="1000" value="${X.meter.max}"></div>
+      <div><label class="fl" for="glTask">Per task</label><input class="field num" id="glTask" type="number" min="0" max="500" value="${X.meter.task}"></div>
+      <div><label class="fl" for="glVip">Per high-priority task</label><input class="field num" id="glVip" type="number" min="0" max="500" value="${X.meter.vip}"></div>
+      <div><label class="fl" for="glHabit">Per habit</label><input class="field num" id="glHabit" type="number" min="0" max="500" value="${X.meter.habit}"></div>
+      <div><label class="fl" for="glWin">Per anytime action</label><input class="field num" id="glWin" type="number" min="0" max="500" value="${X.meter.win}"></div>
+      <div><span class="fl">Bar now: ${X.meter.val}/${X.meter.max}</span><button class="btn ghost smallbtn" data-xs="fillBar">FILL (TEST)</button></div>
+    </div>
+    <div class="formgrid" style="margin-top:8px"><div><label class="fl" for="xsEnergy">Energy per turn</label><input class="field num" id="xsEnergy" type="number" min="1" max="9" value="${X.energy}"></div>
+      <div><label class="fl" for="xsHand">Cards drawn per turn</label><input class="field num" id="xsHand" type="number" min="1" max="9" value="${X.hand}"></div>
+      <div class="full"><label class="fl" for="xsTags">Card tags (clients like one, dislike another)</label><input class="field" id="xsTags" maxlength="120" value="${esc(X.tags.join(", "))}"></div></div>
+  </section>
+  <section class="panel">
+    <h2><span>THE ROOM</span><span>NAME · ART · DIFFICULTY</span></h2>
+    ${(()=>{ const r=X.room, a=r.art&&resolveArt(r.art); return `<div class="favrow"><div class="favthumb">${a?`<img src="${a}" alt="">`:`<span>▣</span>`}</div>
+      <button class="info" data-xs="editRoom"><span class="nm">${esc(r.name)}</span><span class="meta"><span class="tag">${esc(PL())} ${r.needLv}+</span><span>${r.rounds} rounds · ${r.clientsMin}–${r.clientsMax} clients · ♥ ${r.targetMin}–${r.targetMax}</span></span></button>
+      <button class="btn ghost smallbtn" data-xs="test" ${S.staff.length?"":"disabled"}>TEST</button></div>`; })()}
+  </section>
+  <section class="panel">
+    <h2><span>CARD LIBRARY</span><span>${X.cards.length} CARDS</span></h2>
+    <p class="hint" style="margin:0 0 8px">${FEATURES.deckBuilding?`Starter copies go into every new deck. A card's ${esc(PL())} level decides when it shows up in the shop; the shop favors the highest level an employee has unlocked. Price 0 = automatic.`:`A card joins an employee's deck once their ${esc(PL())} level reaches the card's level. Copies sets how many of it are in the deck.`}</p>
+    <div class="list">${X.cards.map(c=>{ const a=c.art&&resolveArt(c.art); return `<div class="favrow"><div class="favthumb">${a?`<img src="${a}" alt="">`:`<span>${c.anim&&c.anim.ref?"▶":"✦"}</span>`}</div>
+      <button class="info" data-xs="editCard" data-id="${c.id}"><span class="nm">${esc(c.name)} <span class="muted">· ${c.cost|0}⚡</span></span><span class="meta"><span>${esc(xsEffects(c))}</span>${c.tag?`<span class="tag">${esc(c.tag)}</span>`:""}<span>Lv ${c.needLv||1}</span>${FEATURES.deckBuilding?`<span>${xsPrice(c)}₵</span>${c.starter?`<span>starter ×${c.starter}</span>`:""}`:`<span>×${Math.max(1,c.starter|0)}</span>`}</span></button></div>`; }).join("")}</div>
+    <div class="actions"><button class="btn solid" data-xs="newCard">+ NEW CARD</button></div>
+  </section>
+  <section class="panel">
+    <h2><span>${FEATURES.deckBuilding?"WORKER DECKS":"EMPLOYEE CARDS &amp; ART"}</span><span>${dw?xsDeck(dw).length+" CARDS":""}</span></h2>
+    ${dw?`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===xsDevWorker?"on":""}" data-xs="deckWorker" data-id="${w.id}" aria-pressed="${w.id===xsDevWorker}"><span><b>${esc(w.name)}</b><small>${ROLES[w.role].title} · ${esc(PL())} ${progLevel(w)}</small></span></button>`).join("")}</div>
+      <p class="hint" style="margin:8px 0 4px">Each employee has their own deck. Tap ART to give a card ${esc(dw.name)}'s own art, animation, name and line. Anything left blank uses the library card.</p>
+      <div class="list">${X.cards.filter(c=>xsFor(c,dw)).map(c=>{ const n=counts[c.id]||0, V=xsView(c,dw), a=V.art&&resolveArt(V.art); return `<div class="deckrow ${n?"":"off"}">
+        <button class="deckart ${V.own?"own":""}" data-xs="wArt" data-id="${c.id}" aria-label="${esc(dw.name)}'s art for ${esc(c.name)}">${a?`<img src="${a}" alt="">`:`<span>${V.anim&&V.anim.ref?"▶":"✦"}</span>`}<small>ART</small></button>
+        <span style="flex:1;min-width:0"><b>${esc(V.name)}</b>${V.name!==c.name?` <small class="muted">(${esc(c.name)})</small>`:""}${c.worker&&c.worker!=="any"?` <span class="tag">only ${esc(dw.name)}</span>`:""}<br><small class="muted">${esc(xsEffects(c))}</small></span>
+        ${!FEATURES.deckBuilding?`<span class="muted" style="font-size:12px;white-space:nowrap">${n?`×${n} in deck`:`${esc(PL())} ${c.needLv||1}`}</span>`:`<span class="rowflex" style="gap:4px;flex-wrap:nowrap"><button class="btn ghost smallbtn" data-xs="deckMinus" data-id="${c.id}" ${n?"":"disabled"} aria-label="Remove one ${esc(c.name)}">−</button><b class="num" style="min-width:1.5em;text-align:center">${n}</b><button class="btn ghost smallbtn" data-xs="deckPlus" data-id="${c.id}" aria-label="Add one ${esc(c.name)}">+</button></span>`}</div>`; }).join("")}</div>
+      <div class="actions">${FEATURES.deckBuilding?`<button class="btn ghost" data-xs="deckReset">RESET TO STARTER DECK</button>`:""}<button class="btn" data-xs="newCardFor">+ CARD ONLY FOR ${esc(dw.name.toUpperCase())}</button></div>`:`<p class="empty">Hire someone first.</p>`}
+  </section>
+  <section class="panel">
+    <h2><span>SERVICE PACKS</span><span>IMPORT · EXPORT</span></h2>
+    <p style="margin:0 0 10px">Rooms, cards and their art in one file, to back up or move to another device.</p>
+    <div class="actions" style="margin-top:0">${FRAMED?"":`<button class="btn" data-xs="export">DOWNLOAD PACK</button>`}<button class="btn ghost" data-xs="copyPack">COPY AS TEXT</button>
+      <label class="btn" for="xsPackFile" style="text-align:center">IMPORT FILE</label><input type="file" id="xsPackFile" class="srt" accept=".json,application/json,text/plain"></div>
+    <label class="fl" for="xsPackText" style="margin-top:10px">Or paste a pack</label><textarea class="field" id="xsPackText" rows="3" placeholder='{"type":"nightkettle-service",...}'></textarea>
+    <div class="actions"><button class="btn ghost" data-xs="importText">IMPORT PASTED</button></div>
+  </section>`;
+}
+function xsRoomSheet(){
+  const r=S.xs.room; xsDraft={kind:"room",art:r.art,_orig:r.art}; const a=r.art&&resolveArt(r.art);
+  const T=(id,l,v,ph)=>`<div class="full"><label class="fl" for="${id}">${l}</label><textarea class="field" id="${id}" rows="2" maxlength="400" placeholder="${ph||""}">${esc(v||"")}</textarea></div>`;
+  openSheet(`<h3>THE ROOM</h3>
+  <form data-form="xsRoom" class="stack">
+    <div class="formgrid">
+      <div class="full"><label class="fl" for="xrName">Name (shows on the Shop page and in the minigame)</label><input class="field" id="xrName" maxlength="40" value="${esc(r.name)}"></div>
+      <div><label class="fl" for="xrLv">${esc(PL())} level needed</label><select class="field" id="xrLv">${[1,2,3,4,5].map(n=>`<option ${r.needLv===n?"selected":""}>${n}</option>`).join("")}</select></div>
+      <div><label class="fl" for="xrRounds">Rounds per run</label><input class="field num" id="xrRounds" type="number" min="1" max="10" value="${r.rounds}"></div>
+      <div><label class="fl" for="xrTurns">Extra turns per round</label><input class="field num" id="xrTurns" type="number" min="0" max="10" value="${r.baseTurns}"></div>
+      <div><label class="fl" for="xrCmin">Clients per round · min</label><input class="field num" id="xrCmin" type="number" min="1" max="6" value="${r.clientsMin}"></div>
+      <div><label class="fl" for="xrCmax">Clients per round · max</label><input class="field num" id="xrCmax" type="number" min="1" max="6" value="${r.clientsMax}"></div>
+      <div><label class="fl" for="xrTmin">♥ per client · min</label><input class="field num" id="xrTmin" type="number" min="1" max="999" value="${r.targetMin}"></div>
+      <div><label class="fl" for="xrTmax">♥ per client · max</label><input class="field num" id="xrTmax" type="number" min="1" max="999" value="${r.targetMax}"></div>
+      <div><label class="fl" for="xrPer">Tips per client ₵</label><input class="field num" id="xrPer" type="number" min="0" max="9999" value="${r.perClient}"></div>
+      <div><label class="fl" for="xrBonus">Clear-all bonus ₵</label><input class="field num" id="xrBonus" type="number" min="0" max="99999" value="${r.bonus}"></div>
+      <p class="hint full" style="margin:0">Each round gives one turn per client plus the extra turns. Later rounds add clients and ♥, and tip 25% more per round.</p>
+      <div><label class="fl" for="xrLw">${esc(PL())} gained for clearing a run</label><input class="field num" id="xrLw" type="number" min="0" max="20" value="${r.lwGain}"></div>
+      ${T("xrIntro","Line when the run starts",r.intro)}${T("xrWin","Line when every round is cleared",r.win)}${T("xrLose","Line when the run ends early",r.lose)}
+      <p class="hint full" style="margin:0">Use {w} for the worker, {c} for the client, {room} for the room name.</p>
+      <div class="full"><span class="fl">Background art</span><div class="rowflex"><div class="favthumb" id="xrArtPrev">${a?`<img src="${a}" alt="">`:`<span>▣</span>`}</div>
+        <label class="btn ghost" for="xrArt" style="text-align:center">${a?"REPLACE":"LOAD ART"}</label><input type="file" id="xrArt" class="srt" accept="image/*" data-up="xsroom">
+        ${a?`<button type="button" class="btn ghost" data-xs="clearDraftArt">REMOVE</button>`:""}</div></div>
+    </div>
+    <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">SAVE ROOM</button></div>
+  </form>`);
+}
+function xsCardSheet(c,forW){
+  const isNew=!c; c=c||{id:"",name:"",text:"",line:"",cost:1,pl:3,heat:0,draw:0,en:0,pat:0,tag:"",needLv:1,starter:0,exhaust:false,rooms:[],art:null,anim:null,worker:forW||""};
+  xsDraft={kind:"card",id:c.id,art:c.art,_orig:c.art,anim:c.anim,_origAnim:c.anim}; const a=c.art&&resolveArt(c.art), an=c.anim||{cols:4,rows:1,fps:8,loop:true};
+  const N=(id,l,v,mn,mx)=>`<div><label class="fl" for="${id}">${l}</label><input class="field num" id="${id}" type="number" min="${mn}" max="${mx}" value="${v|0}"></div>`;
+  openSheet(`<h3>${isNew?"NEW CARD":"EDIT CARD"}</h3>
+  <form data-form="xsCard" data-id="${c.id}" class="stack">
+    <div class="formgrid">
+      <div class="full"><label class="fl" for="xcName">Card name</label><input class="field" id="xcName" maxlength="40" value="${esc(c.name)}" required autocomplete="off"></div>
+      ${N("xcCost","Energy cost",c.cost,0,9)}${N("xcPl","♥ pleasure",c.pl,0,99)}${N("xcHeat","Heat added",c.heat,0,20)}${N("xcDraw","Draw cards",c.draw,0,5)}${N("xcEn","Energy back",c.en,0,5)}${N("xcPat","Extra turns",c.pat,0,3)}
+      <div><label class="fl" for="xcTag">Tag</label><select class="field" id="xcTag"><option value="">none</option>${S.xs.tags.map(t=>`<option ${c.tag===t?"selected":""}>${esc(t)}</option>`).join("")}</select></div>
+      <div><label class="fl" for="xcLv">${esc(PL())} level</label><select class="field" id="xcLv">${[1,2,3,4,5].map(n=>`<option ${(c.needLv||1)===n?"selected":""}>${n}</option>`).join("")}</select></div>
+      ${FEATURES.deckBuilding?N("xcStarter","Starter copies",c.starter,0,8)+N("xcPrice","Shop price ₵ (0 = auto)",c.price||0,0,9999):N("xcStarter","Copies in deck",Math.max(1,c.starter|0),1,8)}
+      <div><label class="fl" for="xcWorker">Only for</label><select class="field" id="xcWorker"><option value="">Everyone</option>${S.staff.map(w=>`<option value="${w.id}" ${c.worker===w.id?"selected":""}>${esc(w.name)}</option>`).join("")}</select></div>
+      <div><label class="fl" for="xcEx">Use</label><select class="field" id="xcEx"><option value="0">Reusable</option><option value="1" ${c.exhaust?"selected":""}>Once per round</option></select></div>
+      <div class="full"><span class="fl">Only for staff of (none = everyone)</span><div class="seg">${XS_SECS.map(s=>`<input type="checkbox" name="xcRoom" id="xcr-${s}" value="${s}" ${(c.rooms||[]).includes(s)?"checked":""}><label for="xcr-${s}">${s==="cafe"?"CAFÉ":s.toUpperCase()}</label>`).join("")}</div></div>
+      <div class="full"><label class="fl" for="xcText">Card text (optional)</label><input class="field" id="xcText" maxlength="80" value="${esc(c.text)}"></div>
+      <div class="full"><label class="fl" for="xcLine">Line when played</label><textarea class="field" id="xcLine" rows="2" maxlength="400" placeholder="{w} ... {c} ...">${esc(c.line)}</textarea></div>
+      <p class="hint full" style="margin:0">♥ = (pleasure + current heat), ×1.5 if the client likes the tag, ×0.5 if not. Heat halves at the end of each turn.</p>
+      <div class="full"><span class="fl">Card art (shows on the card and big on stage)</span><div class="rowflex"><div class="favthumb" id="xcArtPrev">${a?`<img src="${a}" alt="">`:`<span>✦</span>`}</div>
+        <label class="btn ghost" for="xcArt" style="text-align:center">${a?"REPLACE":"LOAD ART"}</label><input type="file" id="xcArt" class="srt" accept="image/*" data-up="xscard">
+        ${a?`<button type="button" class="btn ghost" data-xs="clearDraftArt">REMOVE</button>`:""}</div></div>
+      <div class="full"><span class="fl">Animation (sprite sheet, plays on stage instead of the art)</span>
+        <div class="formgrid"><div><label class="fl" for="xaCols">Across</label><input class="field num" id="xaCols" type="number" min="1" max="16" value="${an.cols}"></div><div><label class="fl" for="xaRows">Down</label><input class="field num" id="xaRows" type="number" min="1" max="8" value="${an.rows}"></div>
+        <div><label class="fl" for="xaFps">FPS</label><input class="field num" id="xaFps" type="number" min="1" max="30" value="${an.fps}"></div><div><label class="fl" for="xaLoop">Loop</label><select class="field" id="xaLoop"><option value="1">Yes</option><option value="0" ${an.loop===false?"selected":""}>No</option></select></div></div>
+        <div class="rowflex" style="margin-top:6px"><span class="muted" id="xcAnimState">${c.anim&&c.anim.ref?"Sheet loaded":"No sheet"}</span><label class="btn ghost" for="xcAnim" style="text-align:center">${c.anim&&c.anim.ref?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="xcAnim" class="srt" accept="image/*" data-up="xsanim">
+        ${c.anim&&c.anim.ref?`<button type="button" class="btn ghost" data-xs="clearDraftAnim">REMOVE</button>`:""}</div></div>
+    </div>
+    <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-xs="delCard" data-id="${c.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD CARD":"SAVE CARD"}</button></div>
+  </form>`);
+}
+function xsWorkerArtSheet(wid,cid){
+  const w=S.staff.find(x=>x.id===wid), c=xsCard(cid); if(!w||!c) return; const o=(w.xsArt&&w.xsArt[cid])||{};
+  xsDraft={kind:"wart",wid,cid,art:o.art||null,_orig:o.art||null,anim:o.anim||null,_origAnim:o.anim||null};
+  const a=o.art&&resolveArt(o.art), la=c.art&&resolveArt(c.art), an=o.anim||{cols:4,rows:1,fps:8,loop:true};
+  openSheet(`<h3>${esc(w.name.toUpperCase())} · ${esc(c.name.toUpperCase())}</h3>
+  <form data-form="xsWArt" class="stack">
+    <p class="hint" style="margin:0">${esc(w.name)}'s version of this card. Leave anything blank to use the library card. Stats stay the same for everyone.</p>
+    <div class="formgrid">
+      <div class="full"><label class="fl" for="xwName">Name for ${esc(w.name)}</label><input class="field" id="xwName" maxlength="40" value="${esc(o.name||"")}" placeholder="${esc(c.name)}"></div>
+      <div class="full"><label class="fl" for="xwLine">Line when ${esc(w.name)} plays it</label><textarea class="field" id="xwLine" rows="2" maxlength="400" placeholder="${esc(c.line||"{w} ...")}">${esc(o.line||"")}</textarea></div>
+      <div class="full"><span class="fl">${esc(w.name)}'s art</span><div class="rowflex"><div class="favthumb" id="xcArtPrev">${a?`<img src="${a}" alt="">`:la?`<img src="${la}" alt="" style="opacity:.35">`:`<span>✦</span>`}</div>
+        <label class="btn ghost" for="xwArt" style="text-align:center">${a?"REPLACE":"LOAD ART"}</label><input type="file" id="xwArt" class="srt" accept="image/*" data-up="xscard">
+        ${a?`<button type="button" class="btn ghost" data-xs="clearDraftArt">REMOVE</button>`:""}</div></div>
+      <div class="full"><span class="fl">${esc(w.name)}'s animation (sprite sheet)</span>
+        <div class="formgrid"><div><label class="fl" for="xaCols">Across</label><input class="field num" id="xaCols" type="number" min="1" max="16" value="${an.cols}"></div><div><label class="fl" for="xaRows">Down</label><input class="field num" id="xaRows" type="number" min="1" max="8" value="${an.rows}"></div>
+        <div><label class="fl" for="xaFps">FPS</label><input class="field num" id="xaFps" type="number" min="1" max="30" value="${an.fps}"></div><div><label class="fl" for="xaLoop">Loop</label><select class="field" id="xaLoop"><option value="1">Yes</option><option value="0" ${an.loop===false?"selected":""}>No</option></select></div></div>
+        <div class="rowflex" style="margin-top:6px"><span class="muted" id="xcAnimState">${o.anim&&o.anim.ref?"Sheet loaded":"No sheet"}</span><label class="btn ghost" for="xwAnim" style="text-align:center">${o.anim&&o.anim.ref?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="xwAnim" class="srt" accept="image/*" data-up="xsanim">
+        ${o.anim&&o.anim.ref?`<button type="button" class="btn ghost" data-xs="clearDraftAnim">REMOVE</button>`:""}</div></div>
+    </div>
+    <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">SAVE FOR ${esc(w.name.toUpperCase())}</button></div>
+  </form>`);
+}
+function xsUpload(t,file){
+  if(!xsDraft||!file) return; const up=t.dataset.up;
+  if(up==="xsroom"||up==="xscard") return bigArt(file,1000,async data=>{ if(xsDraft.art&&xsDraft.art!==xsDraft._orig) dropArt(xsDraft.art); xsDraft.art=await storeArt(data);
+    const pv=$(up==="xsroom"?"xrArtPrev":"xcArtPrev"); if(pv) pv.innerHTML=`<img src="${resolveArt(xsDraft.art)}" alt="">`; toast("Art loaded. Save to keep it."); });
+  if(up==="xsanim"){
+    const cols=Math.max(1,Math.min(16,+($("xaCols")||{}).value||4)), rows=Math.max(1,Math.min(8,+($("xaRows")||{}).value||1)), fps=Math.max(1,Math.min(30,+($("xaFps")||{}).value||8)), loop=($("xaLoop")||{}).value!=="0";
+    readImage(file).then(img=>{ const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/cols, fh=H/rows, sc=Math.min(1,640/fw,640/fh,Math.sqrt(16e6/(W*H)));
+      const cv=document.createElement("canvas"); cv.width=Math.max(1,Math.round(W*sc)); cv.height=Math.max(1,Math.round(H*sc)); const g=cv.getContext("2d"); g.imageSmoothingEnabled=sc<1; g.imageSmoothingQuality="high"; g.drawImage(img,0,0,cv.width,cv.height);
+      let data=cv.toDataURL("image/png"); if(data.length>2.5e6) data=cv.toDataURL("image/webp",.9);
+      return storeArt(data).then(ref=>{ const old=xsDraft.anim&&xsDraft.anim.ref; if(old&&old!==(xsDraft._origAnim||{}).ref) dropArt(old); xsDraft.anim={ref,cols,rows,fps,loop}; const s=$("xcAnimState"); if(s) s.textContent=`${cols*rows} frames loaded`; toast("Sheet loaded. Save the card to keep it."); }); })
+    .catch(()=>toast(imgErr(file), true));
+  }
+}
+function xsSubmit(ev){
+  const f=ev.target; if(!f.dataset||!f.dataset.form||f.dataset.form.indexOf("xs")!==0) return; ev.preventDefault(); ev.stopImmediatePropagation();
+  const v=id=>($(id)||{}).value, n=(id,mn,mx,d)=>{ const q=Math.round(+v(id)); return isFinite(q)?Math.max(mn,Math.min(mx,q)):d; };
+  if(f.dataset.form==="xsRoom"){ const r=S.xs.room;
+    if(r.art&&r.art!==xsDraft.art) dropArt(r.art);
+    const cmin=n("xrCmin",1,6,1), tmin=n("xrTmin",1,999,8);
+    Object.assign(r,{name:(v("xrName")||"").trim()||r.name,needLv:+v("xrLv")||1,rounds:n("xrRounds",1,10,3),baseTurns:n("xrTurns",0,10,2),clientsMin:cmin,clientsMax:Math.max(cmin,n("xrCmax",1,6,3)),targetMin:tmin,targetMax:Math.max(tmin,n("xrTmax",1,999,16)),perClient:n("xrPer",0,9999,30),bonus:n("xrBonus",0,99999,60),lwGain:n("xrLw",0,20,0),
+      intro:v("xrIntro"),win:v("xrWin"),lose:v("xrLose"),art:xsDraft.art||null});
+    xsDraft=null; closeSheet(); commit(); toast("Room saved."); return; }
+  if(f.dataset.form==="xsWArt"){ const w=S.staff.find(x=>x.id===xsDraft.wid); if(!w) return; w.xsArt=w.xsArt||{}; const old=w.xsArt[xsDraft.cid]||{};
+    if(old.art&&old.art!==xsDraft.art) dropArt(old.art); if(old.anim&&old.anim.ref&&(!xsDraft.anim||xsDraft.anim.ref!==old.anim.ref)) dropArt(old.anim.ref);
+    const o={name:(v("xwName")||"").trim(),line:v("xwLine")||"",art:xsDraft.art||null,anim:xsDraft.anim||null};
+    if(o.name||o.line||o.art||o.anim) w.xsArt[xsDraft.cid]=o; else delete w.xsArt[xsDraft.cid];
+    xsDraft=null; closeSheet(); commit(); toast(`Saved ${w.name}'s version.`); return; }
+  if(f.dataset.form==="xsCard"){ const name=(v("xcName")||"").trim(); if(!name) return;
+    const o={name,cost:n("xcCost",0,9,0),pl:n("xcPl",0,99,0),heat:n("xcHeat",0,20,0),draw:n("xcDraw",0,5,0),en:n("xcEn",0,5,0),pat:n("xcPat",0,3,0),tag:v("xcTag")||"",needLv:+v("xcLv")||1,starter:n("xcStarter",0,8,0),exhaust:v("xcEx")==="1",
+      rooms:[...document.querySelectorAll('input[name="xcRoom"]:checked')].map(i=>i.value),price:$("xcPrice")?n("xcPrice",0,9999,0):(f.dataset.id&&xsCard(f.dataset.id)||{}).price||0,worker:v("xcWorker")||"",text:v("xcText")||"",line:v("xcLine")||"",art:xsDraft.art||null,anim:xsDraft.anim||null};
+    const ex=f.dataset.id&&xsCard(f.dataset.id);
+    if(ex){ if(ex.art&&ex.art!==o.art) dropArt(ex.art); if(ex.anim&&ex.anim.ref&&(!o.anim||o.anim.ref!==ex.anim.ref)) dropArt(ex.anim.ref); Object.assign(ex,o); }
+    else { const nc=Object.assign({id:uid()},o); S.xs.cards.push(nc); if(nc.worker){ const w=S.staff.find(x=>x.id===nc.worker); if(w) xsDeck(w).push(nc.id); } }
+    xsDraft=null; closeSheet(); commit(); toast(ex?"Card saved.":"Card added. Give it starter copies or let it show up as a reward."); }
+}
+document.addEventListener("submit",xsSubmit,true);
+function xsExport(){
+  const cards=S.xs.cards.map(c=>Object.assign({},c,{art:c.art?resolveArt(c.art):null,anim:c.anim&&c.anim.ref?Object.assign({},c.anim,{ref:resolveArt(c.anim.ref)}):null}));
+  const room=Object.assign({},S.xs.room,{art:S.xs.room.art?resolveArt(S.xs.room.art):null});
+  const workers={}; S.staff.forEach(w=>{ const o={}; Object.entries(w.xsArt||{}).forEach(([cid,v])=>{ o[cid]=Object.assign({},v,{art:v.art?resolveArt(v.art):null,anim:v.anim&&v.anim.ref?Object.assign({},v.anim,{ref:resolveArt(v.anim.ref)}):null}); }); if(Object.keys(o).length) workers[w.name]=o; });
+  cards.forEach(c=>{ if(c.worker){ const w=S.staff.find(x=>x.id===c.worker); c.workerName=w?w.name:""; } });
+  return JSON.stringify({type:"nightkettle-service",v:2,exported:new Date().toISOString(),settings:{energy:S.xs.energy,hand:S.xs.hand,tags:S.xs.tags,meter:Object.assign({},S.xs.meter,{val:0})},room,cards,workers});
+}
+async function xsImport(text){
+  let o; try{ o=JSON.parse(text); }catch(e){ toast("That isn't a service pack.", true); return; }
+  if(!o||o.type!=="nightkettle-service"||!Array.isArray(o.cards)){ toast("No service pack found in that file.", true); return; }
+  const store=async v=>typeof v==="string"&&v.indexOf("data:image")===0?await storeArt(v):null;
+  const idMap={}; let n=0;
+  const byName=nm=>S.staff.find(w=>w.name.toLowerCase()===String(nm||"").toLowerCase());
+  for(const raw of o.cards){ const c=Object.assign({},raw,{id:uid()}); { const w=raw.workerName&&byName(raw.workerName); c.worker=w?w.id:""; delete c.workerName; } idMap[raw.id]=c.id; c.art=await store(c.art); if(c.anim&&c.anim.ref){ const r=await store(c.anim.ref); c.anim=r?Object.assign({},c.anim,{ref:r}):null; } else c.anim=null; S.xs.cards.push(c); n++; }
+  let wn=0; if(o.workers) for(const [nm,map] of Object.entries(o.workers)){ const w=byName(nm); if(!w) continue; w.xsArt=w.xsArt||{}; wn++;
+    for(const [oldId,v] of Object.entries(map)){ const cid=idMap[oldId]; if(!cid) continue; const a=await store(v.art); let an=null; if(v.anim&&v.anim.ref){ const r2=await store(v.anim.ref); an=r2?Object.assign({},v.anim,{ref:r2}):null; } w.xsArt[cid]={name:v.name||"",line:v.line||"",art:a,anim:an}; } }
+  const rr=o.room||(o.rooms&&(o.rooms.club||o.rooms.cafe)); if(rr){ const r=Object.assign({},S.xs.room,rr); r.art=await store(rr.art)||S.xs.room.art; S.xs.room=r; }
+  if(o.settings){ ["energy","hand"].forEach(k=>{ if(o.settings[k]!=null) S.xs[k]=o.settings[k]; }); if(Array.isArray(o.settings.tags)) S.xs.tags=o.settings.tags; if(o.settings.meter) S.xs.meter=Object.assign({},S.xs.meter,o.settings.meter,{val:S.xs.meter.val}); }
+  addLog(`Imported a service pack: ${n} card${n===1?"":"s"}.`,"build"); commit(); toast(`Imported ${n} card${n===1?"":"s"} and the room${wn?`, plus art for ${wn} worker${wn===1?"":"s"}`:""}.`);
+}
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("[data-xs]"); if(!b) return; const a=b.dataset.xs, id=b.dataset.id;
+  const two=()=>{ if(xsArm!==a+id){ xsArm=a+id; b.textContent="TAP AGAIN"; return false; } xsArm=null; return true; };
+  switch(a){
+    case "work": { if(!glReady()) return; const w=S.staff.find(x=>x.id===id); if(!w) return; if(progLevel(w)<S.xs.room.needLv){ toast(`${w.name} needs ${PL()} ${S.xs.room.needLv}.`, true); return; }
+      S.xs.meter.val=0; save(); xsStart(w,false); break; }
+    case "fillBar": S.xs.meter.val=S.xs.meter.max; commit(); break;
+    case "toggle": S.xs.on=!S.xs.on; commit(); break;
+    case "editRoom": xsRoomSheet(); break;
+    case "test": { const w=S.staff.find(x=>x.id===xsDevWorker)||S.staff[0]; if(!w) return; xsStart(w,true); break; }
+    case "newCard": xsCardSheet(null); break;
+    case "newCardFor": xsCardSheet(null,xsDevWorker); break;
+    case "wArt": xsWorkerArtSheet(xsDevWorker,id); break;
+    case "editCard": xsCardSheet(xsCard(id)); break;
+    case "delCard": { if(!two()) return; const c=xsCard(id); if(c){ dropArt(c.art); if(c.anim) dropArt(c.anim.ref); } S.xs.cards=S.xs.cards.filter(x=>x.id!==id); S.staff.forEach(w=>{ if(Array.isArray(w.deck)) w.deck=w.deck.filter(x=>x!==id); if(w.xsArt&&w.xsArt[id]){ dropArt(w.xsArt[id].art); if(w.xsArt[id].anim) dropArt(w.xsArt[id].anim.ref); delete w.xsArt[id]; } }); xsDraft=null; closeSheet(); commit(); break; }
+    case "clearDraftArt": if(xsDraft){ if(xsDraft.art&&xsDraft.art!==xsDraft._orig) dropArt(xsDraft.art); xsDraft.art=null; const pv=$("xrArtPrev")||$("xcArtPrev"); if(pv) pv.innerHTML="<span>✦</span>"; b.remove(); } break;
+    case "clearDraftAnim": if(xsDraft){ xsDraft.anim=null; const s=$("xcAnimState"); if(s) s.textContent="No sheet"; b.remove(); } break;
+    case "deckWorker": xsDevWorker=id; render(); break;
+    case "deckPlus": { const w=S.staff.find(x=>x.id===xsDevWorker); if(!w) return; const d=xsDeck(w); if(d.length>=40){ toast("Decks max out at 40 cards.", true); return; } d.push(id); commit(); break; }
+    case "deckMinus": { const w=S.staff.find(x=>x.id===xsDevWorker); if(!w) return; const d=xsDeck(w); if(d.length<=1){ toast("A deck needs at least one card.", true); return; } const i=d.lastIndexOf(id); if(i>=0) d.splice(i,1); commit(); break; }
+    case "deckReset": { if(!two()) return; const w=S.staff.find(x=>x.id===xsDevWorker); if(w){ w.deck=xsStarter(w); commit(); toast(`${w.name}'s deck reset.`); } break; }
+    case "export": if(!downloadText("nightkettle-service.json",xsExport())) toast("Downloads are blocked here. Use Copy as text.", true); break;
+    case "copyPack": { const t=xsExport(), ta=$("xsPackText"); if(ta) ta.value=t; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Pack copied.")).catch(()=>{ if(ta) ta.select(); toast("Copy the pack from the box.", true); }); break; }
+    case "importText": { const t=($("xsPackText")||{}).value||""; if(t.trim()) xsImport(t); break; }
+  }
+});
+document.addEventListener("change",ev=>{ const t=ev.target;
+  if(t.id==="xsEnergy"){ S.xs.energy=Math.max(1,Math.min(9,+t.value||3)); save(); }
+  if(t.id==="xsHand"){ S.xs.hand=Math.max(1,Math.min(9,+t.value||5)); save(); }
+  if(t.id==="xsTags"){ S.xs.tags=[...new Set(t.value.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean))].slice(0,12); commit(); }
+  if(t.id==="xsPackFile"&&t.files&&t.files[0]){ const r=new FileReader(); r.onload=()=>xsImport(String(r.result)); r.readAsText(t.files[0]); t.value=""; }
+});
+document.addEventListener("change",ev=>{ const t=ev.target, M=S.xs&&S.xs.meter, k={glMax:"max",glTask:"task",glVip:"vip",glHabit:"habit",glWin:"win"}[t.id]; if(!k||!M) return;
+  M[k]=Math.max(k==="max"?10:0,Math.min(1000,Math.round(+t.value||0))); if(M.val>M.max) M.val=M.max; commit(); });
+
 /* ================= CHARM MOVES: named moves, per-employee art slots, gallery ================= */
 function defaultCharm(){ const M=(id,name,tip,chance,needLv,lwGain,act,yes,no)=>({id,name,tip,chance,needLv,lwGain,act,yes,no});
   return {moves:[
@@ -4586,11 +5044,12 @@ function charmArtFor(w,id){ const r=(w.charmArts&&w.charmArts[id])||w.charmArt; 
 /* ---------- at the counter ---------- */
 function charmAllowed(){ return srv.sec==="cafe"||srv.sec==="club"||perkOf(srv.worker)==="entertain"; }
 function charmButton(){
-  if(!charmAllowed()||srv.result) return "";
+  if(!FEATURES.charm||!charmAllowed()||srv.result) return "";
   const w=srv.worker, left=charmMax(w)-charmUsed(w);
   return `<button class="btn charmbtn" data-act="charmPick" style="flex:1" aria-expanded="${!!srv.charmPick}" ${srv.charmed||left<=0?"disabled":""}>✦ CHARM · ${Math.max(0,left)} LEFT</button>`;
 }
 function charmPicker(){
+  if(!FEATURES.charm) return "";
   if(!srv.charmPick||srv.charmed||srv.result||!charmAllowed()) return ""; const w=srv.worker, lv=progLevel(w);
   return `<div class="charmpick" role="group" aria-label="Charm moves">${S.charm.moves.map(m=>{ const lock=lv<(m.needLv||1), a=charmArtFor(w,m.id);
     return `<button class="cmove" data-act="charmMove" data-id="${m.id}" ${lock?"disabled":""}>${a?`<img src="${a}" alt="">`:`<span class="ci" aria-hidden="true">✦</span>`}
@@ -4675,7 +5134,7 @@ function charmView(wid,slot){
 const PERKS={
   service:{label:"Counter specialist",desc:"+1 hint a day, and sometimes saves a Close into a Perfect"},
   tips:{label:"Money handler",desc:"+20% tips on every client they serve"},
-  entertain:{label:"Entertainer",desc:"Clients ask favors twice as often, favors give +1 extra progression, and Charm works at any venue"}
+  entertain:{label:"Entertainer",desc:"Clients ask favors twice as often, and favors give +1 extra progression"}
 };
 const VENUE_CAP=8;
 function defaultJobs(){ return {
@@ -4745,7 +5204,7 @@ function empSheet(w){
       <div><label class="fl" for="empCharm">Charm</label><select class="field" id="empCharm">${[1,2,3,4,5].map(n=>`<option ${w.charm===n?"selected":""}>${n}</option>`).join("")}</select></div>
       <div><label class="fl" for="empPersona">Personality</label><select class="field" id="empPersona">${Object.entries(PERSONAS).map(([k,P])=>`<option value="${k}" ${w.persona===k?"selected":""}>${esc(P.label)}</option>`).join("")}</select></div>
       <div><label class="fl" for="empTrait">Trait</label><select class="field" id="empTrait">${Object.entries(TRAITS).map(([k,T])=>`<option value="${k}" ${w.trait===k?"selected":""}>${esc(T.name)}</option>`).join("")}</select></div>
-      <div class="full"><label class="fl" for="empLw">${esc(PL())} points</label><input class="field num" id="empLw" type="number" min="0" max="9999" value="${w.lw||0}"></div>
+      <div class="full" ${adultOn()?"":"hidden"}><label class="fl" for="empLw">${esc(PL())} points</label><input class="field num" id="empLw" type="number" min="0" max="9999" value="${w.lw||0}"></div>
     </div>
     ${isNew?`<p class="hint" style="margin:0">They start with code-drawn art. Load their art, outfits and animations in Dev › Workers afterwards.</p>`:""}
     <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"CREATE":"SAVE"}</button></div>
@@ -4814,7 +5273,7 @@ document.addEventListener("change",ev=>{ const t=ev.target;
 /* ---------- boot ---------- */
 let lastDay, lastSide;
 async function boot(){
-  loadState(); applyLines();
+  loadState(); applyLines(); applyAdult();
   lastDay=today(); lastSide=clockSide();
   render();
   const ok=await ArtDB.open(); if(ok){ await ArtDB.loadAll(); render(); }
