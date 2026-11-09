@@ -4819,12 +4819,12 @@ function scnUpdate(sec,now){
 }
 function scnSheet(g,sh,k,x,base,h,dir,foot,flip){
   if(!sh) return; const im=imgFor(sh.src); if(!(im.complete&&im.naturalWidth)) return;
-  const n=Math.max(1,sh.n|0), fw=im.naturalWidth/n, fh=im.naturalHeight, ratio=h/fh, w=fw*ratio;
+  const n=Math.max(1,sh.n|0), fw=im.naturalWidth/n, fh=im.naturalHeight, w=fw*h/fh; let Q=1; try{ Q=Math.abs(g.getTransform().d)||1; }catch(e){} const ratio=h*Q/fh;
   let src=im, m=1; if(ratio<.5&&typeof mipFor==="function"){ src=mipFor(im,Math.min(6,Math.floor(Math.log2(1/ratio)))); m=(src.naturalHeight||src.height)/fh; }
-  const top=Math.round(base-h*(1-foot)), left=Math.round(x-w/2), f=((k%n)+n)%n;
+  const rq=v=>Math.round(v*Q)/Q, top=rq(base-h*(1-foot)), left=rq(x-w/2), f=((k%n)+n)%n;
   g.save(); g.imageSmoothingEnabled=ratio<1&&Math.abs(ratio-Math.round(ratio))>.01; g.imageSmoothingQuality="high";
-  if((dir<0)!==!!flip){ g.translate(Math.round(x)*2,0); g.scale(-1,1); }
-  g.drawImage(src,f*fw*m,0,fw*m,fh*m,left,top,Math.round(w),Math.round(h)); g.restore();
+  if((dir<0)!==!!flip){ g.translate(rq(x)*2,0); g.scale(-1,1); }
+  g.drawImage(src,f*fw*m,0,fw*m,fh*m,left,top,rq(w),rq(h)); g.restore();
 }
 function scnStaffList(sec){ const a=workerFor(sec); const L=a?[a]:[]; staffAt(sec).forEach(w=>{ if(L.length<3&&!L.includes(w)) L.push(w); }); return L; }
 const pxs=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"-");
@@ -4893,8 +4893,10 @@ function twrShell(g,now){
   if(night){ g.globalAlpha=.3; [[120,"#ff3d8b"],[380,"#3ef2e0"],[560,"#ffd23f"]].forEach(([x,c])=>{ const w=36+Math.round(Math.sin(now/700+x)*4); R(x-w/2,sy+18,w,2,c); R(x-w/4,sy+24,w/2,2,c); }); g.globalAlpha=1; }
   if(S.modules.awning){ const ay=cr.y+SCN_H-142; R(0,ay,96,6,"#0a0812"); for(let x=0;x<96;x+=12){ R(x,ay+6,6,10,"#ff3d8b"); R(x+6,ay+6,6,10,"#f4eee6"); } }
 }
+function twrFit(cv){ const css=cv.clientWidth||cv.getBoundingClientRect().width||TWR_W, Q=Math.max(1,Math.min(3,css*(window.devicePixelRatio||1)/TWR_W)), w=Math.round(TWR_W*Q), h=Math.round(TWR_H*Q);
+  if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; } return cv.width/TWR_W; }
 function drawTower(cv,now){
-  const g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.imageSmoothingEnabled=false; g.clearRect(0,0,TWR_W,TWR_H);
+  const g=cv.getContext("2d"), Q=twrFit(cv); g.setTransform(Q,0,0,Q,0,0); g.imageSmoothingEnabled=false; g.clearRect(0,0,TWR_W,TWR_H);
   twrShell(g,now);
   twrRows().forEach(r=>{ const w=r.sec==="roof"?TWR_W:SCN_W; g.save(); g.beginPath(); g.rect(r.x,r.y,w,SCN_H); g.clip(); g.translate(r.x,r.y); drawFloorScene(g,r.sec,now); g.restore(); });
 }
