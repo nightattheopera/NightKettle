@@ -778,6 +778,13 @@ body.xson{overflow:hidden}
 .shiftrow{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-top:1px solid var(--line)}
 .shiftrow .shiftsel{width:100%}
 .wardcfg.nolv{grid-template-columns:auto 2fr 1.4fr 1fr}
+.tchk.plus{font-size:20px;line-height:1;color:var(--accent);border-color:var(--accent)}
+.tchk.plus.full{color:var(--good);border-color:var(--good)}
+.trow .minus{flex:none;align-self:center;margin-left:6px;font-size:10px;padding:6px 8px}
+.cline{display:flex;align-items:center;gap:8px}
+.cbar{display:inline-block;width:72px;height:6px;background:var(--line);flex:none}
+.cbar i{display:block;height:100%;background:var(--accent)}
+.trow.done .cbar i{background:var(--good)}
 
 </style>
 </head>
@@ -2906,6 +2913,7 @@ const streak=h=>runFrom(h,h.hist[today()]?today():addDays(today(),-1));
 const bucketById=id=>S.buckets.find(b=>b.id===id);
 function toggleHabit(id,ev){
   const h=S.habits.find(x=>x.id===id); if(!h) return; const k=today();
+  if(isCounted(h)){ habitPlus(h,ev); return; }
   if(h.hist[k]){ delete h.hist[k]; takeReward(h,false); glGain(-Math.round(S.xs.meter.habit*dOf(h).e)); const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); } addLog("Habit un-checked: "+h.name+"."); beep(330); }
   else { h.hist[k]=1; giveReward(h,false,h.name); glGain(Math.round(S.xs.meter.habit*dOf(h).e)); const b=bucketById(h.bucket); if(b&&h.save){ b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id}); setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(h.save),"var(--good)"),200); }
     pop(ev,rewardPop(h,false),"var(--good)"); addLog("Habit done: "+h.name+". "+(dOf(h).c>1?dOf(h).c+" clients walked in.":"A client walked in.")+(b&&h.save?" "+money(h.save)+" to "+b.name+".":""),"gain"); }
@@ -3192,7 +3200,7 @@ function dueRail(){
   const k=today(), items=[
     ...overdue().sort(dueSort).map(t=>({kind:"task",id:t.id,title:t.title,tag:`<span class="bad">${daysBetween(t.due,k)}d late</span>`,vip:t.pri===3})),
     ...dueToday().sort((x,y)=>y.pri-x.pri).map(t=>({kind:"task",id:t.id,title:t.title,tag:`<span class="acc">today</span>`,vip:t.pri===3})),
-    ...habitsDueOpen().map(h=>({kind:"habit",id:h.id,title:h.name,tag:`<span class="muted">habit</span>`}))];
+    ...habitsDueOpen().map(h=>({kind:"habit",id:h.id,title:h.name,tag:`<span class="muted">${isCounted(h)?`${habitCount(h)}/${h.target}`:"habit"}</span>`}))];
   const shown=items.slice(0,4), more=items.length-shown.length;
   return `<div class="rail" aria-label="Due today">
     <div class="railhead"><span class="px">DUE TODAY · ${items.length}</span><button class="linkbtn" data-act="tab" data-id="today">${more>0?`+${more} more`:"open"} ›</button></div>
@@ -3204,8 +3212,10 @@ function habitRowH(h){
   const k=today(), done=!!h.hist[k], st=streak(h), b=bucketById(h.bucket), due=isDue(h,k);
   const sched=!h.days.length?"every day":h.days.length===5&&!h.days.includes(0)&&!h.days.includes(6)?"weekdays":h.days.slice().sort((x,y)=>((x+6)%7)-((y+6)%7)).map(d=>DOW3[d].slice(0,2)).join(" ");
   return `<div class="trow ${done?"done":""} ${due?"":"off"}">
-    <button class="tchk" data-act="habit" data-id="${h.id}" aria-pressed="${done}" aria-label="${done?"Un-check":"Check off"} ${esc(h.name)}">${done?"✓":""}</button>
-    <button class="ttl" data-act="editHabit" data-id="${h.id}" aria-label="Edit ${esc(h.name)}"><span>${esc(h.name)}</span><small>${st?`🔥${st} · `:""}${sched}${b&&h.save?` · +${money(h.save)}`:""} ${diffTag(h)}</small>${noteLine(h)}</button>
+    ${isCounted(h)?`<button class="tchk plus ${done?"full":""}" data-act="habit" data-id="${h.id}" aria-label="Add one to ${esc(h.name)}, now ${habitCount(h)} of ${h.target}">${done?"✓":"+"}</button>`
+      :`<button class="tchk" data-act="habit" data-id="${h.id}" aria-pressed="${done}" aria-label="${done?"Un-check":"Check off"} ${esc(h.name)}">${done?"✓":""}</button>`}
+    <button class="ttl" data-act="editHabit" data-id="${h.id}" aria-label="Edit ${esc(h.name)}"><span>${esc(h.name)}</span><small>${st?`🔥${st} · `:""}${sched}${b&&h.save?` · +${money(h.save)}`:""} ${diffTag(h)}</small>${isCounted(h)?`<small class="cline">${countBar(h)} ${countLine(h)}</small>`:""}${noteLine(h)}</button>
+    ${isCounted(h)&&habitCount(h)?`<button class="btn ghost smallbtn minus" data-act="habitMinus" data-id="${h.id}" aria-label="Take one off ${esc(h.name)}">−1</button>`:""}
   </div>`;
 }
 function shortDue(t){
@@ -3344,7 +3354,9 @@ function groupedByDue(list){
   const k=today(), wk=addDays(k,7), G=[["Overdue",t=>t.due<k,"bad"],["Today",t=>t.due===k,"acc"],["Tomorrow",t=>t.due===addDays(k,1),""],["This week",t=>t.due>addDays(k,1)&&t.due<=wk,""],["Later",t=>t.due>wk,""]];
   return G.map(([lab,f,cls])=>{ const xs=list.filter(f); return xs.length?`<p class="sh ${cls}">${lab.toUpperCase()} · ${xs.length}</p><div class="tlist">${xs.map(taskRowT).join("")}</div>`:""; }).join("");
 }
-function habitChip(h){ const done=!!h.hist[today()], st=streak(h); return `<button class="hchip ${done?"ok":""}" data-act="habit" data-id="${h.id}" aria-pressed="${done}">${done?"✓ ":""}${esc(h.name)}${st?` <b>${st}</b>`:""}</button>`; }
+function habitChip(h){ const done=!!h.hist[today()], st=streak(h);
+  if(isCounted(h)) return `<button class="hchip ${done?"ok":""}" data-act="habit" data-id="${h.id}" aria-label="Add one to ${esc(h.name)}">${done?"✓ ":"+ "}${esc(h.name)} <b>${habitCount(h)}/${h.target}</b></button>`;
+  return `<button class="hchip ${done?"ok":""}" data-act="habit" data-id="${h.id}" aria-pressed="${done}">${done?"✓ ":""}${esc(h.name)}${st?` <b>${st}</b>`:""}</button>`; }
 function todayBody(){
   const k=today(), od=overdue().sort(dueSort), dt=dueToday().sort((x,y)=>y.pri-x.pri);
   const hDue=S.habits.filter(h=>isDue(h,k)), hOpen=hDue.filter(h=>!h.hist[k]), hDone=hDue.filter(h=>h.hist[k]);
@@ -3998,6 +4010,7 @@ function habitSheet(h){
   <form data-form="habit" data-id="${isNew?"":h.id}" class="stack">
     <div><label class="fl" for="hName">Habit</label><input class="field" id="hName" maxlength="80" value="${esc(h.name)}" placeholder="e.g. Skip buying coffee on work days" required autocomplete="off"></div>
     <div><span class="fl">Days · none checked = every day</span><div class="seg">${[1,2,3,4,5,6,0].map(d=>`<input type="checkbox" name="day" id="w-${d}" value="${d}" ${h.days.includes(d)?"checked":""}><label for="w-${d}">${DOW3[d].slice(0,2)}</label>`).join("")}</div></div>
+    ${habitCountFields(h)}
     <div class="formgrid">${diffSelect("hDiff",h)}</div>
     <div class="formgrid"><div><label class="fl" for="hBucket">Savings bucket</label><select class="field" id="hBucket">${bucketOptions(h.bucket)}</select></div>
       <div><label class="fl" for="hSave">Saves each time ($)</label><input class="field num" id="hSave" inputmode="decimal" value="${h.save?(h.save/100).toFixed(2):""}" placeholder="6.00"></div></div>
@@ -4541,8 +4554,10 @@ document.addEventListener("submit",ev=>{
     let days=[...f.querySelectorAll('input[name="day"]:checked')].map(i=>+i.value); if(days.length===7) days=[];
     const bucket=val("hBucket"), saveC=toCents(val("hSave")), id=f.dataset.id;
     const note=($("hNote")||{}).value||"", diff=+val("hDiff")||2;
-    if(id){ const h=S.habits.find(x=>x.id===id); if(h) Object.assign(h,{name,days,bucket,save:saveC,note,diff}); }
-    else S.habits.push({id:uid(),name,days,bucket,save:saveC,note,diff,hist:{},created:today()});
+    const cx=habitCountRead();
+    if(id){ const h=S.habits.find(x=>x.id===id); if(h){ const was=+h.target||1; Object.assign(h,{name,days,bucket,save:saveC,note,diff},cx);
+      if(isCounted(h)&&was!==h.target){ const k=today(); if(habitCount(h,k)>=h.target) h.hist[k]=1; else if(was>1) delete h.hist[k]; } } }
+    else S.habits.push(Object.assign({id:uid(),name,days,bucket,save:saveC,note,diff,hist:{},counts:{},created:today()},cx));
     closeSheet(); commit();
   }
   if(k==="bucket"){
@@ -5137,6 +5152,38 @@ document.addEventListener("input",ev=>{ const t=ev.target; if(!t.dataset||!t.dat
   w.scn=Object.assign({},scnFit(w),w.scn||{}); w.scn[t.dataset.fit]=+t.value; const o=$(t.dataset.fit==="h"?"fitHv":"fitDyv"); if(o) o.textContent=t.value; clearTimeout(ssFitDraw.t); ssFitDraw.t=setTimeout(save,300); });
 document.addEventListener("change",ev=>{ const t=ev.target; if(!t.dataset||!t.dataset.fit||t.type!=="checkbox") return; const w=S.staff.find(x=>x.id===SS.wid); if(!w) return;
   w.scn=Object.assign({},scnFit(w),w.scn||{}); w.scn[t.dataset.fit]=t.checked; save(); });
+
+/* ================= COUNTED HABITS: a daily target (8 glasses), +1 per tap, done when the target is hit ================= */
+const isCounted=h=>!!(h&&+h.target>1);
+const habitCount=(h,k)=>+((h.counts||{})[k||today()])||0;
+function countLine(h,k){ const n=habitCount(h,k), u=h.unit?` ${esc(h.unit)}`:""; return `${n} / ${h.target}${u}`; }
+function countBar(h){ const f=Math.min(1,habitCount(h)/h.target); return `<span class="cbar" aria-hidden="true"><i style="width:${Math.round(f*100)}%"></i></span>`; }
+function habitPlus(h,ev){
+  const k=today(); h.counts=h.counts||{}; const before=habitCount(h,k), n=before+1; h.counts[k]=n;
+  if(before<h.target&&n>=h.target){
+    h.hist[k]=1; giveReward(h,false,h.name); glGain(Math.round(S.xs.meter.habit*dOf(h).e));
+    const b=bucketById(h.bucket); if(b&&h.save) b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id});
+    pop(ev,rewardPop(h,false),"var(--good)"); beep(1180);
+    addLog(`Habit done: ${h.name} (${n}/${h.target}${h.unit?" "+h.unit:""}). `+(dOf(h).c>1?dOf(h).c+" clients walked in.":"A client walked in.")+(b&&h.save?" "+money(h.save)+" to "+b.name+".":""),"gain");
+  } else { pop(ev,`${n}/${h.target}`,n>h.target?"var(--dim)":"var(--ink)"); beep(n>h.target?600:880); }
+  commit();
+}
+function habitMinus(h){
+  const k=today(), before=habitCount(h,k); if(!before) return; const n=before-1;
+  if(n) h.counts[k]=n; else delete h.counts[k];
+  if(before>=h.target&&n<h.target){ delete h.hist[k]; takeReward(h,false); glGain(-Math.round(S.xs.meter.habit*dOf(h).e));
+    const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); }
+    addLog(`Habit un-done: ${h.name} is back to ${n}/${h.target}.`); }
+  beep(330); commit();
+}
+/* the extra fields on the habit form */
+function habitCountFields(h){
+  return `<div class="formgrid"><div><label class="fl" for="hTarget">Times a day</label><input class="field num" id="hTarget" type="number" min="1" max="99" value="${+h.target||1}"></div>
+    <div><label class="fl" for="hUnit">Unit (optional)</label><input class="field" id="hUnit" maxlength="14" value="${esc(h.unit||"")}" placeholder="glasses, sets" autocomplete="off"></div></div>
+    <p class="hint" style="margin:-4px 0 0">Leave it at 1 for a normal check-off habit. Set more, like 8, to tap +1 each time; it counts as done when you hit the number.</p>`;
+}
+function habitCountRead(){ const t=Math.max(1,Math.min(99,parseInt(($("hTarget")||{}).value,10)||1)); return {target:t,unit:t>1?(($("hUnit")||{}).value||"").trim().slice(0,14):""}; }
+document.addEventListener("click",ev=>{ const el=ev.target.closest("[data-act=habitMinus]"); if(!el) return; const h=S.habits.find(x=>x.id===el.dataset.id); if(h) habitMinus(h); });
 
 /* ================= SKILLS, COVERING OTHER VENUES, AND HIRING YOUR OWN CHARACTERS ================= */
 const SKILL_SLOTS=3, SLOT_MULT=[1,2,4];
