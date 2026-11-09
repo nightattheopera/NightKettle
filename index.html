@@ -773,6 +773,10 @@ body.xson{overflow:hidden}
 .fitcv{width:100%;height:auto;aspect-ratio:16/9;display:block}
 .fitctl{display:flex;flex-direction:column;gap:6px}
 .fitctl input[type=range]{width:100%}
+.duepanel .rail{margin-top:0}
+.shifts{margin-top:10px}
+.shiftrow{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-top:1px solid var(--line)}
+.shiftrow .shiftsel{width:100%}
 
 </style>
 </head>
@@ -3165,28 +3169,19 @@ function renderTabs(){
 /* ---------- screens ---------- */
 function vShop(){
   const r=rankInfo(), k=today(), d=S.serves[k]||{n:0,tips:0};
-  const habDone=S.habits.filter(h=>h.hist[k]).length, taskDone=doneCount(k);
-  const counters=Object.keys(ROLES).map(sec=>{ const st=counterState(sec), R=ROLES[sec];
-    const status=!st.built?`Build a ${R.room} spot first`:!st.w?`Hire someone`:!st.open?(SIDE_OF[sec]==="day"?"Opens in the daytime":"Opens at night"):`${st.w.name} (${jobTitle(st.w)}) is at the counter${staffAt(sec).length>1?` · ${staffAt(sec).length} on staff`:""}`;
-    return `<div class="ctr ${st.ok?"on":""}"><div><b>${SIDE_OF[sec]==="day"?"☀":"☾"} ${SEC_NAME[sec]}</b><span class="muted">${esc(status)}</span></div>
-      ${st.ok?`<button class="btn solid" data-act="serveOpen" data-id="${sec}" ${S.clients.waiting?"":"disabled"}>WORK IT</button>`:!st.built||!st.w?`<button class="btn ghost" data-act="tab" data-id="upgrade">SET UP</button>`:`<span class="px muted">CLOSED</span>`}${st.ok?shiftPicker(sec):""}</div>`; }).join("");
+  const team=S.staff.filter(isHired), shifts=team.length>1?Object.keys(ROLES).filter(sec=>counterState(sec).built):[];
   return `
+  <section class="panel duepanel">${dueRail()}</section>
   ${depositDue()?`<section class="panel jarbanner"><h2><span>DEPOSIT DAY</span><span>SAVINGS</span></h2><p style="margin:0 0 10px">You have <b class="good">${money(totalPending())}</b> waiting across your buckets. Move it into real savings, then log it.</p><button class="btn solid" data-act="tab" data-id="save">OPEN SAVINGS</button></section>`:""}
-  <section class="panel">
-    <h2><span>THE COUNTER</span><span>${S.clients.waiting} WAITING${S.clients.vip?` · ${S.clients.vip} VIP`:""}</span></h2>
-    <p class="bigclients num">${S.clients.waiting}<small> client${S.clients.waiting===1?"":"s"} waiting</small></p>
-    <div class="ctrs">${counters}</div>
-    <p class="hint">Every finished habit or task sends a client. High-priority tasks send VIPs (×1.5 tips). One walk-in shows up each day.</p>
-  </section>
-  ${glPanel()}
   <section class="panel">
     <h2><span>${shopView==="scene"?"INSIDE":shopView==="inside"?"FLOOR PLAN":"THE BLOCK"}</span><span>${esc(r.name)}</span></h2>
     <div class="povtabs" style="grid-template-columns:1fr 1fr 1fr" role="group" aria-label="Shop view">${[["scene","INSIDE"],["inside","FLOOR PLAN"],["outside","OUTSIDE"]].map(([v,l])=>`<button class="povtab ${shopView===v?"on":""}" data-act="shopView" data-id="${v}" aria-pressed="${shopView===v}">${l}</button>`).join("")}</div>
     ${shopView==="scene"?sceneBlock():shopView==="inside"?floorBlock():cityScene()}
-    ${dueRail()}
+    ${shifts.length?`<details class="sub shifts"><summary>Who's working where</summary>${shifts.map(sec=>`<div class="shiftrow"><b>${SIDE_OF[sec]==="day"?"☀":"☾"} ${esc(SEC_NAME[sec])}</b>${shiftPicker(sec)}</div>`).join("")}</details>`:""}
     <div class="blockfoot">${meter("RANK",(S.rep-r.lo)/Math.max(1,r.hi-r.lo),r.next?`${S.rep}/${r.hi}`:"MAX")}
       <p class="hint" style="margin:6px 0 0">${(d.tips||0)}₵ tips today · ${d.n||0} served today${r.next?` · next rank: ${r.next}`:""}</p></div>
-  </section>`;
+  </section>
+  ${glPanel()}`;
 }
 function dueRail(){
   const k=today(), items=[
