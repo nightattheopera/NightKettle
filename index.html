@@ -2739,16 +2739,28 @@ function dropArt(ref){ if(typeof ref==="string"&&ref.indexOf("idb:")===0){ const
 function artRefsInUse(){ const s=new Set(); S.staff.forEach(w=>{ [w.art,w.charmArt,...Object.values(w.charmArts||{}),...Object.values(w.anim||{}).map(x=>x&&x.ref),...Object.values(w.faces||{}),...Object.values(w.outfits||{}).map(o=>o&&o.art)].forEach(v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }); }); const ad=v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }; if(S.xs){ S.xs.cards.forEach(c=>{ ad(c.art); ad(c.anim&&c.anim.ref); }); Object.values(S.xs.rooms||{}).forEach(r=>ad(r&&r.art)); } S.staff.forEach(w=>Object.values(w.xsArt||{}).forEach(v=>{ ad(v&&v.art); ad(v&&v.anim&&v.anim.ref); }));
   S.favors.deck.forEach(f=>{ if(f.art&&f.art.indexOf("idb:")===0) s.add(f.art.slice(4)); const r=f.anim&&f.anim.ref; if(typeof r==="string"&&r.indexOf("idb:")===0) s.add(r.slice(4)); }); return s; }
 function cleanArt(){ const keep=artRefsInUse(); let n=0; Object.keys(ART).forEach(k=>{ if(!keep.has(k)){ delete ART[k]; ArtDB.del(k); n++; } }); return n; }
+/* import size: display art keeps up to this many pixels on its longest side (Dev › Tools) */
+const artCap=()=>Math.max(512,Math.min(4096,+(S&&S.artMax)||2048));
+/* high-quality resize: halve in steps so big reductions stay sharp in every browser */
+function hqResize(src,W,H,tw,th){
+  let cur=src, cw=W, ch=H;
+  while(cw/2>=tw*1.0001&&ch/2>=th*1.0001){ const nw=Math.max(tw,Math.round(cw/2)), nh=Math.max(th,Math.round(ch/2)); const c=document.createElement("canvas"); c.width=nw; c.height=nh; const g=c.getContext("2d"); g.imageSmoothingEnabled=true; g.imageSmoothingQuality="high"; g.drawImage(cur,0,0,cw,ch,0,0,nw,nh); cur=c; cw=nw; ch=nh; }
+  const c=document.createElement("canvas"); c.width=tw; c.height=th; const g=c.getContext("2d"); g.imageSmoothingEnabled=tw<cw; g.imageSmoothingQuality="high"; g.drawImage(cur,0,0,cw,ch,0,0,tw,th); return c;
+}
 function bigArt(file,max,done){
-  if(!file) return;
+  if(!file) return; if(max>=400) max=Math.max(max,artCap());
   readImage(file).then(img=>{
-    const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, sc=Math.min(1,max/Math.max(W,H));
-    const c=document.createElement("canvas"); c.width=Math.max(1,Math.round(W*sc)); c.height=Math.max(1,Math.round(H*sc));
-    const g=c.getContext("2d"); g.imageSmoothingEnabled=sc<1; g.imageSmoothingQuality="high"; g.drawImage(img,0,0,c.width,c.height);
-    let data=c.toDataURL("image/png"); if(data.length>900000) data=c.toDataURL("image/webp",.9);
+    const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, sc=Math.min(1,max/Math.max(W,H),Math.sqrt(16e6/(W*H)));
+    const c=hqResize(img,W,H,Math.max(1,Math.round(W*sc)),Math.max(1,Math.round(H*sc)));
+    let data=c.toDataURL("image/png"); if(data.length>7e6) data=c.toDataURL("image/webp",.95);
     done(data);
   }).catch(()=>toast(imgErr(file), true));
 }
+/* drawing big art small: pick a pre-shrunk copy (mip level) so it stays smooth, and keep small pixel art crisp */
+const MIPS=new WeakMap();
+function mipFor(im,k){ let L=MIPS.get(im); if(!L){ L=[im]; MIPS.set(im,L); }
+  while(L.length<=k){ const p=L[L.length-1], pw=p.naturalWidth||p.width, ph=p.naturalHeight||p.height; if(pw<4||ph<4) break; L.push(hqResize(p,pw,ph,Math.max(1,Math.round(pw/2)),Math.max(1,Math.round(ph/2)))); }
+  return L[Math.min(k,L.length-1)]; }
 function artSize(){ let n=0; Object.values(ART).forEach(v=>n+=v.length); return n; }
 
 /* ---------- clients ---------- */
@@ -2940,7 +2952,7 @@ function renderServe(){
     <div class="srv-top"><span class="px">${title} · ${esc(w.name.toUpperCase())} ON SHIFT</span><span class="px acc">${left} WAITING · ₵ ${S.credits.toLocaleString()}</span><button class="modechip" data-act="srvClose" aria-label="Close the counter">✕</button></div>
     <div class="vn">
       <div class="vnleft">
-        <div class="scenewrap"><canvas id="scene" width="${SW}" height="${SH}" role="img" aria-label="${esc(w.name)} behind the ${ROLES[sec].room} counter, talking with ${esc(C.name)}"></canvas><canvas id="sceneHi" class="layer" width="${SW*4}" height="${SH*4}" aria-hidden="true"></canvas><canvas id="sceneFront" class="layer" width="${SW}" height="${SH}" aria-hidden="true"></canvas>
+        <div class="scenewrap"><canvas id="scene" width="${SW}" height="${SH}" role="img" aria-label="${esc(w.name)} behind the ${ROLES[sec].room} counter, talking with ${esc(C.name)}"></canvas><canvas id="sceneHi" class="layer" width="${SW*6}" height="${SH*6}" aria-hidden="true"></canvas><canvas id="sceneFront" class="layer" width="${SW}" height="${SH}" aria-hidden="true"></canvas>
           ${charmArt?`<img class="cg" id="cgCharm" src="${charmArt}" alt="" style="display:none">`:""}
           ${charmCG()}
           ${favArt?`<button class="cgbtn" data-act="hideFavArt" aria-label="Hide favor art"><img class="cg" src="${favArt}" alt=""></button>`:""}
@@ -3773,6 +3785,7 @@ function devTools(){
   return `  <section class="panel">
     <h2><span>ART STORAGE</span><span>${Object.keys(ART).length} IMAGES · ${kb} KB</span></h2>
     <p style="margin:0 0 10px">Uploaded art stays in this browser's storage, never inside the app file.</p>
+    <div class="spread" style="align-items:center;margin:0 0 10px;gap:10px"><label for="artMax">Import size (longest side)</label><select class="field" id="artMax" style="width:auto">${[[1024,"1024 px · light"],[2048,"2048 px · sharp"],[4096,"4096 px · max"]].map(([v,l])=>`<option value="${v}" ${artCap()===v?"selected":""}>${l}</option>`).join("")}</select></div>
     <div class="spread" style="align-items:center;margin:0 0 10px;gap:10px"><span>Offer background removal when importing art</span><button class="btn ${S.bgOffer===false?"ghost":""}" data-act="bgOffer" aria-pressed="${S.bgOffer!==false}">${S.bgOffer===false?"OFF":"ON"}</button></div>
     <div class="actions" style="margin-top:0"><button class="btn ghost" data-act="cleanArt">CLEAN UP UNUSED</button><button class="btn danger" data-act="purgeArt">DELETE ALL UPLOADED ART</button></div>
   </section>
@@ -4078,16 +4091,40 @@ function normFrame(f){
 function frameOf(w){ return normFrame(w&&w.frame)||(w&&w.art==="builtin:mika"?Object.assign({},MIKA_FRAME):{s:1,x:0,y:0}); }
 function drawFramedSub(g,im,sx0,sy0,W,H,f,inh){
   if(!W||!H) return; f=normFrame(f)||{s:1,x:0,y:0}; inh=inh||0;
-  const dh=104*f.s, dw=W*dh/H;
-  g.drawImage(im,sx0,sy0,W,H,Math.round(120+f.x-dw/2),Math.round(f.y+inh),Math.round(dw),Math.round(dh-inh));
+  const dh=104*f.s, dw=W*dh/H, IH=im.naturalHeight||im.height;
+  let dev=dh; try{ const T=g.getTransform(); dev=dh*Math.abs(T.d||1); }catch(e){}
+  const ratio=dev/H; let src=im, k=0;
+  if(ratio<.5&&IH>2){ k=Math.min(6,Math.floor(Math.log2(1/ratio))); src=mipFor(im,k); }
+  const m=(src.naturalHeight||src.height)/IH;
+  g.save(); g.imageSmoothingEnabled=ratio<1||H>320; g.imageSmoothingQuality="high";
+  g.drawImage(src,sx0*m,sy0*m,W*m,H*m,Math.round(120+f.x-dw/2),Math.round(f.y+inh),Math.round(dw),Math.round(dh-inh));
+  g.restore();
 }
 function drawFramed(g,im,fr,bob){ drawFramedSub(g,im,0,0,im.naturalWidth||im.width,im.naturalHeight||im.height,fr,0); }
 function framerHTML(p){ const f=frameOf(p);
-  return `<div class="framer"><span class="fl">Position at the counter</span><canvas id="framePrev-${p.id}" width="${SW}" height="${SH}" aria-label="Preview of ${esc(p.name)} behind the counter"></canvas>
-    <label class="fl" for="fs-${p.id}">Size <span data-out="s">${Math.round(f.s*100)}%</span></label><input type="range" id="fs-${p.id}" data-frame="s" data-id="${p.id}" min="0.4" max="4" step="0.01" value="${f.s}">
-    <label class="fl" for="fx-${p.id}">Left ↔ right <span data-out="x">${Math.round(f.x)}</span></label><input type="range" id="fx-${p.id}" data-frame="x" data-id="${p.id}" min="-120" max="120" step="1" value="${f.x}">
-    <label class="fl" for="fy-${p.id}">Up ↔ down <span data-out="y">${Math.round(f.y)}</span></label><input type="range" id="fy-${p.id}" data-frame="y" data-id="${p.id}" min="-120" max="120" step="1" value="${f.y}">
-    <div class="actions" style="margin-top:4px"><button class="btn ghost" data-act="resetFrame" data-id="${p.id}">RESET POSITION</button></div></div>`; }
+  return `<div class="framer"><span class="fl">Position at the counter</span><canvas id="framePrev-${p.id}" width="${SW*4}" height="${SH*4}" aria-label="Preview of ${esc(p.name)} behind the counter"></canvas>
+    <label class="fl" for="fs-${p.id}">Size <span data-out="s">${Math.round(f.s*100)}%</span></label><input type="range" id="fs-${p.id}" data-frame="s" data-id="${p.id}" min="0.2" max="6" step="0.01" value="${f.s}">
+    <label class="fl" for="fx-${p.id}">Left ↔ right <span data-out="x">${Math.round(f.x)}</span></label><input type="range" id="fx-${p.id}" data-frame="x" data-id="${p.id}" min="-240" max="240" step="1" value="${f.x}">
+    <label class="fl" for="fy-${p.id}">Up ↔ down <span data-out="y">${Math.round(f.y)}</span></label><input type="range" id="fy-${p.id}" data-frame="y" data-id="${p.id}" min="-400" max="200" step="1" value="${f.y}">
+    <div class="actions" style="margin-top:4px"><button class="btn" data-act="autoFit" data-id="${p.id}:full">AUTO-FIT WHOLE BODY</button><button class="btn" data-act="autoFit" data-id="${p.id}:upper">AUTO-FIT UPPER BODY</button><button class="btn ghost" data-act="resetFrame" data-id="${p.id}">RESET POSITION</button></div></div>`; }
+/* auto-fit: find the visible (non-transparent) part of the art and frame it behind the counter */
+function visBox(im){
+  const W=im.naturalWidth||im.width, H=im.naturalHeight||im.height, s=Math.min(1,256/Math.max(W,H)), cw=Math.max(1,Math.round(W*s)), ch=Math.max(1,Math.round(H*s));
+  const c=document.createElement("canvas"); c.width=cw; c.height=ch; const g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(im,0,0,cw,ch);
+  const d=g.getImageData(0,0,cw,ch).data; let x0=cw,y0=ch,x1=-1,y1=-1, opaque=0;
+  for(let y=0;y<ch;y++) for(let x=0;x<cw;x++){ if(d[(y*cw+x)*4+3]>24){ opaque++; if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } }
+  if(x1<0||opaque>cw*ch*.97) return {x0:0,y0:0,x1:1,y1:1,solid:true};
+  return {x0:x0/cw,y0:y0/ch,x1:(x1+1)/cw,y1:(y1+1)/ch,solid:false};
+}
+function autoFit(w,mode){
+  if(w.art==="builtin:mika"&&!outfitArt(w)){ toast("Mika's built-in art is already framed. Load your own art to auto-fit.", true); return; }
+  const src=artHalf(w); if(!src){ toast("Auto-fit works on still art. Sprite sheets keep their own sizing.", true); return; }
+  const im=imgFor(src), go=()=>{ const b=visBox(im), W=im.naturalWidth||im.width, H=im.naturalHeight||im.height;
+    const vh=b.y1-b.y0, target=mode==="upper"?150:96, dh=target/Math.max(.05,vh), s=Math.max(.2,Math.min(6,dh/104)), dhs=104*s, dw=W*dhs/H;
+    const cx=(b.x0+b.x1)/2, x=Math.max(-240,Math.min(240,Math.round(dw/2-cx*dw))), y=Math.max(-400,Math.min(200,Math.round(6-b.y0*dhs)));
+    w.frame={s:Math.round(s*100)/100,x,y}; manageOpen=w.id; commit(); toast(b.solid?"No transparent background found, so this fits the whole picture. Remove the background first for a tighter fit.":"Framed.", b.solid); };
+  if(im.complete&&im.naturalWidth) go(); else im.addEventListener("load",go,{once:true});
+}
 /* ---------- outfit slots (per worker) ---------- */
 let outfitOpen=null;
 function outfitRows(p){
@@ -4197,7 +4234,7 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(!t.dataset||!t.da
   save(); drawFramePreview(w); });
 setInterval(()=>{ if(tab!=="dev") return; S.staff.forEach(w=>{ if(sheetFor(w,"idle")) drawFramePreview(w); }); },80);
 function drawFramePreview(w){
-  const cv=document.getElementById("framePrev-"+w.id); if(!cv) return;
+  const cv=document.getElementById("framePrev-"+w.id); if(!cv) return; cv.getContext("2d").setTransform(cv.width/SW,0,0,cv.height/SH,0,0);
   if(sheetFor(w,"idle")){ const g=cv.getContext("2d"); g.imageSmoothingEnabled=false; g.fillStyle="#120c1c"; g.fillRect(0,0,SW,SH); drawWorkerSheet(g,w,performance.now(),false,false); sceneCounter(g,w.role); return; }
   const src=artHalf(w); if(!src) return;
   const g=cv.getContext("2d"), im=imgFor(src), go=()=>{ g.imageSmoothingEnabled=false; g.fillStyle="#120c1c"; g.fillRect(0,0,SW,SH); drawFramedBreath(g,im,frameOf(w),0); sceneCounter(g,w.role); };
@@ -4259,6 +4296,7 @@ document.addEventListener("click",ev=>{
     case "peek": peek=viewSide()==="day"?"night":"day"; if(peek===clockSide()) peek=null; render(); break;
     case "clearWorkerArt": { const w=S.staff.find(x=>x.id===id); if(w){ dropArt(w.art); w.art=null; commit(); } break; }
     case "clearCharmArt": { const w=S.staff.find(x=>x.id===id); if(w){ dropArt(w.charmArt); w.charmArt=null; commit(); } break; }
+    case "autoFit": { const [wid,mode]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w) autoFit(w,mode); break; }
     case "resetFrame": { const w=S.staff.find(x=>x.id===id); if(w){ delete w.frame; manageOpen=w.id; commit(); } break; }
     case "equipOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&progLevel(w)>=+t){ w.outfit=+t; manageOpen=wid; outfitOpen=wid; commit(); } break; }
     case "clearOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.outfits&&w.outfits[t]){ dropArt(w.outfits[t].art); delete w.outfits[t]; if(w.outfit===+t) w.outfit=1; manageOpen=wid; outfitOpen=wid; commit(); } break; }
@@ -4363,6 +4401,7 @@ document.addEventListener("submit",ev=>{
   }
 });
 document.addEventListener("change",ev=>routeUpload(ev.target));
+document.addEventListener("change",ev=>{ if(ev.target.id==="artMax"){ S.artMax=+ev.target.value; save(); toast(`New imports keep up to ${S.artMax}px. Re-import art to sharpen it.`); } });
 function routeUpload(t){
   const file=t.files&&t.files[0];
   if(t.id==="workerArt"||t.dataset.up==="worker") return workerArtUpload(file,t.dataset.id);
