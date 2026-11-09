@@ -2242,7 +2242,7 @@ const PERSONAS={
   chatty:{label:"Chatty",greet:["Oh hey! Wild rain, right? Anyway, what can I get you?","Welcome! Or welcome back? What are we having?"],ack:["Oh I love that one, my cousin drinks those, anyway, one sec!","Great choice, honestly, I was just telling someone about it!"],book:["Ooh, okay, so many options, hold on...","Oh, I know a few. Let me grab them."],after:{perfect:["Right?! Come back anytime!"],close:["Ah, so close! I'll nail it next time!"],miss:["Oh nooo, I'm so sorry, I got distracted!"]}}
 };
 function starterWorker(){
-  return {id:"mika",name:"Mika",role:"cafe",art:"builtin:mika",skill:2,charm:3,trait:"latte",persona:"bubbly",lv:1,xp:0,serves:0,perfects:0,tips:0,
+  return {id:"mika",name:"Mika",role:"cafe",art:"builtin:mika",skill:1,charm:1,trait:"latte",persona:"bubbly",lv:1,xp:0,serves:0,perfects:0,tips:0,
     look:{skin:"#f7d6bc",hair:"#4ad8e0",hair2:"#9a5ad8",style:8,top:"#1e2a4a",pants:"#34507a",accent:"#3a8af0",visor:false,acc:"choker",outfit:"track",eye:"#3a7ad8",_k:"mika"}};
 }
 const workerFor=role=>{ const id=S.shift&&S.shift[role]; return (id&&S.staff.find(w=>w.id===id&&w.role===role))||S.staff.find(w=>w.role===role)||null; };
@@ -5320,7 +5320,7 @@ function empPanel(){
   </section>`;
 }
 /* reset an employee back to how they started: level, XP, record, progression, unlocked outfits. Art stays. */
-function startStats(w){ return w.base||(w.art==="builtin:mika"||w.id==="mika"?{skill:2,charm:3}:{skill:1,charm:1}); }
+function startStats(w){ if(w.id==="mika"||w.art==="builtin:mika") return {skill:1,charm:1}; return w.base||{skill:1,charm:1}; }
 function resetStats(w){
   const b=startStats(w); Object.assign(w,{lv:1,xp:0,serves:0,perfects:0,tips:0,lw:0,outfit:1,wear:1,skill:b.skill,charm:b.charm,base:b});
   Object.values(w.ward||{}).forEach(o=>{ if(o) delete o.owned; });
