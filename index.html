@@ -743,6 +743,16 @@ body.xson{overflow:hidden}
 .field.note{resize:vertical;min-height:52px;font-size:14px}
 .savebox .formgrid{margin-top:6px}
 .tmeta .good{color:var(--good)}
+/* ---------- skills / difficulty ---------- */
+.sklist{display:flex;flex-direction:column;gap:4px}
+.skrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+.skrow span{display:flex;flex-direction:column;min-width:0}
+.skrow b{font-size:13px} .skrow small{font-size:11px;color:var(--dim)}
+.skrow.on b{color:var(--good)}
+.skrow .btn.smallbtn{flex:none;min-width:74px}
+.dtag{font-family:var(--pixel);font-size:7px;letter-spacing:.08em;padding:2px 4px;border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+.dtag.d1{color:var(--dim)} .dtag.d3{color:var(--accent);border-color:var(--accent)} .dtag.d4{color:#ff8cc4;border-color:#ff8cc4}
+.cport .ci{display:grid;place-items:center;width:100%;height:100%;font-size:22px;background:#1e1430}
 
 </style>
 </head>
@@ -2245,7 +2255,7 @@ function starterWorker(){
   return {id:"mika",name:"Mika",role:"cafe",art:"builtin:mika",skill:1,charm:1,trait:"latte",persona:"bubbly",lv:1,xp:0,serves:0,perfects:0,tips:0,
     look:{skin:"#f7d6bc",hair:"#4ad8e0",hair2:"#9a5ad8",style:8,top:"#1e2a4a",pants:"#34507a",accent:"#3a8af0",visor:false,acc:"choker",outfit:"track",eye:"#3a7ad8",_k:"mika"}};
 }
-const workerFor=role=>{ const id=S.shift&&S.shift[role]; return (id&&S.staff.find(w=>w.id===id&&w.role===role))||S.staff.find(w=>w.role===role)||null; };
+const workerFor=role=>{ const H=S.staff.filter(w=>w.hired!==false), id=S.shift&&S.shift[role], a=id&&H.find(w=>w.id===id); if(a) return a; const busy=new Set(Object.entries(S.shift||{}).filter(([k])=>k!==role).map(([,v])=>v)); return H.find(w=>w.role===role&&!busy.has(w.id))||null; };
 const traitOf=w=>TRAITS[w.trait]||{};
 const traitApplies=(w,t)=>!t.roles||t.roles.includes(w.role);
 const pickR=(r,a)=>a[Math.floor(r()*a.length)];
@@ -2266,11 +2276,11 @@ function board(){
   Object.keys(ROLES).forEach(role=>(S.board.c[role]||[]).forEach((c,i)=>candJob(c,i)));
   return S.board;
 }
-function hintsMax(w){ const t=traitOf(w); return w.skill+((t.hint&&traitApplies(w,t))?t.hint:0)+(perkOf(w)==="service"?1:0); }
+function hintsMax(w){ const t=traitOf(w); return Math.max(0,w.skill+((t.hint&&traitApplies(w,t))?t.hint:0)+(perkOf(w)==="service"?1:0)+hintAdj(w)); }
 function hintsUsed(w){ const d=S.serves[today()]; return (d&&d.hints&&d.hints[w.id])||0; }
 function tipFor(w,grade){ const t=traitOf(w); const g=(grade==="miss"&&t.missTip)?"close":grade; return Math.max(1,Math.round(REWARD[g]*(1+.1*(w.charm-1)+(t.tip||0)))); }
 function workerXP(w,grade){
-  const lv0=w.lv||1, t=traitOf(w); w.xp+=Math.round((grade==="perfect"?15:10)*(t.xp||1)); let msg=null;
+  const lv0=w.lv||1, t=traitOf(w); w.xp+=Math.round((grade==="perfect"?15:10)*(t.xp||1)*(hasSkill(w,"learner")?1.25:1)); let msg=null;
   while(w.xp>=40*w.lv){ w.xp-=40*w.lv; w.lv++;
     if(w.skill<5&&(w.lv%2===0||w.charm>=5)){ w.skill++; msg=`${w.name} reached LV ${w.lv}. Skill up: one more hint a day.`; }
     else if(w.charm<5){ w.charm++; msg=`${w.name} reached LV ${w.lv}. Charm up: bigger tips.`; }
@@ -2776,7 +2786,7 @@ function migrate(o){
   o.staff.forEach(w=>{ if(w.anim) ["fidle","fwalk"].forEach(k=>{ const r=w.anim[k]&&w.anim[k].ref; if(typeof r==="string"&&r.indexOf("builtin:mika")===0) delete w.anim[k]; }); });
   o.habits.forEach(h=>{ h.hist=h.hist||{}; h.days=Array.isArray(h.days)?h.days:[]; h.created=h.created||today(); });
   o.buckets.forEach(x=>{ x.entries=x.entries||[]; x.deposits=x.deposits||[]; });
-  jobsMigrate(o); charmMigrate(o); xsMigrate(o); wardMigrate(o);
+  jobsMigrate(o); charmMigrate(o); xsMigrate(o); wardMigrate(o); skillsMigrate(o);
   return o;
 }
 function loadState(){ try{ const raw=localStorage.getItem(LS2); S=migrate(raw?JSON.parse(raw):freshState()); }catch(e){ S=migrate(freshState()); } }
@@ -2810,8 +2820,7 @@ async function storeArt(dataUrl){
   return "idb:"+k;
 }
 function dropArt(ref){ if(typeof ref==="string"&&ref.indexOf("idb:")===0){ const k=ref.slice(4); delete ART[k]; ArtDB.del(k); } }
-function artRefsInUse(){ const s=new Set(); S.staff.forEach(w=>{ [w.art,w.charmArt,...Object.values(w.charmArts||{}),...Object.values(w.ward||{}).map(o=>o&&o.art),...Object.values(w.anim||{}).map(x=>x&&x.ref),...Object.values(w.faces||{}),...Object.values(w.outfits||{}).map(o=>o&&o.art)].forEach(v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }); }); const ad=v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }; if(S.xs){ S.xs.cards.forEach(c=>{ ad(c.art); ad(c.anim&&c.anim.ref); }); Object.values(S.xs.rooms||{}).forEach(r=>ad(r&&r.art)); ad(S.xs.room&&S.xs.room.art); } S.staff.forEach(w=>Object.values(w.xsArt||{}).forEach(v=>{ ad(v&&v.art); ad(v&&v.anim&&v.anim.ref); }));
-  S.favors.deck.forEach(f=>{ if(f.art&&f.art.indexOf("idb:")===0) s.add(f.art.slice(4)); const r=f.anim&&f.anim.ref; if(typeof r==="string"&&r.indexOf("idb:")===0) s.add(r.slice(4)); }); return s; }
+function artRefsInUse(){ const s=new Set(), m=JSON.stringify(S).match(/"idb:[^"]+"/g)||[]; m.forEach(x=>s.add(x.slice(5,-1))); return s; }
 function cleanArt(){ const keep=artRefsInUse(); let n=0; Object.keys(ART).forEach(k=>{ if(!keep.has(k)){ delete ART[k]; ArtDB.del(k); n++; } }); return n; }
 /* import size: display art keeps up to this many pixels on its longest side (Dev › Tools) */
 const artCap=()=>Math.max(512,Math.min(4096,+(S&&S.artMax)||2048));
@@ -2841,7 +2850,16 @@ function artSize(){ let n=0; Object.values(ART).forEach(v=>n+=v.length); return 
 function ticketsLeft(){ return S.clients.waiting; }
 function serveDay(){ const d=S.serves[today()]||(S.serves[today()]={n:0,perf:{day:0,night:0},hints:{},charm:{},tips:0}); d.hints=d.hints||{}; d.charm=d.charm||{}; return d; }
 function serveBonus(){ return 0; }
-function addClient(vip,why){ S.clients.waiting++; if(vip) S.clients.vip++; toast((vip?"A VIP client":"A client")+" walked in"+(why?": "+why:"")+"."); beep(vip?1180:980,.06); }
+function addClient(vip,why,quiet){ S.clients.waiting++; if(vip) S.clients.vip++; if(!quiet){ toast((vip?"A VIP client":"A client")+" walked in"+(why?": "+why:"")+"."); beep(vip?1180:980,.06); } }
+/* difficulty: how much finishing something pays out (clients, a cred bonus, energy for the minigame) */
+const DIFF={1:{n:"Easy",c:1,e:.5,b:0},2:{n:"Medium",c:1,e:1,b:5},3:{n:"Hard",c:2,e:1.5,b:15},4:{n:"Epic",c:3,e:2,b:40}};
+const dOf=o=>DIFF[o&&o.diff]||DIFF[2];
+function giveReward(o,vip,why){ const d=dOf(o); for(let i=0;i<d.c;i++) addClient(vip&&i===0,why,true); if(d.b) S.credits+=d.b;
+  toast(`${d.c>1?`${d.c} clients`:vip?"A VIP client":"A client"} walked in${why?": "+why:""}.${d.b?` +${d.b}₵`:""}`); beep(vip?1180:980,.06); return d; }
+function takeReward(o,vip){ const d=dOf(o); for(let i=0;i<d.c;i++) removeClient(vip&&i===0); if(d.b) S.credits=Math.max(0,S.credits-d.b); return d; }
+const rewardPop=(o,vip)=>{ const d=dOf(o); return `+${d.c} ${vip?"VIP":d.c>1?"CLIENTS":"CLIENT"}${d.b?` +${d.b}₵`:""}`; };
+function diffSelect(id,o){ const cur=(o&&o.diff)||2; return `<div><label class="fl" for="${id}">Difficulty</label><select class="field" id="${id}">${[1,2,3,4].map(k=>{ const d=DIFF[k]; return `<option value="${k}" ${cur===k?"selected":""}>${d.n} · ${d.c} client${d.c>1?"s":""}${d.b?` +${d.b}₵`:""}</option>`; }).join("")}</select></div>`; }
+const diffTag=o=>{ const k=(o&&o.diff)||2; return k===2?"":`<span class="dtag d${k}">${DIFF[k].n.toUpperCase()}</span>`; };
 function removeClient(vip){ if(S.clients.waiting>0){ S.clients.waiting--; if(vip&&S.clients.vip>0) S.clients.vip--; if(S.clients.vip>S.clients.waiting) S.clients.vip=S.clients.waiting; } }
 function dailyWalkIn(){ if(S.lastWalk!==today()){ S.lastWalk=today(); const n=1+Math.floor((S.modules.loyalty||0)/2); S.clients.waiting+=n; addLog(n>1?`${n} walk-in clients are waiting. Loyalty cards bring regulars back.`:"A walk-in client is waiting. One shows up every day.","gain"); save(); } }
 function totals(secs){ let amb=0,seats=2,lv=0; for(const id in S.modules){ const L=S.modules[id], m=MODULES[id]; if(!m||!L) continue; if(secs&&!secs.includes(m.sec)) continue; amb+=m.amb*L; seats+=m.seats*L; lv+=L; } return {amb,seats,lv}; }
@@ -2859,9 +2877,9 @@ const streak=h=>runFrom(h,h.hist[today()]?today():addDays(today(),-1));
 const bucketById=id=>S.buckets.find(b=>b.id===id);
 function toggleHabit(id,ev){
   const h=S.habits.find(x=>x.id===id); if(!h) return; const k=today();
-  if(h.hist[k]){ delete h.hist[k]; removeClient(false); glGain(-S.xs.meter.habit); const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); } addLog("Habit un-checked: "+h.name+"."); beep(330); }
-  else { h.hist[k]=1; addClient(false,h.name); glGain(S.xs.meter.habit); const b=bucketById(h.bucket); if(b&&h.save){ b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id}); setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(h.save),"var(--good)"),200); }
-    pop(ev,"+1 CLIENT","var(--good)"); addLog("Habit done: "+h.name+". A client walked in."+(b&&h.save?" "+money(h.save)+" to "+b.name+".":""),"gain"); }
+  if(h.hist[k]){ delete h.hist[k]; takeReward(h,false); glGain(-Math.round(S.xs.meter.habit*dOf(h).e)); const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); } addLog("Habit un-checked: "+h.name+"."); beep(330); }
+  else { h.hist[k]=1; giveReward(h,false,h.name); glGain(Math.round(S.xs.meter.habit*dOf(h).e)); const b=bucketById(h.bucket); if(b&&h.save){ b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id}); setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(h.save),"var(--good)"),200); }
+    pop(ev,rewardPop(h,false),"var(--good)"); addLog("Habit done: "+h.name+". "+(dOf(h).c>1?dOf(h).c+" clients walked in.":"A client walked in.")+(b&&h.save?" "+money(h.save)+" to "+b.name+".":""),"gain"); }
   commit();
 }
 /* ---------- recurring to-dos ---------- */
@@ -2898,14 +2916,14 @@ function unlogTask(t){ for(let i=S.taskLog.length-1;i>=0;i--){ const l=S.taskLog
 /* end of day: finished one-off tasks are cleared out; repeating ones are already waiting on their next date */
 function rollTasks(){ const k=today(), n=S.tasks.length; S.tasks=S.tasks.filter(t=>isRec(t)||!t.done||t.doneOn===k); if(S.tasks.length!==n){ addLog(`Cleared ${n-S.tasks.length} finished task${n-S.tasks.length===1?"":"s"} from yesterday.`); save(); } }
 function toggleTask(id,ev){
-  const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3, eg=()=>S.xs?(vip?S.xs.meter.vip:S.xs.meter.task):0;
+  const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3, eg=()=>S.xs?Math.round((vip?S.xs.meter.vip:S.xs.meter.task)*dOf(t).e):0;
   if(isRec(t)){ const k=today();
-    if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; removeClient(vip); glGain(-eg()); taskSaveOut(t,k); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
+    if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; takeReward(t,vip); glGain(-eg()); taskSaveOut(t,k); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
     else { t.prevDue=t.due; t.doneLog=(t.doneLog||[]).concat(k).slice(-120); t.lastDone=k; const base=t.due&&t.due>k?t.due:k; t.due=nextOcc(t.repeat,base)||t.due;
-      logTask(t); addClient(vip,t.title); glGain(eg()); const sv=taskSaveIn(t,k,ev); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.${sv}`,"gain"); }
+      logTask(t); giveReward(t,vip,t.title); glGain(eg()); const sv=taskSaveIn(t,k,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.${sv}`,"gain"); }
     commit(); return; }
-  if(t.done){ taskSaveOut(t,t.doneOn||today()); t.done=false; t.doneOn=""; unlogTask(t); removeClient(vip); glGain(-eg()); addLog("Task reopened: "+t.title+"."); beep(330); }
-  else { t.done=true; t.doneOn=today(); logTask(t); addClient(vip,t.title); glGain(eg()); const sv=taskSaveIn(t,t.doneOn,ev); pop(ev,vip?"+1 VIP":"+1 CLIENT",vip?"#ffd23f":"var(--good)"); addLog("Task done: "+t.title+". "+(vip?"A VIP":"A client")+" walked in."+sv,"gain"); }
+  if(t.done){ taskSaveOut(t,t.doneOn||today()); t.done=false; t.doneOn=""; unlogTask(t); takeReward(t,vip); glGain(-eg()); addLog("Task reopened: "+t.title+"."); beep(330); }
+  else { t.done=true; t.doneOn=today(); logTask(t); giveReward(t,vip,t.title); glGain(eg()); const sv=taskSaveIn(t,t.doneOn,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)"); addLog("Task done: "+t.title+". "+(vip?"A VIP":"A client")+" walked in."+sv,"gain"); }
   commit();
 }
 
@@ -2969,9 +2987,10 @@ function srvFinish(res,ev){
   const w=srv.worker, t=traitOf(w), sec=srv.sec; let g=res.grade, saved=false, savedBy=t.name;
   if(g==="close"&&t.save&&traitApplies(w,t)&&Math.random()<t.save){ g="perfect"; saved=true; }
   if(g==="close"&&!saved&&perkOf(w)==="service"&&Math.random()<.25){ g="perfect"; saved=true; savedBy=jobTitle(w); }
+  if(g==="close"&&!saved&&hasSkill(w,"steady")&&Math.random()<.15){ g="perfect"; saved=true; savedBy="Steady Hands"; }
   const d=serveDay(); d.n++; if(g==="perfect") d.perf[serveSide(sec)]++;
   const amb=totals(SIDE_SECS[serveSide(sec)]).amb;
-  const tip=Math.max(1,Math.round(tipFor(w,g)*(1+amb/40)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)));
+  const tip=Math.max(1,Math.round(tipFor(w,g)*(1+amb/40)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)*skillTipMult(w,sec)));
   S.credits+=tip; S.xp+=tip; d.tips=(d.tips||0)+tip;
   S.stats.served++; if(g==="perfect") S.stats.perfect++; S.stats.tips+=tip;
   S.rep+=g==="perfect"?2:g==="close"?1:0;
@@ -3166,7 +3185,7 @@ function habitRowH(h){
   const sched=!h.days.length?"every day":h.days.length===5&&!h.days.includes(0)&&!h.days.includes(6)?"weekdays":h.days.slice().sort((x,y)=>((x+6)%7)-((y+6)%7)).map(d=>DOW3[d].slice(0,2)).join(" ");
   return `<div class="trow ${done?"done":""} ${due?"":"off"}">
     <button class="tchk" data-act="habit" data-id="${h.id}" aria-pressed="${done}" aria-label="${done?"Un-check":"Check off"} ${esc(h.name)}">${done?"✓":""}</button>
-    <button class="ttl" data-act="editHabit" data-id="${h.id}" aria-label="Edit ${esc(h.name)}"><span>${esc(h.name)}</span><small>${st?`🔥${st} · `:""}${sched}${b&&h.save?` · +${money(h.save)}`:""}</small>${noteLine(h)}</button>
+    <button class="ttl" data-act="editHabit" data-id="${h.id}" aria-label="Edit ${esc(h.name)}"><span>${esc(h.name)}</span><small>${st?`🔥${st} · `:""}${sched}${b&&h.save?` · +${money(h.save)}`:""} ${diffTag(h)}</small>${noteLine(h)}</button>
   </div>`;
 }
 function shortDue(t){
@@ -3181,7 +3200,7 @@ function taskRowT(t){
   return `<div class="trow ${on?"done":""} ${t.pri===3?"hi":t.pri===1?"lo":""}">
     <button class="tchk" data-act="task" data-id="${t.id}" aria-pressed="${!!on}" aria-label="${on?"Undo":"Complete"} ${esc(t.title)}">${on?"✓":""}</button>
     <button class="ttl" data-act="editTask" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><span>${esc(t.title)}</span>${noteLine(t)}</button>
-    <span class="tmeta">${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
+    <span class="tmeta">${diffTag(t)}${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
   </div>`;
 }
 const listById=id=>S.lists.find(l=>l.id===id);
@@ -3228,6 +3247,7 @@ function parseQuick(text){
   const take=(re,fn)=>{ const m=s.match(re); if(m){ fn(m); s=s.replace(m[0]," "); return true; } return false; };
   take(/\s(!high|!!!|!h|!vip)(?=\s)/i,()=>out.pri=3) || take(/\s(!low|!l)(?=\s)/i,()=>out.pri=1) || take(/\s(!med|!m|!normal)(?=\s)/i,()=>out.pri=2);
   take(/\s#([\w-]{1,24})(?=\s)/,m=>out.list=m[1]);
+  take(/\s~(easy|medium|med|hard|epic)(?=\s)/i,m=>out.diff={easy:1,medium:2,med:2,hard:3,epic:4}[m[1].toLowerCase()]);
   const k=today(), dk=k;
   take(/\severy\s+weekdays?(?=\s)/i,()=>out.repeat={type:"weekly",days:[1,2,3,4,5]})
   || take(/\s(?:every\s+day|daily)(?=\s)/i,()=>out.repeat={type:"daily"})
@@ -3257,6 +3277,7 @@ function quickPreview(){
   const chips=[]; if(f.due) chips.push(`<span>${f.due===today()?"Due today":"Due "+shortDate(f.due)}</span>`); if(f.repeat) chips.push(`<span>↻ ${esc(repeatText(f.repeat))}</span>`);
   if(f.pri===3) chips.push(`<span class="hi">High · VIP</span>`); else if(f.pri===1) chips.push(`<span>Low</span>`);
   if(f.listName) chips.push(`<span>${esc(f.listName)}${f.newList?" (new list)":""}</span>`);
+  { const qd=$("qDiff"), dk=(qd&&qd.dataset.dirty)?+qd.value:p.diff; if(dk&&dk!==2) chips.push(`<span>${DIFF[dk].n}</span>`); }
   el.innerHTML=v.trim()?`<b>${esc(f.title||"…")}</b>${chips.join("")}`:`<span class="muted">Type naturally. Dates, repeats, !high and #list are picked up automatically.</span>`;
 }
 function quickFinal(p){
@@ -3279,6 +3300,7 @@ function quickSheet(ctx){
     <div class="qprev" id="qPrev" aria-live="polite"></div>
     <details class="sub"><summary>More options</summary>
       <div class="formgrid">
+        ${diffSelect("qDiff",null)}
         <div><label class="fl" for="qPri">Priority</label><select class="field" id="qPri" data-qdirty><option value="1">LOW</option><option value="2" selected>MED</option><option value="3">HIGH · VIP</option></select></div>
         <div><label class="fl" for="qDue">Due</label><input class="field" id="qDue" type="date"></div>
         <div class="full">${repeatUI("q",null,null)}</div>
@@ -3291,11 +3313,11 @@ function quickSheet(ctx){
   $("qRep").dataset.qdirty="1"; quickPreview();
 }
 document.addEventListener("input",ev=>{ if(ev.target.id==="qText") quickPreview(); });
-document.addEventListener("change",ev=>{ const t=ev.target; if(t.id==="qPri"||t.id==="qRep") t.dataset.dirty="1"; if(["qPri","qDue","qRep","qList","qRepN","qRepDom"].includes(t.id)||t.name==="qRepDay") quickPreview(); });
+document.addEventListener("change",ev=>{ const t=ev.target; if(t.id==="qPri"||t.id==="qRep"||t.id==="qDiff") t.dataset.dirty="1"; if(["qPri","qDue","qRep","qList","qRepN","qRepDom"].includes(t.id)||t.name==="qRepDay") quickPreview(); });
 function addQuick(){
-  const p=parseQuick(($("qText")||{}).value||""), f=quickFinal(p); if(!f.title){ toast("Give the task a name.", true); return false; }
+  const p=parseQuick(($("qText")||{}).value||""), f=quickFinal(p); const qd=$("qDiff"); if(qd&&qd.dataset.dirty) p.diff=+qd.value; if(!f.title){ toast("Give the task a name.", true); return false; }
   if(f.newList){ const l={id:uid(),name:f.listName.slice(0,24)}; S.lists.push(l); f.list=l.id; }
-  S.tasks.push(Object.assign({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined,note:($("qNote")||{}).value||""},readSave("q")));
+  S.tasks.push(Object.assign({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined,note:($("qNote")||{}).value||"",diff:p.diff||+(($("qDiff")||{}).value)||2},readSave("q")));
   return true;
 }
 function groupedByDue(list){
@@ -3326,9 +3348,9 @@ const winCount=(w,from,to)=>w.log.filter(l=>l.d>=from&&l.d<=(to||from)).length;
 function logWin(id,c,ev){
   const w=winById(id); if(!w) return; const k=today(), n=winCount(w,k);
   const lg={id:uid(),d:k,c:c||0,client:n<WIN_CLIENT_CAP}; w.log.push(lg);
-  if(lg.client) addClient(false,w.name); glGain(S.xs.meter.win);
+  if(lg.client) giveReward(w,false,w.name); glGain(Math.round(S.xs.meter.win*dOf(w).e)); lg.diff=(w.diff||2);
   const b=bucketById(w.bucket); if(b&&lg.c>0) b.entries.push({id:uid(),d:k,c:lg.c,label:w.name,win:w.id,logId:lg.id});
-  pop(ev,lg.client?"+1 CLIENT":"LOGGED","var(--good)");
+  pop(ev,lg.client?rewardPop(w,false):"LOGGED","var(--good)");
   if(b&&lg.c>0) setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(lg.c),"var(--good)"),200);
   addLog(`${w.name}${n?` (×${n+1} today)`:""}.${lg.client?" A client walked in.":""}${b&&lg.c?" "+money(lg.c)+" to "+b.name+".":""}`,"gain");
   if(!lg.client) toast(`Logged. Clients come from the first ${WIN_CLIENT_CAP} each day.`);
@@ -3336,7 +3358,7 @@ function logWin(id,c,ev){
 }
 function undoWin(wid,lid){
   const w=winById(wid); if(!w) return; const i=w.log.findIndex(l=>l.id===lid); if(i<0) return; const lg=w.log[i]; w.log.splice(i,1);
-  if(lg.client&&lg.d===today()) removeClient(false); if(lg.d===today()) glGain(-S.xs.meter.win);
+  if(lg.client&&lg.d===today()) takeReward({diff:lg.diff||2},false); if(lg.d===today()) glGain(-Math.round(S.xs.meter.win*dOf({diff:lg.diff||2}).e));
   S.buckets.forEach(b=>{ b.entries=b.entries.filter(e=>e.logId!==lid); });
   addLog(`Removed a ${w.name} entry.`); commit();
 }
@@ -3364,6 +3386,7 @@ function winSheet(w){
     <div><label class="fl" for="wnName">Action</label><input class="field" id="wnName" maxlength="60" value="${esc(w.name)}" placeholder="e.g. Split a meal when eating out" required autocomplete="off"></div>
     <div class="formgrid"><div><label class="fl" for="wnBucket">Savings bucket</label><select class="field" id="wnBucket">${bucketOptions(w.bucket)}</select></div>
       <div><label class="fl" for="wnSave">Usual amount ($)</label><input class="field num" id="wnSave" inputmode="decimal" value="${w.save?(w.save/100).toFixed(2):""}" placeholder="10.00"></div></div>
+    <div class="formgrid">${diffSelect("wnDiff",w)}</div>
     <label class="checkrow"><input type="checkbox" id="wnAsk" ${w.ask?"checked":""}> Ask me the amount each time</label>
     <p class="hint" style="margin:0">Turn that on when it changes, like the price of half a meal. The usual amount gets filled in so you can just adjust it.</p>
     <div class="full"><label class="fl" for="wnNote">Notes</label><textarea class="field note" id="wnNote" rows="2" maxlength="600" placeholder="Anything to remember…">${esc(w.note||"")}</textarea></div>
@@ -3484,7 +3507,7 @@ function vHabitsTab(){
     ${S.habits.length?`<div class="tlist">${[...due,...off].map(habitRowH).join("")}</div>`:`<p class="tnone">No habits yet. Tap + to add one.</p>`}
     <p class="sh">ANYTIME</p>
     ${S.wins.length?`<div class="tlist">${S.wins.map(w=>{ const t=winCount(w,k), wk=winCount(w,weekStart(k),k), b=bucketById(w.bucket);
-      return `<div class="trow"><button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week${b?` · ${w.ask?"asks amount":w.save?"+"+money(w.save):""}`:""}</small>${noteLine(w)}</button><button class="tbtn plus" data-act="win" data-id="${w.id}" aria-label="Log ${esc(w.name)}">+</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you log whenever they happen, like splitting a meal.</p>`}
+      return `<div class="trow"><button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week${b?` · ${w.ask?"asks amount":w.save?"+"+money(w.save):""}`:""} ${diffTag(w)}</small>${noteLine(w)}</button><button class="tbtn plus" data-act="win" data-id="${w.id}" aria-label="Log ${esc(w.name)}">+</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you log whenever they happen, like splitting a meal.</p>`}
     <p class="sh">BAD HABITS</p>
     ${S.bads.length?`<div class="tlist">${S.bads.map(b=>{ const t=badCount(b,k), wk=badCount(b,weekStart(k),k);
       return `<div class="trow"><button class="ttl" data-act="editBad" data-id="${b.id}"><span>${esc(b.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week · −${b.rep} rep each</small>${noteLine(b)}</button><button class="tbtn minus" data-act="bad" data-id="${b.id}" aria-label="Log a slip-up: ${esc(b.name)}">−</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you're cutting back on. Tap − when you slip and lose a little rep.</p>`}
@@ -3577,6 +3600,7 @@ function workerMini(p){
     ${p.skill<5?`<button class="btn ${S.credits>=cost?"solid":""} rbtn" data-act="train" data-id="${p.id}" ${S.credits>=cost?"":"disabled"}>TRAIN<br>${cost}₵</button>`:`<span class="px muted">MAX</span>`}
   </div>
   ${wardBlock(p)}
+  ${skillBlock(p)}
   <details class="sub" ${manageOpen===p.id?"open":""}><summary>Manage ${esc(p.name)}</summary>
     ${meter("NEXT LV",p.xp/(40*p.lv),`${p.xp}/${40*p.lv}`)}
     <p class="hint">${p.serves} served · ${p.serves?Math.round(p.perfects/p.serves*100):0}% perfect · ${p.tips}₵ in tips</p>
@@ -3622,9 +3646,10 @@ function areaPanel([key,sec,icon,label,when]){
     <div class="abody">
       ${isRole?`<p class="alabel">STAFF · ${staffAt(key).length}/${VENUE_CAP}</p>${rosterBlock(key)}`:""}
       <p class="alabel">ROOMS</p><div class="rooms">${ids.map(roomRow).join("")}</div>
-      ${isRole?`<details class="sub" ${w?"":"open"}><summary>Hiring board · ${cands.length} applicant${cands.length===1?"":"s"}</summary>
+      ${isRole?castBlock(key)+(S.hireRandom?`<details class="sub" ${w?"":"open"}><summary>Random applicants · ${cands.length}</summary>
         ${cands.length?cands.map(c=>candRow(c,key)).join(""):`<p class="hint">You've hired from today's board. New faces tomorrow.</p>`}
-        <p class="hint">Hiring adds to the team. Up to ${VENUE_CAP} per venue.</p></details>`:""}
+        <p class="hint">Hiring adds to the team. Up to ${VENUE_CAP} per venue.</p></details>`
+        :""):""}
     </div></details>`;
 }
 function vUpgrade(){
@@ -3865,7 +3890,7 @@ function vDev(){
   if(devSub==="workers"){
     if(!S.staff.length) body=empPanel()+`<section class="panel"><p class="empty">No staff yet. Hire someone in the Upgrade tab, or create one above.</p></section>`;
     else { if(!S.staff.some(w=>w.id===devWorker)) devWorker=S.staff[0].id; const p=S.staff.find(w=>w.id===devWorker);
-      body=`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${wardDevPanel(p)}${FEATURES.charm?charmGallery(p)+charmMovesPanel():""}${empPanel()}`; }
+      body=`${empPanel()}<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}${isHired(w)?"":" · not hired"}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${wardDevPanel(p)}${FEATURES.charm?charmGallery(p)+charmMovesPanel():""}`; }
   } else if(devSub==="sprites") body=S.staff.length?vSprites():`<section class="panel"><p class="empty">Hire someone first, then draw their sprites here.</p></section>`;
   else if(devSub==="favors") body=vFavors();
   else if(devSub==="service") body=vService();
@@ -3877,6 +3902,11 @@ function vDev(){
 function devTools(){
   const kb=Math.round(artSize()/1024);
   return `  <section class="panel">
+    <h2><span>HIRING</span><span>${S.hireRandom?"RANDOM APPLICANTS":"YOUR CHARACTERS"}</span></h2>
+    <p style="margin:0 0 10px">${S.hireRandom?"The hiring board shows three random applicants per venue each day.":"No random applicants. Make your own employees in Dev › Workers, the way Mika is set up."}</p>
+    <div class="spread" style="align-items:center"><span>Random applicants</span><button class="btn ${S.hireRandom?"solid":"ghost"}" data-act="hireRandom" aria-pressed="${!!S.hireRandom}">${S.hireRandom?"ON":"OFF"}</button></div>
+  </section>
+  <section class="panel">
     <h2><span>ADULT CONTENT</span><span>${adultOn()?"ON":"OFF"}</span></h2>
     <p style="margin:0 0 10px">${adultOn()?"On: the progression stat and outfits, the energy-bar minigame and all favors are active, and the night venue is the club.":"Off: the progression stat and outfits, the energy-bar minigame and favors with art or progression are hidden, and the night venue is a music lounge. Nothing is deleted."}</p>
     <div class="spread" style="align-items:center"><span>Adult content</span><button class="btn ${adultOn()?"solid":"ghost"}" data-act="adultToggle" aria-pressed="${adultOn()}">${adultOn()?"ON":"OFF"}</button></div>
@@ -3945,6 +3975,7 @@ function habitSheet(h){
   <form data-form="habit" data-id="${isNew?"":h.id}" class="stack">
     <div><label class="fl" for="hName">Habit</label><input class="field" id="hName" maxlength="80" value="${esc(h.name)}" placeholder="e.g. Skip buying coffee on work days" required autocomplete="off"></div>
     <div><span class="fl">Days · none checked = every day</span><div class="seg">${[1,2,3,4,5,6,0].map(d=>`<input type="checkbox" name="day" id="w-${d}" value="${d}" ${h.days.includes(d)?"checked":""}><label for="w-${d}">${DOW3[d].slice(0,2)}</label>`).join("")}</div></div>
+    <div class="formgrid">${diffSelect("hDiff",h)}</div>
     <div class="formgrid"><div><label class="fl" for="hBucket">Savings bucket</label><select class="field" id="hBucket">${bucketOptions(h.bucket)}</select></div>
       <div><label class="fl" for="hSave">Saves each time ($)</label><input class="field num" id="hSave" inputmode="decimal" value="${h.save?(h.save/100).toFixed(2):""}" placeholder="6.00"></div></div>
     <p class="hint" style="margin:0">Each check-off sends a client to your counter${S.buckets.length?", and drops the amount into the bucket":". Make a bucket in the Save tab to track money too"}.</p>
@@ -3956,6 +3987,7 @@ function taskSheet(t){
   openSheet(`<h3>EDIT TASK</h3>
   <form data-form="taskEdit" data-id="${t.id}" class="formgrid">
     <div class="full"><label class="fl" for="eTitle">Task</label><input class="field" id="eTitle" maxlength="120" value="${esc(t.title)}" required></div>
+    ${diffSelect("eDiff",t)}
     <div><label class="fl" for="ePri">Priority</label><select class="field" id="ePri">${[1,2,3].map(p=>`<option value="${p}" ${t.pri===p?"selected":""}>${["","LOW","MED","HIGH · VIP"][p]}</option>`).join("")}</select></div>
     <div><label class="fl" for="eDue">Due</label><input class="field" id="eDue" type="date" value="${t.due||""}"></div>
     <div class="full">${repeatUI("e",t.repeat,t.due)}</div>
@@ -4228,6 +4260,13 @@ function autoFit(w,mode){
     w.frame={s:Math.round(s*100)/100,x,y}; manageOpen=w.id; commit(); toast(b.solid?"No transparent background found, so this fits the whole picture. Remove the background first for a tighter fit.":"Framed.", b.solid); };
   if(im.complete&&im.naturalWidth) go(); else im.addEventListener("load",go,{once:true});
 }
+/* ---------- per-outfit animations (Dev) ---------- */
+function outfitAnimBlock(p,pre){
+  return [2,3,4,5].map(t=>{ const slot=pre+t, bag=animBag(p,slot)||{}, n=Object.values(bag).filter(a=>a&&a.ref).length;
+    return `<details class="sub oanim"><summary>${esc(slotName(slot))} · animations${n?` · ${n} loaded`:""}</summary>
+      <p class="hint" style="margin:4px 0 6px">Plays while ${esc(p.name)} wears ${esc(slotName(slot))}. Empty slots use ${esc(p.name)}'s base animations.</p>
+      <p class="alabel">COUNTER</p>${sheetRows(p,SHEETS,slot)}<p class="alabel">FLOOR · SHOP VIEW</p>${sheetRows(p,FSHEETS,slot)}</details>`; }).join("");
+}
 /* ---------- outfit slots (per worker) ---------- */
 let outfitOpen=null;
 function outfitRows(p){
@@ -4240,7 +4279,8 @@ function outfitRows(p){
         <div class="rinfo"><b>${esc(S.prog.names[t-1])}</b><small>Level ${t} · ${S.prog.bonus[t-1]?"+"+S.prog.bonus[t-1]+"% tips":"no tip bonus"}${open?"":" · locked"}</small>
           <div class="ofacts">${t===1?`<span class="muted" style="font-size:12px">Uses ${esc(p.name)}'s main art</span>`:`<label class="btn ghost smallbtn" for="of-${t}-${p.id}" style="text-align:center">${o.art?"REPLACE":"LOAD ART"}</label><input type="file" id="of-${t}-${p.id}" class="srt" accept="image/*" data-up="outfit" data-kind="${t}" data-id="${p.id}">${o.art?`<button class="linkbtn" data-act="clearOutfit" data-id="${p.id}:${t}">remove</button>`:""}`}
           ${open?(on?`<span class="viptag">WEARING</span>`:`<button class="btn smallbtn" data-act="equipOutfit" data-id="${p.id}:${t}" ${t>1&&!o.art?"disabled":""}>WEAR</button>`):""}</div></div></div>`; }).join("")}</div>
-    <p class="hint">Outfit art uses the same position sliders as the main art, so make each outfit from the same base pose. Locked slots can be loaded ahead of time.</p>`;
+    <p class="hint">Outfit art uses the same position sliders as the main art, so make each outfit from the same base pose. Locked slots can be loaded ahead of time.</p>
+    ${outfitAnimBlock(p,"l")}`;
 }
 function outfitUpload(file,id,t){ const w=S.staff.find(x=>x.id===id); if(!w) return; t=+t;
   bigArt(file,600,async data=>{ w.outfits=w.outfits||{}; const o=w.outfits[t]||(w.outfits[t]={}); dropArt(o.art); o.art=await storeArt(data); if(progLevel(w)>=t) w.outfit=t; manageOpen=w.id; outfitOpen=w.id; addLog(`${S.prog.names[t-1]} art loaded for ${w.name}.`,"build"); commit(); toast(progLevel(w)>=t?"Outfit loaded and equipped.":`Outfit loaded. It unlocks at ${PL()} ${t}.`); }); }
@@ -4285,7 +4325,13 @@ function drawFloorSheet(g,w,x,base,dir,moving,t){
   g.save(); g.imageSmoothingEnabled=false; if(flip){ g.translate(x,0); g.scale(-1,1); g.translate(-x,0); }
   g.drawImage(im,(k%c)*fw,Math.floor(k/c)*fh,fw,fh,Math.round(x-W/2),base-H,Math.round(W),H); g.restore(); return true;
 }
-function sheetFor(w,kind){ const a=w&&w.anim&&w.anim[kind]; if(!a||!a.ref) return null; const src=resolveArt(a.ref); return src?{a,src}:null; }
+/* animation slots: "" = base, "w2".."w5" = wardrobe outfits, "l2".."l5" = adult outfits. The worn outfit's sheet wins, base fills the gaps. */
+function animBag(w,slot,mk){ if(!w) return null; if(!slot){ if(mk&&!w.anim) w.anim={}; return w.anim||null; }
+  const n=+slot.slice(1), key=slot[0]==="w"?"ward":"outfits"; if(!w[key]){ if(!mk) return null; w[key]={}; } let it=w[key][n]; if(!it){ if(!mk) return null; it=w[key][n]={}; } if(!it.anim){ if(!mk) return null; it.anim={}; } return it.anim; }
+function animSlotFor(w){ if(!w) return "";
+  if(adultOn()){ const t=Math.min(w.outfit||1,progLevel(w)); if(t>=2&&animBag(w,"l"+t)) return "l"+t; }
+  const t=w.wear||1; if(t>=2&&wardOwned(w,t)&&animBag(w,"w"+t)) return "w"+t; return ""; }
+function sheetFor(w,kind){ if(!w) return null; const sl=animSlotFor(w); let a=sl&&(animBag(w,sl)||{})[kind]; if(!a||!a.ref) a=w.anim&&w.anim[kind]; if(!a||!a.ref) return null; const src=resolveArt(a.ref); return src?{a,src}:null; }
 function sheetFrames(a){ const c=Math.max(1,a.cols|0||1), r=Math.max(1,a.rows|0||1); return {c,r,n:Math.max(1,Math.min(c*r,a.n|0||c*r))}; }
 function drawWorkerSheet(g,w,t,talking,charming){
   const s=(charming&&sheetFor(w,"charm"))||(talking&&sheetFor(w,"talk"))||sheetFor(w,"idle"); if(!s) return false;
@@ -4294,9 +4340,9 @@ function drawWorkerSheet(g,w,t,talking,charming){
   const fw=im.naturalWidth/c, fh=im.naturalHeight/r;
   drawFramedSub(g,im,(k%c)*fw,Math.floor(k/c)*fh,fw,fh,frameOf(w),0); return true;
 }
-function sheetUpload(file,id,kind){
-  const w=S.staff.find(x=>x.id===id); if(!w||!file) return;
-  const a=Object.assign({cols:4,rows:1,fps:8},(w.anim&&w.anim[kind])||{}), box=$(`sh-${kind}-${id}`);
+function sheetUpload(file,id,kind,slot){
+  const w=S.staff.find(x=>x.id===id); if(!w||!file) return; slot=slot||"";
+  const bag0=animBag(w,slot)||{}, a=Object.assign({cols:4,rows:1,fps:8},bag0[kind]||{}), box=$(`sh-${kind}-${id}${slot?"-"+slot:""}`);
   if(box){ a.cols=+box.querySelector('[data-anim=cols]').value||1; a.rows=+box.querySelector('[data-anim=rows]').value||1; a.fps=+box.querySelector('[data-anim=fps]').value||8; }
   readImage(file).then(img=>{
     const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/a.cols, fh=H/a.rows;
@@ -4304,8 +4350,8 @@ function sheetUpload(file,id,kind){
     const cv=document.createElement("canvas"); cv.width=Math.max(1,Math.round(W*sc)); cv.height=Math.max(1,Math.round(H*sc));
     const g=cv.getContext("2d"); g.imageSmoothingEnabled=sc<1&&kind[0]!=="f"; g.imageSmoothingQuality="high"; g.drawImage(img,0,0,cv.width,cv.height);
     let data=cv.toDataURL("image/png"); if(data.length>1.6e6) data=cv.toDataURL("image/webp",.9);
-    return storeArt(data).then(ref=>{ w.anim=w.anim||{}; if(w.anim[kind]) dropArt(w.anim[kind].ref); w.anim[kind]=Object.assign(a,{ref}); if(!w.frame&&kind[0]!=="f") w.frame={s:1,x:0,y:0}; manageOpen=w.id;
-      addLog(`${[...SHEETS,...FSHEETS].find(s=>s[0]===kind)[1]} animation loaded for ${w.name}.`,"build"); commit(); toast(kind[0]==="f"?`${a.cols*a.rows} frames loaded. Check the Inside view on the Shop tab.`:`${a.cols*a.rows} frames loaded. Position them with the sliders.`); });
+    return storeArt(data).then(ref=>{ const bag=animBag(w,slot,true); if(bag[kind]) dropArt(bag[kind].ref); bag[kind]=Object.assign(a,{ref}); if(!w.frame&&kind[0]!=="f") w.frame={s:1,x:0,y:0}; manageOpen=w.id;
+      addLog(`${[...SHEETS,...FSHEETS].find(s=>s[0]===kind)[1]} animation loaded for ${w.name}${slot?` (${slotName(slot)})`:""}.`,"build"); commit(); toast(kind[0]==="f"?`${a.cols*a.rows} frames loaded. Check the Inside view on the Shop tab.`:`${a.cols*a.rows} frames loaded. Position them with the sliders.`); });
   }).catch(()=>toast(imgErr(file), true));
 }
 function sheetUploadNoBox(file,id,kind,opts){
@@ -4319,21 +4365,22 @@ function sheetUploadNoBox(file,id,kind,opts){
       w.anim[kind]=Object.assign({flip:false},opts,{ref}); addLog(`Uploaded a ${kind==="fidle"?"standing":"walking"} sprite for ${w.name}.`,"build"); commit(); toast(`Uploaded ${opts.cols*opts.rows} frames to ${w.name}. Check the Inside view.`); });
   }).catch(()=>toast(imgErr(file), true));
 }
-function sheetRows(p,list){
-  const floor=list===FSHEETS;
-  return (list||SHEETS).filter(([k])=>k!=="charm"||FEATURES.charm).map(([k,l,d])=>{ const a=(p.anim&&p.anim[k])||{cols:4,rows:1,fps:8}, has=!!(a.ref&&resolveArt(a.ref)), fr=has?sheetFrames(a).n:0;
-    return `<div class="sheetrow" id="sh-${k}-${p.id}"><div class="spread"><b>${l}</b><span class="muted">${has?fr+" frames":"none"}</span></div><p class="hint" style="margin:2px 0 6px">${d}</p>
-      <div class="sheetnums"><label>Across<input class="field num" type="number" min="1" max="16" data-anim="cols" data-kind="${k}" data-id="${p.id}" value="${a.cols||4}"></label>
-        <label>Down<input class="field num" type="number" min="1" max="8" data-anim="rows" data-kind="${k}" data-id="${p.id}" value="${a.rows||1}"></label>
-        <label>Speed (fps)<input class="field num" type="number" min="1" max="30" data-anim="fps" data-kind="${k}" data-id="${p.id}" value="${a.fps||8}"></label>
-        ${floor?`<label>Height (px)<input class="field num" type="number" min="16" max="100" data-anim="h" data-kind="${k}" data-id="${p.id}" value="${a.h||46}"></label>
-        <label class="flipchk"><input type="checkbox" data-anim="flip" data-kind="${k}" data-id="${p.id}" ${a.flip?"checked":""}> Sheet faces left</label>`:""}</div>
-      <div class="actions" style="margin-top:6px"><label class="btn ghost" for="sheet-${k}-${p.id}" style="text-align:center">${has?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="sheet-${k}-${p.id}" class="srt" accept="image/*" data-up="sheet" data-kind="${k}" data-id="${p.id}">${has?`<button class="btn ghost" data-act="clearSheet" data-id="${p.id}:${k}">REMOVE</button>`:""}</div></div>`; }).join("");
+function slotName(slot){ if(!slot) return "base"; const n=+slot.slice(1); return slot[0]==="w"?(S.wardrobe.names[n-1]||"Outfit "+n):(S.prog.names[n-1]||"Outfit "+n); }
+function sheetRows(p,list,slot){
+  const floor=list===FSHEETS; slot=slot||""; const sx=slot?"-"+slot:"", bag=animBag(p,slot)||{}, ds=`data-slot="${slot}"`;
+  return (list||SHEETS).filter(([k])=>k!=="charm"||FEATURES.charm).map(([k,l,d])=>{ const a=bag[k]||{cols:4,rows:1,fps:8}, has=!!(a.ref&&resolveArt(a.ref)), fr=has?sheetFrames(a).n:0;
+    return `<div class="sheetrow" id="sh-${k}-${p.id}${sx}"><div class="spread"><b>${l}</b><span class="muted">${has?fr+" frames":"none"}</span></div><p class="hint" style="margin:2px 0 6px">${d}</p>
+      <div class="sheetnums"><label>Across<input class="field num" type="number" min="1" max="16" data-anim="cols" data-kind="${k}" data-id="${p.id}" ${ds} value="${a.cols||4}"></label>
+        <label>Down<input class="field num" type="number" min="1" max="8" data-anim="rows" data-kind="${k}" data-id="${p.id}" ${ds} value="${a.rows||1}"></label>
+        <label>Speed (fps)<input class="field num" type="number" min="1" max="30" data-anim="fps" data-kind="${k}" data-id="${p.id}" ${ds} value="${a.fps||8}"></label>
+        ${floor?`<label>Height (px)<input class="field num" type="number" min="16" max="100" data-anim="h" data-kind="${k}" data-id="${p.id}" ${ds} value="${a.h||46}"></label>
+        <label class="flipchk"><input type="checkbox" data-anim="flip" data-kind="${k}" data-id="${p.id}" ${ds} ${a.flip?"checked":""}> Sheet faces left</label>`:""}</div>
+      <div class="actions" style="margin-top:6px"><label class="btn ghost" for="sheet-${k}-${p.id}${sx}" style="text-align:center">${has?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="sheet-${k}-${p.id}${sx}" class="srt" accept="image/*" data-up="sheet" data-kind="${k}" data-id="${p.id}" ${ds}>${has?`<button class="btn ghost" data-act="clearSheet" data-id="${p.id}:${k}:${slot}">REMOVE</button>`:""}</div></div>`; }).join("");
 }
 document.addEventListener("change",ev=>{ const t=ev.target; if(!t.dataset||!t.dataset.anim) return; const w=S.staff.find(x=>x.id===t.dataset.id); if(!w) return;
-  const k=t.dataset.kind; w.anim=w.anim||{}; w.anim[k]=w.anim[k]||{cols:4,rows:1,fps:8};
-  if(t.type==="checkbox") w.anim[k][t.dataset.anim]=t.checked;
-  else { const lim={cols:16,rows:8,fps:30,h:100}[t.dataset.anim]; w.anim[k][t.dataset.anim]=Math.max(t.dataset.anim==="h"?16:1,Math.min(lim,Math.round(+t.value)||1)); }
+  const k=t.dataset.kind, bag=animBag(w,t.dataset.slot||"",true); bag[k]=bag[k]||{cols:4,rows:1,fps:8};
+  if(t.type==="checkbox") bag[k][t.dataset.anim]=t.checked;
+  else { const lim={cols:16,rows:8,fps:30,h:100}[t.dataset.anim]; bag[k][t.dataset.anim]=Math.max(t.dataset.anim==="h"?16:1,Math.min(lim,Math.round(+t.value)||1)); }
   save(); drawFramePreview(w); });
 setInterval(()=>{ if(tab!=="dev") return; S.staff.forEach(w=>{ if(sheetFor(w,"idle")) drawFramePreview(w); }); },80);
 function drawFramePreview(w){
@@ -4368,6 +4415,7 @@ document.addEventListener("click",ev=>{
     case "delTask": if(!twoTap()) return; S.tasks=S.tasks.filter(t=>t.id!==id); closeSheet(); commit(); break;
     case "taskView": taskView=id; render(); window.scrollTo(0,0); break;
     case "taskFilter": taskFilter=id; render(); break;
+    case "hireRandom": S.hireRandom=!S.hireRandom; commit(); break;
     case "adultToggle": S.adult=!adultOn(); applyAdult(); peek=null; commit(); toast(adultOn()?"Adult content is on.":"Adult content is off."); break;
     case "bgOffer": S.bgOffer=S.bgOffer===false; commit(); toast(S.bgOffer?"Background removal will open on import.":"Images import as-is now."); break;
     case "fab": if(taskView==="habits") addSheetHabits(); else quickSheet({today:taskView==="today",list:taskFilter.indexOf("list:")===0?taskFilter.slice(5):""}); break;
@@ -4406,7 +4454,7 @@ document.addEventListener("click",ev=>{
     case "clearOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.outfits&&w.outfits[t]){ dropArt(w.outfits[t].art); delete w.outfits[t]; if(w.outfit===+t) w.outfit=1; manageOpen=wid; outfitOpen=wid; commit(); } break; }
     case "testProg": S.staff.forEach(w=>gainProg(w,5)); addLog("Test: +5 "+PL()+" for all staff."); commit(); break;
     case "clearFace": { const [wid,k]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.faces){ dropArt(w.faces[k]); delete w.faces[k]; faceOpen=wid; manageOpen=wid; commit(); } break; }
-    case "clearSheet": { const [wid,k]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.anim&&w.anim[k]){ dropArt(w.anim[k].ref); delete w.anim[k].ref; commit(); } break; }
+    case "clearSheet": { const [wid,k,slot]=id.split(":"), w=S.staff.find(x=>x.id===wid), bag=w&&animBag(w,slot||""); if(bag&&bag[k]){ dropArt(bag[k].ref); delete bag[k].ref; commit(); } break; }
     case "hideFavArt": srv.showFavorArt=false; renderServe(); break;
     case "hideCharmArt": srv.showCharmArt=false; renderServe(); break;
     case "viewCharm": { const [w,s]=id.split(":"); charmView(w,s); break; }
@@ -4430,7 +4478,7 @@ document.addEventListener("click",ev=>{
     case "copySave": { const t=JSON.stringify(S); $("saveText").value=t; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Save copied.")).catch(()=>{ $("saveText").select(); toast("Copy the save from the box below.", true); }); break; }
     case "importSave": restoreSave(($("saveText").value||"").trim()); break;
     case "cleanArt": { const n=cleanArt(); toast(`Removed ${n} unused image${n===1?"":"s"}.`); render(); break; }
-    case "purgeArt": if(!twoTap("TAP AGAIN TO DELETE ALL")) return; S.staff.forEach(w=>{ if(w.art&&w.art!=="builtin:mika") w.art=null; w.charmArt=null; w.charmArts={}; Object.values(w.ward||{}).forEach(o=>{ if(o) o.art=null; }); w.anim={}; w.faces={}; w.outfits={}; w.outfit=1; }); S.favors.deck.forEach(f=>{ f.art=null; f.anim=null; }); Object.keys(ART).forEach(k=>{ delete ART[k]; ArtDB.del(k); }); S.sprites={}; Object.keys(spriteCache).forEach(k=>delete spriteCache[k]); addLog("All uploaded art deleted.","warn"); commit(); toast("All uploaded art deleted."); break;
+    case "purgeArt": if(!twoTap("TAP AGAIN TO DELETE ALL")) return; S.staff.forEach(w=>{ if(w.art&&w.art!=="builtin:mika") w.art=null; w.charmArt=null; w.charmArts={}; Object.values(w.ward||{}).forEach(o=>{ if(o){ o.art=null; o.anim={}; } }); Object.values(w.outfits||{}).forEach(o=>{ if(o) o.anim={}; }); w.anim={}; w.faces={}; w.outfits={}; w.outfit=1; }); S.favors.deck.forEach(f=>{ f.art=null; f.anim=null; }); Object.keys(ART).forEach(k=>{ delete ART[k]; ArtDB.del(k); }); S.sprites={}; Object.keys(spriteCache).forEach(k=>delete spriteCache[k]); addLog("All uploaded art deleted.","warn"); commit(); toast("All uploaded art deleted."); break;
     case "sound": S.sound=!S.sound; commit(); break;
     case "clockMode": S.clockMode=id==="auto"?undefined:id; peek=null; commit(); toast(id==="auto"?"Back on real time.":id==="day"?"It's daytime. The café and bookshop are open.":`It's night. The bar and ${ROLES.club.room} are open.`); break;
     case "testCreds": S.credits+=+id; addLog("Test creds: +"+id+"₵."); commit(); break;
@@ -4458,15 +4506,15 @@ document.addEventListener("submit",ev=>{
   const f=ev.target.closest("[data-form]"); if(!f) return; ev.preventDefault();
   const k=f.dataset.form, val=id=>($(id)?$(id).value:"").trim();
   if(k==="task"){ const title=val("tTitle"); if(!title) return; const rr=readRepeat("t",val("tDue")); S.tasks.push({id:uid(),title,pri:+val("tPri"),due:firstDue(rr,val("tDue")),list:val("tList"),done:false,repeat:rr||undefined}); commit(); const t=$("tTitle"); if(t) t.focus(); }
-  if(k==="taskEdit"){ const t=S.tasks.find(x=>x.id===f.dataset.id); if(t){ t.title=val("eTitle")||t.title; t.pri=+val("ePri"); t.list=val("eList"); t.note=($("eNote")||{}).value||""; Object.assign(t,readSave("e")); const rr=readRepeat("e",val("eDue"));
+  if(k==="taskEdit"){ const t=S.tasks.find(x=>x.id===f.dataset.id); if(t){ t.title=val("eTitle")||t.title; t.pri=+val("ePri"); t.list=val("eList"); t.note=($("eNote")||{}).value||""; Object.assign(t,readSave("e")); t.diff=+val("eDiff")||2; const rr=readRepeat("e",val("eDue"));
       if(rr){ if(!isRec(t)){ t.done=false; t.doneOn=""; } t.repeat=rr; t.due=firstDue(rr,val("eDue")); } else { if(isRec(t)) delete t.repeat; t.due=val("eDue"); } } closeSheet(); commit(); }
   if(k==="habit"){
     const name=val("hName"); if(!name) return;
     let days=[...f.querySelectorAll('input[name="day"]:checked')].map(i=>+i.value); if(days.length===7) days=[];
     const bucket=val("hBucket"), saveC=toCents(val("hSave")), id=f.dataset.id;
-    const note=($("hNote")||{}).value||"";
-    if(id){ const h=S.habits.find(x=>x.id===id); if(h) Object.assign(h,{name,days,bucket,save:saveC,note}); }
-    else S.habits.push({id:uid(),name,days,bucket,save:saveC,note,hist:{},created:today()});
+    const note=($("hNote")||{}).value||"", diff=+val("hDiff")||2;
+    if(id){ const h=S.habits.find(x=>x.id===id); if(h) Object.assign(h,{name,days,bucket,save:saveC,note,diff}); }
+    else S.habits.push({id:uid(),name,days,bucket,save:saveC,note,diff,hist:{},created:today()});
     closeSheet(); commit();
   }
   if(k==="bucket"){
@@ -4477,7 +4525,7 @@ document.addEventListener("submit",ev=>{
   if(k==="quick"){ if(addQuick()){ closeSheet(); commit(); toast("Task added."); } return; }
   if(k==="bad"){ const name=val("bdName"); if(!name) return; const o={name,rep:Math.max(0,Math.min(20,Math.round(+val("bdRep")||0))),note:($("bdNote")||{}).value||""}, id=f.dataset.id;
     if(id){ const b=badById(id); if(b) Object.assign(b,o); } else S.bads.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
-  if(k==="win"){ const name=val("wnName"); if(!name) return; const o={name,bucket:val("wnBucket"),save:toCents(val("wnSave")),ask:$("wnAsk").checked,note:($("wnNote")||{}).value||""}, id=f.dataset.id;
+  if(k==="win"){ const name=val("wnName"); if(!name) return; const o={name,bucket:val("wnBucket"),save:toCents(val("wnSave")),ask:$("wnAsk").checked,note:($("wnNote")||{}).value||"",diff:+val("wnDiff")||2}, id=f.dataset.id;
     if(id){ const w=winById(id); if(w) Object.assign(w,o); } else S.wins.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
   if(k==="winLog"){ const id=f.dataset.id, v=val("wlAmt"), c=v?Math.round((parseFloat(v.replace(/[^0-9.]/g,""))||0)*100):0; closeSheet(); logWin(id,c,null); }
   if(k==="addSave"){ const b=bucketById(f.dataset.id), c=toCents(val("svAmt")), label=val("svLabel"); if(!b||!c||!label){ toast("Add what it was and how much.", true); return; } b.entries.push({id:uid(),d:today(),c,label}); addLog(`Saved ${money(c)} to ${b.name}: ${label}.`,"gain"); closeSheet(); commit(); toast("+"+money(c)+" to "+b.name+"."); }
@@ -4514,10 +4562,11 @@ function routeUpload(t){
   if(t.dataset&&t.dataset.up==="charmslot") return charmSlotUpload(file,t.dataset.id,t.dataset.kind);
   if(t.id==="favArt") return favArtUpload(file);
   if(t.id==="favAnimFile") return favAnimUpload(file);
-  if(t.dataset&&t.dataset.up==="sheet") return sheetUpload(file,t.dataset.id,t.dataset.kind);
+  if(t.dataset&&t.dataset.up==="sheet") return sheetUpload(file,t.dataset.id,t.dataset.kind,t.dataset.slot||"");
   if(t.dataset&&t.dataset.up==="outfit") return outfitUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="face") return faceUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="ward") return wardUpload(file,t.dataset.id,t.dataset.kind);
+  if(t.dataset&&t.dataset.up==="empart") return empArtUpload(file);
   if(t.dataset&&t.dataset.up&&t.dataset.up.indexOf("xs")===0) return xsUpload(t,file);
   if(t.id==="artFile") return shrinkArt(file,96,data=>{ S.sprites[t.dataset.id]=data; delete spriteCache[t.dataset.id]; commit(); toast("Room art loaded."); });
   if(t.id==="packFile"&&file){ const r=new FileReader(); r.onload=()=>importPack(String(r.result)); r.readAsText(file); return; }
@@ -4677,6 +4726,65 @@ function bxInput(ev){ const t=ev.target;
   if(t.id==="bgxSpecks"){ BX.specks=t.checked; bxSoon(); }
 }
 window.addEventListener("resize",()=>{ if(BX.open) bxFit(); });
+/* ================= SKILLS, COVERING OTHER VENUES, AND HIRING YOUR OWN CHARACTERS ================= */
+const SKILL_SLOTS=3, SLOT_MULT=[1,2,4];
+const SKILLS={
+  barista:   {name:"Barista Training", venue:"cafe",  cost:400, desc:"Works the café like home, +10% tips there"},
+  bookworm:  {name:"Bookworm",         venue:"books", cost:400, desc:"Works the bookshop like home, +10% tips there"},
+  mixologist:{name:"Mixologist",       venue:"bar",   cost:450, desc:"Works the bar like home, +10% tips there"},
+  stage:     {name:"Stage Presence",   venue:"club",  cost:450, desc:"Works the stage like home, +10% tips there"},
+  sweet:     {name:"Sweet Talker",                    cost:700, desc:"+10% tips everywhere"},
+  quick:     {name:"Quick Study",                     cost:600, desc:"+1 hint a day"},
+  steady:    {name:"Steady Hands",                    cost:800, desc:"15% chance to save a Close into a Perfect"},
+  learner:   {name:"Fast Learner",                    cost:500, desc:"+25% XP from serving"}
+};
+const PERSONA_FIT={cafe:["bubbly","chatty"],books:["deadpan","chill"],bar:["gruff","chill"],club:["bubbly","chatty"]};
+const isHired=w=>!!w&&w.hired!==false;
+const hasSkill=(w,k)=>!!w&&Array.isArray(w.skills)&&w.skills.includes(k);
+const skillName=k=>{ const s=SKILLS[k]; if(!s) return k; return k==="stage"&&!adultOn()?"Stage Presence":s.name; };
+function skillCost(w,k){ return Math.round((SKILLS[k].cost||500)*SLOT_MULT[Math.min(SKILL_SLOTS-1,(w.skills||[]).length)]); }
+/* how an employee does at a counter: home venue, trained for it, personality fits, or out of their depth */
+function fitAt(w,sec){ if(!w||!sec) return "home"; if(w.role===sec) return "home"; if(Object.keys(SKILLS).some(k=>SKILLS[k].venue===sec&&hasSkill(w,k))) return "trained"; if((PERSONA_FIT[sec]||[]).includes(w.persona)) return "fit"; return "away"; }
+function skillTipMult(w,sec){ let m=1; const f=fitAt(w,sec); if(f==="away") m*=.75; else if(f==="fit") m*=.9;
+  if(Object.keys(SKILLS).some(k=>SKILLS[k].venue===sec&&hasSkill(w,k))) m*=1.1; if(hasSkill(w,"sweet")) m*=1.1; return m; }
+function hintAdj(w){ let n=hasSkill(w,"quick")?1:0; if(typeof srv!=="undefined"&&srv&&srv.open&&srv.worker===w&&fitAt(w,srv.sec)==="away") n-=1; return n; }
+function fitNote(w,sec){ const f=fitAt(w,sec); return f==="home"?"":f==="trained"?"trained":f==="fit"?"covering · −10% tips":"covering · −25% tips, −1 hint"; }
+function skillsMigrate(o){ (o.staff||[]).forEach(w=>{ if(!Array.isArray(w.skills)) w.skills=[]; w.skills=w.skills.filter(k=>SKILLS[k]).slice(0,SKILL_SLOTS); }); }
+
+/* ---------- skills inside each employee card (Upgrade) ---------- */
+const skillOpen=new Set();
+function skillBlock(w){
+  const have=w.skills||[], full=have.length>=SKILL_SLOTS;
+  return `<details class="sub" data-skillopen="${w.id}" ${skillOpen.has(w.id)?"open":""}><summary>Skills · ${have.length}/${SKILL_SLOTS}${have.length?` · ${have.map(skillName).join(", ")}`:""}</summary>
+    ${have.length?`<div class="sklist">${have.map(k=>`<div class="skrow on"><span><b>${esc(skillName(k))}</b><small>${esc(SKILLS[k].desc)}</small></span><button class="btn ghost smallbtn" data-skill="forget" data-id="${w.id}:${k}">FORGET</button></div>`).join("")}</div>`:""}
+    ${full?`<p class="hint" style="margin:6px 0 0">All ${SKILL_SLOTS} slots used. Forget one to train something else.</p>`
+      :`<p class="alabel" style="margin-top:8px">TRAIN · SLOT ${have.length+1} COSTS ${SLOT_MULT[have.length]}×</p><div class="sklist">${Object.keys(SKILLS).filter(k=>!have.includes(k)).map(k=>{ const c=skillCost(w,k), can=S.credits>=c;
+        return `<div class="skrow"><span><b>${esc(skillName(k))}</b><small>${esc(SKILLS[k].desc)}</small></span><button class="btn smallbtn ${can?"solid":""}" data-skill="train" data-id="${w.id}:${k}" ${can?"":"disabled"}>${c.toLocaleString()}₵</button></div>`; }).join("")}</div>`}
+    <p class="hint" style="margin:6px 0 0">Covering another venue without its specialty skill costs −25% tips and a hint a day. A personality that suits the room softens it to −10%.</p>
+  </details>`;
+}
+document.addEventListener("toggle",ev=>{ const d=ev.target; if(d&&d.dataset&&d.dataset.skillopen){ d.open?skillOpen.add(d.dataset.skillopen):skillOpen.delete(d.dataset.skillopen); } },true);
+
+/* ---------- your characters on the hiring board ---------- */
+const castAt=v=>S.staff.filter(w=>w.hired===false&&w.role===v);
+function hireCostFor(w){ return w.cost>0?w.cost:80+40*((w.skill||1)+(w.charm||1)); }
+function castBlock(key){
+  const cast=castAt(key);
+  return `${cast.length?`<p class="alabel" style="margin-top:10px">YOUR CHARACTERS · READY TO HIRE</p>${cast.map(w=>{ const t=TRAITS[w.trait]||{name:"",desc:""}, c=hireCostFor(w), can=S.credits>=c, a=w.art?artSrc(w):null;
+      return `<div class="wmini cand"><div class="cport sm">${a?`<img src="${a}" alt="">`:`<span class="ci" aria-hidden="true">👤</span>`}</div>
+        <div class="rinfo"><b>${esc(w.name)}</b> <span class="muted">${esc(jobTitle(w))} · ${PERSONAS[w.persona]?PERSONAS[w.persona].label:""}</span>
+          <small>Skill <span class="pip">${pips(w.skill)}</span> Charm <span class="pip">${pips(w.charm)}</span></small>
+          <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc||"")}</small></div>
+        <button class="btn ${can?"solid":""} rbtn" data-emp="hireCast" data-id="${w.id}" ${can?"":"disabled"}>HIRE<br>${c.toLocaleString()}₵</button></div>`; }).join("")}`:""}
+    <div class="actions" style="margin-top:8px"><button class="btn ghost" data-emp="newAt" data-id="${key}">+ CREATE A CHARACTER</button></div>`;
+}
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("[data-skill]"); if(!b) return; const [wid,k]=(b.dataset.id||"").split(":"), w=S.staff.find(x=>x.id===wid); if(!w||!SKILLS[k]) return;
+  if(b.dataset.skill==="train"){ if((w.skills||[]).length>=SKILL_SLOTS||hasSkill(w,k)) return; const c=skillCost(w,k); if(S.credits<c){ toast(`You need ${(c-S.credits).toLocaleString()}₵ more.`, true); return; }
+    S.credits-=c; w.skills=(w.skills||[]).concat(k); skillOpen.add(w.id); addLog(`${w.name} trained ${skillName(k)}. -${c}₵`,"build"); beep(990); commit(); toast(`${w.name} learned ${skillName(k)}.`); }
+  if(b.dataset.skill==="forget"){ if(b.dataset.armed!=="1"){ b.dataset.armed="1"; b.textContent="SURE?"; return; } w.skills=(w.skills||[]).filter(x=>x!==k); skillOpen.add(w.id); commit(); toast(`${w.name} forgot ${skillName(k)}. The slot is free.`); }
+});
+
 /* ================= WARDROBE: outfits unlocked by employee level (XP from serving) or bought early ================= */
 function defaultWardrobe(){ return {names:["Uniform","Casual","Sharp","Party","Signature"],needLv:[1,3,6,10,15],price:[0,300,900,2400,6000],bonus:[0,2,4,7,10]}; }
 function wardMigrate(o){
@@ -4719,6 +4827,8 @@ function wardDevPanel(p){
         <b>${esc(C.names[t-1])}</b><small class="muted">LV ${C.needLv[t-1]} · ${wardOwned(p,t)?"unlocked":"locked"}</small>
         <div class="rowflex" style="gap:4px"><label class="btn ghost smallbtn" for="${fid}" style="text-align:center">${a?"REPLACE":"LOAD"}</label><input type="file" id="${fid}" class="srt" accept="image/*" data-up="ward" data-id="${p.id}" data-kind="${t}">
         ${a?`<button class="btn ghost smallbtn" data-ward="clear" data-id="${p.id}:${t}" aria-label="Remove ${esc(C.names[t-1])} art">✕</button>`:""}</div></div>`; }).join("")}</div>
+    <p class="alabel" style="margin-top:12px">OUTFIT ANIMATIONS</p>
+    ${outfitAnimBlock(p,"w")}
   </section>
   <section class="panel"><h2><span>OUTFIT SETTINGS</span><span>ALL STAFF</span></h2>
     <div class="wardcfg"><span></span><span class="fl">Name</span><span class="fl">LV</span><span class="fl">Price ₵</span><span class="fl">Tip %</span>
@@ -4794,7 +4904,7 @@ function glGain(n,why){
 function glReady(){ return S.xs.on&&S.xs.meter.val>=S.xs.meter.max; }
 function glPanel(){
   if(!S.xs.on||!adultOn()) return ""; const M=S.xs.meter, r=S.xs.room, pct=Math.round(M.val/M.max*100), ready=glReady();
-  const team=S.staff.map(w=>{ const ok=progLevel(w)>=r.needLv, a=artSrc(w);
+  const team=S.staff.filter(isHired).map(w=>{ const ok=progLevel(w)>=r.needLv, a=artSrc(w);
     return `<button class="glpick" data-xs="work" data-id="${w.id}" ${ok&&ready?"":"disabled"}>${a?`<img src="${a}" alt="">`:`<span class="ci" aria-hidden="true">✦</span>`}<b>${esc(w.name)}</b><small>${ok?esc(jobTitle(w)):`${esc(PL())} ${r.needLv} needed`}</small></button>`; }).join("");
   return `<section class="panel glpanel ${ready?"glready":""}"><h2><span>⚡ ${esc(glName().toUpperCase())}</span><span>${ready?"READY":pct+"%"}</span></h2>
     <div class="glbar" role="img" aria-label="Energy ${M.val} of ${M.max}"><i style="width:${pct}%"></i><span>${M.val} / ${M.max}</span></div>
@@ -5276,13 +5386,14 @@ function jobsMigrate(o){
   const d=defaultJobs(); if(!o.jobs||typeof o.jobs!=="object") o.jobs=d;
   Object.keys(d).forEach(v=>{ if(!Array.isArray(o.jobs[v])||!o.jobs[v].length) o.jobs[v]=d[v]; });
   if(!o.shift||typeof o.shift!=="object") o.shift={};
+  if(o.hireRandom===undefined) o.hireRandom=false;
   (o.staff||[]).forEach(w=>{ const js=o.jobs[w.role]||[]; if(!js.some(j=>j.id===w.job)){ const s=js.find(j=>j.perk==="service")||js[0]; w.job=s&&s.id; } });
 }
 const venueJobs=v=>(S.jobs&&S.jobs[v])||[];
 function jobOf(w){ const js=venueJobs(w&&w.role); return js.find(j=>j.id===w.job)||js.find(j=>j.perk==="service")||js[0]||{id:"",name:(ROLES[w&&w.role]||{title:"Staff"}).title,perk:"service"}; }
 const jobTitle=w=>jobOf(w).name;
 const perkOf=w=>w?jobOf(w).perk:"";
-const staffAt=v=>S.staff.filter(w=>w.role===v);
+const staffAt=v=>S.staff.filter(w=>w.role===v&&w.hired!==false);
 function candJob(c,i){ if(!c.job){ const js=venueJobs(c.role); if(js.length) c.job=js[(i||0)%js.length].id; } return c; }
 
 /* ---------- roster UI (Upgrade tab + shop counter) ---------- */
@@ -5292,17 +5403,20 @@ function rosterBlock(key){
   return team.map(p=>`<div class="rosterhd"><span class="tag">${esc(jobTitle(p))}</span>${p===on?`<span class="onshift">● AT THE COUNTER</span>`:`<button class="btn ghost smallbtn" data-emp="shift" data-id="${p.id}">PUT AT THE COUNTER</button>`}</div>${workerMini(p)}`).join("");
 }
 function shiftPicker(sec){
-  const team=staffAt(sec); if(team.length<2) return ""; const on=workerFor(sec);
-  return `<label class="srt" for="shift-${sec}">Who works the ${ROLES[sec].room} counter</label><select class="field shiftsel" id="shift-${sec}" data-shift="${sec}">${team.map(w=>`<option value="${w.id}" ${w===on?"selected":""}>${esc(w.name)} · ${esc(jobTitle(w))}</option>`).join("")}</select>`;
+  const team=S.staff.filter(isHired); if(team.length<2) return ""; const on=workerFor(sec);
+  return `<label class="srt" for="shift-${sec}">Who works the ${ROLES[sec].room} counter</label><select class="field shiftsel" id="shift-${sec}" data-shift="${sec}">${team.map(w=>{ const n=fitNote(w,sec);
+    return `<option value="${w.id}" ${w===on?"selected":""}>${esc(w.name)} · ${esc(jobTitle(w))}${w.role!==sec?` (${esc(SEC_NAME[w.role])})`:""}${n?` · ${n}`:""}</option>`; }).join("")}</select>`;
 }
+function assignShift(sec,id){ Object.keys(S.shift).forEach(k=>{ if(S.shift[k]===id) delete S.shift[k]; }); S.shift[sec]=id;
+  const w=S.staff.find(x=>x.id===id), n=w&&fitNote(w,sec); if(w) toast(`${w.name} is at the ${ROLES[sec].room} counter${n&&n!=="trained"?`: ${n.replace("covering · ","")}`:n==="trained"?" (trained for it)":""}.`, !!n&&n!=="trained"); }
 function candJobLine(c){ const j=venueJobs(c.role).find(x=>x.id===c.job); if(!j) return ""; const P=PERKS[j.perk]||{}; return `<small><span class="tag">${esc(j.name)}</span> ${esc(P.desc||"")}</small>`; }
 
 /* ---------- Dev › Workers: create, edit, import, export ---------- */
 function empPanel(){
   return `<section class="panel">
-    <h2><span>EMPLOYEES</span><span>${S.staff.length} ON STAFF</span></h2>
-    <p style="margin:0 0 10px">Create someone from scratch, or import an employee file with their art, outfits, faces and animations. Created and imported staff are free and don't replace anyone. Up to ${VENUE_CAP} per venue.</p>
-    <div class="actions" style="margin-top:0"><button class="btn solid" data-emp="new">+ CREATE EMPLOYEE</button>
+    <h2><span>YOUR CHARACTERS</span><span>${S.staff.length} ON STAFF</span></h2>
+    <p style="margin:0 0 10px">Make your own employees the way Mika is set up: name, venue and job, personality, stats and art. Then pick them below to add faces, outfits, animations and placement. New characters go on their venue's hiring board in Upgrade, where you pay to hire them. Up to ${VENUE_CAP} hired per venue.</p>
+    <div class="actions" style="margin-top:0"><button class="btn solid" data-emp="new">+ CREATE CHARACTER</button>
       <label class="btn" for="empFile" style="text-align:center">IMPORT FILE</label><input type="file" id="empFile" class="srt" accept=".json,application/json,text/plain">
       ${S.staff.length?`${FRAMED?"":`<button class="btn ghost" data-emp="exportAll">DOWNLOAD ALL STAFF</button>`}<button class="btn ghost" data-emp="copyAll">COPY ALL AS TEXT</button>`:""}</div>
     <details class="sub"><summary>Paste an employee file</summary>
@@ -5329,21 +5443,28 @@ function resetStats(w){
 function empStudioBar(p){
   return `<div class="actions" style="margin:0 0 10px"><button class="btn" data-emp="edit" data-id="${p.id}">JOB &amp; DETAILS</button><button class="btn ghost" data-emp="reset" data-id="${p.id}">RESET STATS</button>${FRAMED?"":`<button class="btn ghost" data-emp="export" data-id="${p.id}">DOWNLOAD ${esc(p.name.toUpperCase())}</button>`}<button class="btn ghost" data-emp="copy" data-id="${p.id}">COPY AS TEXT</button></div>`;
 }
-function empSheet(w){
-  const isNew=!w; w=w||{name:pk(NAMES),role:"cafe",job:"",skill:2,charm:2,persona:Object.keys(PERSONAS)[0],trait:"smooth",lw:0};
+let empDraft=null;
+function empArtUpload(file){ if(!empDraft||!file) return; bigArt(file,2048,async data=>{ if(empDraft.art&&empDraft.art!==empDraft._orig) dropArt(empDraft.art); empDraft.art=await storeArt(data); const pv=$("empArtPrev"); if(pv) pv.innerHTML=`<img src="${resolveArt(empDraft.art)}" alt="">`; toast("Art loaded. Save to keep it."); }); }
+function empSheet(w,venue){
+  const isNew=!w; w=w||{name:"",role:venue||"cafe",job:"",skill:1,charm:1,persona:Object.keys(PERSONAS)[0],trait:"smooth",lw:0};
+  empDraft={art:isNew?null:w.art,_orig:isNew?null:w.art}; const ap=empDraft.art&&resolveArt(empDraft.art)||(!isNew&&w.art?artSrc(w):null);
   const jobOpts=Object.keys(ROLES).map(v=>`<optgroup label="${esc(SEC_NAME[v])}">${venueJobs(v).map(j=>`<option value="${v}:${j.id}" ${w.role===v&&jobOf(w).id===j.id?"selected":""}>${esc(SEC_NAME[v])} · ${esc(j.name)}</option>`).join("")}</optgroup>`).join("");
   openSheet(`<h3>${isNew?"CREATE EMPLOYEE":"EDIT "+esc(w.name.toUpperCase())}</h3>
   <form data-form="emp" data-id="${isNew?"":w.id}" class="stack">
     <div class="formgrid">
-      <div class="full"><label class="fl" for="empName">Name</label><input class="field" id="empName" maxlength="16" value="${esc(w.name)}" required autocomplete="off"></div>
+      <div class="full"><label class="fl" for="empName">Name</label><input class="field" id="empName" maxlength="16" value="${esc(w.name)}" placeholder="${esc(pk(NAMES))}" required autocomplete="off"></div>
+      <div class="full"><span class="fl">Main art (counter)</span><div class="rowflex"><div class="favthumb" id="empArtPrev">${ap?`<img src="${ap}" alt="">`:`<span>👤</span>`}</div>
+        <label class="btn ghost" for="empArt" style="text-align:center">${ap?"REPLACE ART":"LOAD ART"}</label><input type="file" id="empArt" class="srt" accept="image/*" data-up="empart">
+        <span class="muted" style="font-size:12px">Optional. Without art they use a code-drawn look.</span></div></div>
       <div class="full"><label class="fl" for="empJob">Venue &amp; job</label><select class="field" id="empJob">${jobOpts}</select></div>
       <div><label class="fl" for="empSkill">Skill</label><select class="field" id="empSkill">${[1,2,3,4,5].map(n=>`<option ${w.skill===n?"selected":""}>${n}</option>`).join("")}</select></div>
       <div><label class="fl" for="empCharm">Charm</label><select class="field" id="empCharm">${[1,2,3,4,5].map(n=>`<option ${w.charm===n?"selected":""}>${n}</option>`).join("")}</select></div>
       <div><label class="fl" for="empPersona">Personality</label><select class="field" id="empPersona">${Object.entries(PERSONAS).map(([k,P])=>`<option value="${k}" ${w.persona===k?"selected":""}>${esc(P.label)}</option>`).join("")}</select></div>
       <div><label class="fl" for="empTrait">Trait</label><select class="field" id="empTrait">${Object.entries(TRAITS).map(([k,T])=>`<option value="${k}" ${w.trait===k?"selected":""}>${esc(T.name)}</option>`).join("")}</select></div>
+      ${isHired(w)&&!isNew?"":`<div class="full"><label class="fl" for="empCost">Hire cost ₵ (0 = automatic)</label><input class="field num" id="empCost" type="number" min="0" max="999999" value="${w.cost||0}"></div>`}
       <div class="full" ${adultOn()?"":"hidden"}><label class="fl" for="empLw">${esc(PL())} points</label><input class="field num" id="empLw" type="number" min="0" max="9999" value="${w.lw||0}"></div>
     </div>
-    ${isNew?`<p class="hint" style="margin:0">They start with code-drawn art. Load their art, outfits and animations in Dev › Workers afterwards.</p>`:""}
+    ${isNew?`<p class="hint" style="margin:0">After saving, their editor opens below: faces, outfits, animations and the counter position.</p>`:""}
     <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"CREATE":"SAVE"}</button></div>
   </form>`);
 }
@@ -5351,12 +5472,15 @@ function empSubmit(ev){
   const f=ev.target; if(!f.dataset||f.dataset.form!=="emp") return; ev.preventDefault(); ev.stopImmediatePropagation();
   const v=id=>($(id)||{}).value, name=(v("empName")||"").trim().slice(0,16); if(!name) return;
   const [role,job]=(v("empJob")||"cafe:").split(":"), id=f.dataset.id, w=id&&S.staff.find(x=>x.id===id);
-  if((!w||w.role!==role)&&staffAt(role).length>=VENUE_CAP){ toast(`${SEC_NAME[role]} is full (${VENUE_CAP} staff).`, true); return; }
+  if(w&&isHired(w)&&w.role!==role&&staffAt(role).length>=VENUE_CAP){ toast(`${SEC_NAME[role]} is full (${VENUE_CAP} staff).`, true); return; }
   const o={name,role,job,skill:+v("empSkill")||1,charm:+v("empCharm")||1,persona:v("empPersona"),trait:v("empTrait"),lw:Math.max(0,Math.round(+v("empLw")||0))};
+  if($("empCost")) o.cost=Math.max(0,Math.round(+v("empCost")||0));
   o.base={skill:o.skill,charm:o.charm};
-  if(w){ if(w.role!==role&&S.shift[w.role]===w.id) delete S.shift[w.role]; Object.assign(w,o); }
-  else S.staff.push(Object.assign({id:uid(),look:makeLook(),lv:1,xp:0,serves:0,perfects:0,tips:0,cost:0},o));
-  devWorker=w?w.id:S.staff[S.staff.length-1].id; closeSheet(); povReset(povSec()); commit(); toast(w?"Saved.":`${name} joined the ${ROLES[role].room} as ${jobTitle(S.staff.find(x=>x.id===devWorker)).toLowerCase()}.`);
+  const art=empDraft&&empDraft.art||null;
+  if(w){ if(w.role!==role&&S.shift[w.role]===w.id) delete S.shift[w.role]; if(art&&art!==w.art){ if(w.art&&w.art.indexOf("idb:")===0) dropArt(w.art); o.art=art; if(!w.frame) o.frame={s:1,x:0,y:0}; } Object.assign(w,o); }
+  else S.staff.push(Object.assign({id:uid(),look:makeLook(),lv:1,xp:0,serves:0,perfects:0,tips:0,cost:0,ward:{},wear:1,skills:[],hired:false},o,art?{art,frame:{s:1,x:0,y:0}}:{}));
+  empDraft=null;
+  devWorker=w?w.id:S.staff[S.staff.length-1].id; closeSheet(); povReset(povSec()); commit(); toast(w?"Saved.":`${name} is on the ${ROLES[role].room} hiring board. Hire them in Upgrade for ${hireCostFor(S.staff.find(x=>x.id===devWorker)).toLocaleString()}₵.`);
 }
 document.addEventListener("submit",empSubmit,true);
 
@@ -5372,23 +5496,28 @@ async function empImport(text){
   const list=o&&(o.employees||(o.employee?[o.employee]:null)); if(!Array.isArray(list)||!list.length){ toast("No employees found in that file.", true); return; }
   let n=0, skipped=0;
   for(const raw of list){
-    const role=ROLES[raw.role]?raw.role:"cafe"; if(staffAt(role).length>=VENUE_CAP){ skipped++; continue; }
+    const role=ROLES[raw.role]?raw.role:"cafe";
     const w=await deepMapAsync(raw,async s=>s.indexOf("data:image")===0?await storeArt(s):s);
     const js=venueJobs(role); let job=js.find(j=>j.id===w.job)||js.find(j=>w.jobName&&j.name.toLowerCase()===String(w.jobName).toLowerCase());
     Object.assign(w,{id:uid(),role,job:(job||js.find(j=>j.perk==="service")||js[0]).id,look:w.look||makeLook(),lv:w.lv||1,xp:w.xp||0,serves:w.serves||0,perfects:w.perfects||0,tips:w.tips||0,
       skill:Math.max(1,Math.min(5,w.skill|0||1)),charm:Math.max(1,Math.min(5,w.charm|0||1)),persona:PERSONAS[w.persona]?w.persona:Object.keys(PERSONAS)[0],trait:TRAITS[w.trait]?w.trait:"smooth",name:String(w.name||pk(NAMES)).slice(0,16)});
-    delete w.jobName; delete w.deck;
+    delete w.jobName; delete w.deck; w.hired=false;
     if(S.staff.some(x=>x.name===w.name)) w.name=(w.name+" 2").slice(0,16);
     S.staff.push(w); n++; devWorker=w.id;
   }
   addLog(`Imported ${n} employee${n===1?"":"s"}.`,"build"); povReset(povSec()); commit();
-  toast(`Imported ${n} employee${n===1?"":"s"}.${skipped?` ${skipped} skipped: venue full.`:""}`);
+  toast(`Imported ${n} character${n===1?"":"s"}. They're on the hiring board in Upgrade.`);
 }
 document.addEventListener("click",ev=>{
   const b=ev.target.closest("[data-emp]"); if(!b) return; const a=b.dataset.emp, id=b.dataset.id;
   switch(a){
-    case "shift": { const w=S.staff.find(x=>x.id===id); if(!w) return; S.shift[w.role]=w.id; commit(); toast(`${w.name} is at the ${ROLES[w.role].room} counter.`); break; }
+    case "shift": { const w=S.staff.find(x=>x.id===id); if(!w) return; assignShift(w.role,w.id); commit(); break; }
+    case "hireCast": { const w=S.staff.find(x=>x.id===id); if(!w||isHired(w)) return; const c=hireCostFor(w);
+      if(S.credits<c){ toast(`You need ${(c-S.credits).toLocaleString()}₵ more.`, true); return; }
+      if(staffAt(w.role).length>=VENUE_CAP){ toast(`The ${ROLES[w.role].room} is full (${VENUE_CAP} staff).`, true); return; }
+      S.credits-=c; w.hired=true; addLog(`Hired ${w.name} as ${jobTitle(w).toLowerCase()}. -${c}₵`,"build"); pop(ev,"HIRED!","var(--good)"); beep(660); setTimeout(()=>beep(990),90); povReset(povSec()); commit(); break; }
     case "new": empSheet(null); break;
+    case "newAt": tab="dev"; devSub="workers"; render(); window.scrollTo(0,0); empSheet(null,id); break;
     case "reset": { const w=S.staff.find(x=>x.id===id); if(!w) return; if(b.dataset.armed!=="1"){ b.dataset.armed="1"; b.textContent="TAP AGAIN TO RESET"; return; } resetStats(w); break; }
     case "edit": empSheet(S.staff.find(x=>x.id===id)); break;
     case "export": { const w=S.staff.find(x=>x.id===id); if(w&&!downloadText(`nightkettle-${w.name.toLowerCase().replace(/\W+/g,"-")}.json`,empExport([w]))) toast("Downloads are blocked here. Use Copy as text.", true); break; }
@@ -5403,7 +5532,7 @@ document.addEventListener("click",ev=>{
   }
 });
 document.addEventListener("change",ev=>{ const t=ev.target;
-  if(t.dataset&&t.dataset.shift){ S.shift[t.dataset.shift]=t.value; commit(); return; }
+  if(t.dataset&&t.dataset.shift){ assignShift(t.dataset.shift,t.value); commit(); return; }
   if(t.dataset&&t.dataset.jobname){ const [v,j]=t.dataset.jobname.split(":"), x=venueJobs(v).find(q=>q.id===j); if(x){ x.name=t.value.trim().slice(0,24)||x.name; commit(); } return; }
   if(t.dataset&&t.dataset.jobperk){ const [v,j]=t.dataset.jobperk.split(":"), x=venueJobs(v).find(q=>q.id===j); if(x&&PERKS[t.value]){ x.perk=t.value; commit(); } return; }
   if(t.id==="empFile"&&t.files&&t.files[0]){ const r=new FileReader(); r.onload=()=>empImport(String(r.result)); r.readAsText(t.files[0]); t.value=""; }
