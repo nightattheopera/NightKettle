@@ -617,6 +617,95 @@ body.serving .scan{opacity:.25}
 .penal{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;font-size:13px}
 .penal .field{width:auto}
 .k-warn{color:var(--bad)}
+/* ---------- background remover ---------- */
+body.bgxon{overflow:hidden}
+.bgx{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));gap:8px}
+.bgxhead{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--pixel);font-size:9px;letter-spacing:.12em;color:var(--accent)}
+.bgxhead span{color:var(--dim)}
+.bgxview{flex:1 1 46vh;min-height:160px;max-height:52vh;overflow:auto;display:grid;place-items:center;border:1px solid var(--line);
+  background:repeating-conic-gradient(#2a2734 0 25%,#1a1822 0 50%) 0 0/16px 16px}
+.bgxview.zoomed{place-items:start}
+.bgxview[data-bg=dark]{background:#000}.bgxview[data-bg=light]{background:#fff}.bgxview[data-bg=pink]{background:#ff2ea6}
+.bgxview canvas{display:block;touch-action:pan-x pan-y pinch-zoom;cursor:crosshair}
+.bgxview canvas.brush{touch-action:none;cursor:cell}
+.bgxctl{overflow-y:auto;display:flex;flex-direction:column;gap:8px;flex:0 1 auto}
+.bgxrow{display:flex;flex-direction:column;gap:4px}
+.bgxrow .fl{margin:0}
+.bgxrow input[type=range]{width:100%;accent-color:var(--accent)}
+.bgxtog{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.bgxtog label{display:flex;align-items:center;gap:6px;font-size:13px}
+.bgxtog .field{width:auto;padding:4px 6px}
+.bgxseg{display:flex;border:1px solid var(--line)}
+.bgxseg button{flex:1;background:#0a0910;border:0;border-right:1px solid var(--line);color:var(--ink);font:inherit;font-size:12px;padding:8px 6px;cursor:pointer}
+.bgxseg button:last-child{border-right:0}
+.bgxseg button.on{background:var(--accent);color:var(--bg)}
+.bgxseg.sm button{flex:none;min-width:38px;padding:6px 8px}
+.bgxact{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px}
+.bgxchk input{width:18px;height:18px;accent-color:var(--accent);margin:0;position:static;opacity:1}
+.bgxact .btn{font-size:9px;padding-left:6px;padding-right:6px}
+/* ---------- extra service: card minigame ---------- */
+body.xson{overflow:hidden}
+.xs{position:fixed;inset:0;z-index:80;background:var(--bg);overflow-y:auto;padding:calc(8px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;max-width:620px;margin:0 auto}
+.xstop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.xstop .px{color:var(--accent)}
+.xsstage{position:relative;aspect-ratio:16/10;border:1px solid var(--line);background:radial-gradient(circle at 50% 30%,#3a1450,#0e0818 70%);background-size:cover;background-position:center;overflow:hidden;flex:none}
+.xsw{position:absolute;left:4%;bottom:0;height:92%;max-width:56%;object-fit:contain;object-position:bottom}
+.xsc{position:absolute;right:5%;bottom:22%;width:26%;image-rendering:pixelated;border:1px solid var(--line)}
+.xscg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.xsroom{position:absolute;top:8px;left:10px;opacity:.6}
+.xsline{position:absolute;left:0;right:0;bottom:0;margin:0;padding:8px 10px;background:linear-gradient(transparent,rgba(5,4,10,.92) 35%);font-size:14px;min-height:2.6em}
+.xsmeter{position:relative;height:22px;border:1px solid var(--accent);background:#0a0910;flex:none}
+.xsmeter i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#9a2458,var(--accent));transition:width .3s}
+.xsmeter span{position:relative;display:block;text-align:center;font-family:var(--pixel);font-size:10px;line-height:20px;color:#fff;text-shadow:0 1px 2px #000}
+.xsstats,.xsprefs{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--dim)}
+.xsstats b{color:var(--ink)}
+.tag.good{color:var(--good);border-color:var(--good)} .tag.bad{color:var(--bad);border-color:var(--bad)}
+.xhand{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
+.xhand.picks{flex-wrap:wrap;overflow:visible}
+.xcard{position:relative;flex:none;width:118px;min-height:168px;scroll-snap-align:start;display:flex;flex-direction:column;gap:3px;align-items:stretch;text-align:left;background:#120d1c;border:1px solid var(--line);color:var(--ink);font:inherit;padding:6px;cursor:pointer}
+.xcard img,.xcard .xart{width:100%;height:62px;object-fit:cover;background:#1e1430;display:grid;place-items:center;color:var(--accent);font-size:20px}
+.xcard b{font-size:13px;line-height:1.15}
+.xcard small{font-size:11px;color:var(--accent)}
+.xcard em{font-size:11px;color:var(--dim);font-style:normal;line-height:1.2}
+.xcard .tag{align-self:flex-start;margin-top:auto}
+.xcard.lk{border-color:var(--good)} .xcard.dk{border-color:color-mix(in srgb,var(--bad) 60%,var(--line))}
+.xcard:disabled{opacity:.4;cursor:not-allowed}
+.xcard:not(:disabled):active{transform:translateY(-4px)}
+.xcost{position:absolute;top:2px;right:2px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--bg);font-family:var(--pixel);font-size:10px;display:grid;place-items:center;z-index:1}
+.xsact{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px}
+.xsres{border:1px solid var(--line);padding:10px;text-align:center;display:flex;flex-direction:column;gap:4px}
+.xsres.win b{color:var(--good);font-family:var(--pixel);font-size:11px;letter-spacing:.08em}
+.xsres.lose b{color:var(--bad);font-family:var(--pixel);font-size:11px}
+.xsoffer{border-color:var(--accent)}
+.deckrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+.deckrow.off{opacity:.55}
+.deckart{flex:none;width:44px;height:52px;border:1px solid var(--line);background:#0a0910;color:var(--dim);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:2px;cursor:pointer;overflow:hidden}
+.deckart img{width:100%;height:34px;object-fit:cover}
+.deckart small{font-family:var(--pixel);font-size:7px;letter-spacing:.08em}
+.deckart.own{border-color:var(--accent);color:var(--accent)}
+.deckrow{gap:10px}
+/* ---------- roster / jobs ---------- */
+.rosterhd{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0 4px}
+.onshift{font-family:var(--pixel);font-size:8px;letter-spacing:.1em;color:var(--good)}
+.ctr{flex-wrap:wrap}
+.ctr .shiftsel{flex-basis:100%;margin-top:4px;font-size:13px;padding:6px 8px}
+.jobrow{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin:0 0 6px;align-items:center}
+.jobrow .field{padding:6px 8px;font-size:13px}
+.ctr>div:first-child{flex:1;min-width:0}
+/* ---------- charm moves + gallery ---------- */
+.charmpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;margin-top:8px}
+.cmove{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;background:#140c1c;border:1px solid color-mix(in srgb,#ff8cc4 50%,var(--line));color:var(--ink);font:inherit;cursor:pointer;text-align:center}
+.cmove img,.cmove .ci{width:100%;height:56px;object-fit:cover;background:#1e1430;display:grid;place-items:center;color:#ff8cc4;font-size:20px}
+.cmove b{font-size:13px} .cmove small{font-size:11px;color:#ff8cc4}
+.cmove:disabled{opacity:.4;cursor:not-allowed}
+.cmove:disabled small{color:var(--dim)}
+.cgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.cslot{display:flex;flex-direction:column;gap:5px;border:1px solid var(--line);padding:6px;background:#0a0910}
+.cslot b{font-size:13px}
+.cthumb{display:block;width:100%;aspect-ratio:3/4;border:0;padding:0;background:#1e1430;cursor:zoom-in;overflow:hidden}
+.cthumb img{width:100%;height:100%;object-fit:cover}
+.cthumb.empty{display:grid;place-items:center;color:var(--dim);cursor:default}
+.cview{display:block;width:100%;max-height:70vh;object-fit:contain;background:#000;margin:0 0 6px}
 
 </style>
 </head>
@@ -647,8 +736,9 @@ const MAX_LVL = 3;
 
 const RANKS = ["Street Kid","Dishwasher","Barback","Line Cook","Barista","Bartender","Bookseller","Night Manager","Fixer","Proprietor","Block Boss","Legend of the District"];
 const CLASSES = [[0,"Pop-up Stall"],[3,"Hole in the Wall"],[8,"Neighborhood Spot"],[16,"Local Favorite"],[28,"District Landmark"],[40,"Megacity Icon"]];
-const SECTIONS = {CAFE:{label:"CAFÉ · DAY"}, BAR:{label:"BAR · NIGHT"}, BOOKS:{label:"BOOKS · NIGHT"}, SHOP:{label:"SHOP · ALWAYS"}};
-const SIDE_SECS = {day:["CAFE","SHOP"], night:["BAR","BOOKS","SHOP"]};
+const SECTIONS = {CAFE:{label:"CAFÉ · DAY"}, BOOKS:{label:"BOOKS · DAY"}, BAR:{label:"BAR · NIGHT"}, CLUB:{label:"CLUB · NIGHT"}, SHOP:{label:"SHOP · ALWAYS"}};
+const SIDE_SECS = {day:["CAFE","BOOKS","SHOP"], night:["BAR","CLUB","SHOP"]};
+const SIDE_OF = {cafe:"day",books:"day",bar:"night",club:"night"};
 
 const MODULES = {
   espresso:{name:"Espresso Rig",    sec:"CAFE", cost:60,  amb:2, seats:2, desc:"A dented chrome machine from a shuttered corporate canteen. Every morning starts here.", line:"A courier with chrome knuckles orders a triple shot to go."},
@@ -666,6 +756,10 @@ const MODULES = {
   sign:    {name:"Neon Sign",       sec:"SHOP", cost:250, amb:6, seats:2, desc:"Your name in hot pink, two storeys tall. People can read it from the train.", line:"Your neon sign buzzes. People on the train can read it now."},
   archive: {name:"Rare Archive",    sec:"BOOKS",cost:260, amb:5, seats:1, desc:"A locked case of pre-net first editions. Collectors cross the city for it.", line:"A collector asks to see the case of pre-net first editions."},
   lounge:  {name:"Rooftop Lounge",  sec:"BAR",  cost:300, amb:5, seats:4, desc:"String lights, a rain canopy and a view of the skyline.", line:"Rain hisses on the rooftop canopy. Nobody wants to leave."},
+  stage:   {name:"Main Stage",      sec:"CLUB", cost:90,  amb:3, seats:3, desc:"A mirrored stage and a chrome pole under one hot-pink spotlight.", line:"The spotlight finds the stage and the whole room goes quiet."},
+  booth:   {name:"DJ Booth",        sec:"CLUB", cost:160, amb:4, seats:1, desc:"Two decks and a crate of bootleg tapes. The DJ takes live requests.", line:"The DJ drops a live remix and the booths start cheering."},
+  vip:     {name:"VIP Booths",      sec:"CLUB", cost:240, amb:4, seats:4, desc:"Velvet booths behind a beaded curtain. Bottle service only.", line:"Someone books a VIP booth and orders the whole bottle."},
+  lights:  {name:"Laser Rig",       sec:"CLUB", cost:290, amb:5, seats:2, desc:"Lasers, haze and a mirror ball rescued from a dead casino.", line:"The laser rig sweeps the room and every phone comes out."},
   drone:   {name:"Drone Window",    sec:"SHOP", cost:400, amb:3, seats:6, desc:"Delivery drones dock at the window. Orders go out to the whole district.", line:"A delivery drone lifts off with six coffees and a paperback."}
 };
 
@@ -677,10 +771,14 @@ const FLOORS = [
 ];
 
 /* 24x24 placeholder room sprites, drawn in code. Swap any of them with "Load art" in the Build tab. */
-const RAMP={CAFE:["#4a2a12","#8a5224","#d08a40","#ffd08a"],BAR:["#4a1230","#9a2458","#ff3d8b","#ffa8cf"],BOOKS:["#0c3c3c","#1a807a","#3ef2e0","#c0fff6"],SHOP:["#2e2260","#5e42b8","#b18cff","#e6dcff"]};
+const RAMP={CAFE:["#4a2a12","#8a5224","#d08a40","#ffd08a"],BAR:["#4a1230","#9a2458","#ff3d8b","#ffa8cf"],BOOKS:["#0c3c3c","#1a807a","#3ef2e0","#c0fff6"],CLUB:["#2a0c34","#6a1a7a","#d06aff","#f0c8ff"],SHOP:["#2e2260","#5e42b8","#b18cff","#e6dcff"]};
 const MET=["#1c1a28","#4a4860","#8a88a2","#d6d4ea"], WOOD=["#2e1c12","#5a3a26","#8a5e3e","#b8885e"], LEAF=["#123a22","#227a44","#3fbf6a","#a0f0b0"];
 const OUT="#0a0812", GLASS="#1e3446", WARM="#ffe2a8", CY="#3ef2e0", YE="#ffd23f", PK="#ff3d8b", VI="#7a5aff", CREAM="#f4eee6";
 const SPRITES={
+  stage(R,P,box,A){ R(2,16,20,5,OUT); R(3,16,18,3,A[1]); R(3,16,18,1,A[3]); R(3,19,18,1,PK); for(let x=4;x<21;x+=3) P(x,19,YE); R(11,1,2,15,MET[2]); R(11,1,1,15,MET[3]); R(9,0,6,1,MET[1]); for(let y=2;y<15;y++){ const s=Math.floor((y-2)*.35); for(let k=-s;k<=s;k+=2) if((y+k)%2===0&&k) P(12+k,y,A[2]); } },
+  booth(R,P,box,A){ box(2,11,20,10,A); R(4,9,7,3,MET[1]); R(13,9,7,3,MET[1]); R(5,10,5,1,OUT); R(14,10,5,1,OUT); R(7,9,1,1,PK); R(16,9,1,1,CY); for(let i=0;i<5;i++) P(5+i*3,15,[PK,CY,YE,PK,CY][i]); R(9,2,6,5,OUT); R(10,3,4,3,A[2]); R(11,7,2,2,MET[2]); },
+  vip(R,P,box,A){ R(2,9,20,12,OUT); R(3,10,18,6,A[1]); R(3,10,18,1,A[2]); R(3,16,18,4,A[1]); R(3,16,18,1,A[3]); R(1,12,3,9,A[0]); R(20,12,3,9,A[0]); for(let x=4;x<21;x+=2) for(let y=1;y<8;y+=2) P(x,y,y%4===1?YE:A[3]); R(10,17,4,3,MET[2]); P(11,15,CY); },
+  lights(R,P,box,A){ R(0,2,24,2,MET[1]); R(9,4,6,6,MET[2]); for(let i=0;i<4;i++) P(10+(i%2)*3,5+(i>>1)*3,MET[3]); P(12,7,"#ffffff"); for(let k=0;k<12;k++){ P(4+k,10+k,PK); P(19-k,10+k,CY); } R(2,3,3,3,A[2]); R(19,3,3,3,A[2]); },
   espresso(R,P,box,A){
     box(3,6,18,11,MET); R(4,7,16,1,MET[3]);
     R(5,9,14,3,A[1]); R(5,9,14,1,A[2]); P(16,10,CY); P(17,10,CY);
@@ -871,7 +969,7 @@ function spriteURL(id){
   const c=document.createElement("canvas"); c.width=24; c.height=24; const g=c.getContext("2d");
   const R=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h);}, P=(x,y,col)=>R(x,y,1,1,col);
   const box=(x,y,w,h,r)=>{R(x,y,w,h,OUT);R(x+1,y+1,w-2,h-2,r[1]);R(x+1,y+1,w-2,1,r[2]);R(x+1,y+1,1,h-2,r[2]);R(x+1,y+h-2,w-2,1,r[0]);R(x+w-2,y+1,1,h-2,r[0]);};
-  if(SPRITES[id]) SPRITES[id](R,P,box,RAMP[MODULES[id].sec]);
+  if(SPRITES[id]) SPRITES[id](R,P,box,RAMP[MODULES[id].sec]||RAMP.SHOP);
   return spriteCache[id]=c.toDataURL();
 }
 
@@ -1202,8 +1300,8 @@ function startCity(){
 function cityScene(){
   const side=viewSide(), tagBottom=((CH-206)/CH*100).toFixed(1);
   return `<div class="city"><div class="cityin">
-      <canvas id="city" width="${CW}" height="${CH}" role="img" aria-label="${esc(S.shopName)}, a tiny ${side==="day"?"coffee shop":"bar and bookshop"} squeezed between megatower skyscrapers"></canvas>
-      <button class="shoptag" data-act="rename" aria-label="Rename the shop" style="bottom:${tagBottom}%">${esc(S.shopName)} ✎<span>${side==="day"?"COFFEE · OPEN":"BAR · BOOKS"}</span></button>
+      <canvas id="city" width="${CW}" height="${CH}" role="img" aria-label="${esc(S.shopName)}, a tiny ${side==="day"?"coffee shop and bookshop":"bar and club"} squeezed between megatower skyscrapers"></canvas>
+      <button class="shoptag" data-act="rename" aria-label="Rename the shop" style="bottom:${tagBottom}%">${esc(S.shopName)} ✎<span>${side==="day"?"COFFEE · BOOKS":"BAR · CLUB"}</span></button>
     </div></div>
     <div class="rowflex" style="margin-top:12px">
       <button class="btn ghost" style="flex:1" data-act="tab" data-id="build">BUILD</button>
@@ -1223,7 +1321,8 @@ const WHO=["A courier","A netrunner","An office worker","A street medic","A synt
 const STAFF={
   barista:{skin:"#d9a27a",hair:"#1a1420",style:3,top:"#f4eee6",pants:"#1a1824",accent:"#ffb547",visor:false,apron:"#8a5224"},
   bartender:{skin:"#8a5a3e",hair:"#ff3d8b",style:2,top:"#1a1426",pants:"#1a1824",accent:"#ff3d8b",visor:true,apron:"#2a1830"},
-  bookseller:{skin:"#f1c7a0",hair:"#c8a060",style:1,top:"#245a5a",pants:"#24202e",accent:"#3ef2e0",visor:false,apron:null}
+  bookseller:{skin:"#f1c7a0",hair:"#c8a060",style:1,top:"#245a5a",pants:"#24202e",accent:"#3ef2e0",visor:false,apron:null},
+  dancer:{skin:"#c88a64",hair:"#b18cff",style:5,top:"#9a2458",pants:"#1a1426",accent:"#d06aff",visor:false,apron:null}
 };
 const pk=a=>a[Math.floor(Math.random()*a.length)];
 function shade(g,x,y,w,h,a){ g.fillStyle="#000"; g.globalAlpha=a; g.fillRect(x,y,w,h); g.globalAlpha=1; }
@@ -1353,7 +1452,7 @@ function povConfig(sec){
     };
   }
   else if(sec==="books"){
-    C.built=!!(lv("shelves")||lv("nook")||lv("archive")||lv("press")); C.open=night; C.opensText="OPENS 5 PM"; C.need="bookshop";
+    C.built=!!(lv("shelves")||lv("nook")||lv("archive")||lv("press")); C.open=!night; C.opensText="OPENS 6 AM"; C.need="bookshop";
     C.staff={x:26,work:lv("press")?14:44,base:140,look:STAFF.bookseller};
     C.order={x:70,dir:-1};
     C.items=[["book","a paperback"],["book","a used sci-fi novel"],["book","a poetry chapbook"],["book","a noir mystery"]];
@@ -1369,7 +1468,7 @@ function povConfig(sec){
       R(0,0,PW,140,"#16242a"); for(let x=0;x<PW;x+=8) R(x,0,3,140,"#1a2a30"); R(0,138,PW,2,"#0a0812");
       plankFloor(g,"#2a2018","#33261c",140);
       R(140,166,80,12,"#5a1634"); for(let x=142;x<218;x+=6) R(x,168,3,8,"#1a807a");
-      povWindow(g,8,14,48,48,true,t);
+      povWindow(g,8,14,48,48,night,t);
       const bc=["#3ef2e0","#ff3d8b","#ffd23f","#7a5aff","#ff8a3a","#f4eee6","#3fbf6a","#1a807a","#9a2458"];
       for(let i=0;i<Math.min(3,lv("shelves"));i++){ const x0=108+i*64, r=seeded(91+i);
         R(x0,30,60,110,"#0a0812"); R(x0+1,31,58,108,"#5a3a26"); R(x0+3,33,54,104,"#2e1c12");
@@ -1384,6 +1483,48 @@ function povConfig(sec){
       R(6,116,12,2,"#ff3d8b"); R(7,113,10,3,"#ffd23f"); R(6,110,12,3,"#3ef2e0");
       R(40,120,10,4,"#2e1c12"); R(44,108,2,12,"#8a88a2"); R(38,104,14,5,"#227a44"); R(39,104,12,1,"#3fbf6a"); if(C.open){ lampGlow(g,45,109,124,"#c8ffb0",.4); }
       counterFront(g,0,60,124,"#8a5e3e","#3a2418","#3ef2e0");
+    };
+  }
+  else if(sec==="club"){
+    C.built=!!(lv("stage")||lv("booth")||lv("vip")||lv("lights")); C.open=night; C.opensText="OPENS 5 PM"; C.need="club";
+    C.staff={x:236,work:lv("booth")?204:268,base:130,look:STAFF.dancer};
+    C.order={x:150,dir:1};
+    C.items=[["cocktail","a stage-side cocktail"],["beer","a cold one by the stage"],["cocktail","a neon sour"]];
+    if(lv("vip")) C.items.push(["cocktail","VIP bottle service"]);
+    if(lv("booth")) C.items.push(["cocktail","a song request and a drink"]);
+    if(C.built){ [74,100,124].forEach(x=>{ C.seats.push({x,base:178,pose:"sit",dir:1,where:"by the stage"}); add(177,g=>F.stool(g,x,178,"#9a2458")); }); }
+    if(lv("vip")){ C.seats.push({x:18,base:176,pose:"sit",dir:1,where:"in a VIP booth"},{x:40,base:176,pose:"sit",dir:1,where:"in a VIP booth"}); add(175,g=>F.sofa(g,14,44,176,"#6a1a7a")); }
+    if(lv("lights")){ C.seats.push({x:298,base:178,pose:"sit",dir:-1,where:"under the lasers"}); add(177,g=>F.stool(g,298,178,"#3ef2e0")); }
+    C.bg=(g,t)=>{
+      const R=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(a,b,w,h);};
+      R(0,0,PW,140,"#170a20"); for(let x=0;x<PW;x+=10){ R(x,0,4,140,"#1e0c2a"); R(x+4,0,1,140,"#250f33"); }
+      R(0,0,PW,10,"#0a0812"); R(0,10,PW,1,"#ff3d8b"); g.globalAlpha=.25; R(0,8,PW,5,"#ff3d8b"); g.globalAlpha=1;
+      R(0,140,PW,PH-140,"#120a1a"); for(let y=140;y<PH;y+=8) for(let x=((y/8)|0)%2?0:16;x<PW;x+=32) R(x,y,16,8,"#1c1028"); R(0,140,PW,1,"#0a0812");
+      g.globalAlpha=.16; R(140,141,175,26,"#ff3d8b"); g.globalAlpha=1;
+      R(160,22,150,106,"#0a0812"); R(162,24,146,104,"#20283a"); for(let x=162;x<308;x+=12) R(x,24,1,104,"#2c3a50");
+      g.globalAlpha=.3; for(let i=0;i<5;i++) R(170+i*28+Math.round(Math.sin(t/900+i)*3),30,6,90,"#9fd0e8"); g.globalAlpha=1;
+      for(let x=150;x<166;x+=3) R(x,12,3,118,(x/3|0)%2?"#7a1040":"#9a2458"); for(let x=304;x<320;x+=3) R(x,12,3,118,(x/3|0)%2?"#7a1040":"#9a2458");
+      R(148,11,172,3,"#c8a040");
+      const on=Math.sin(t/140)>-.9;
+      if(on){ g.globalAlpha=.22; R(58,38,76,26,"#d06aff"); g.globalAlpha=1; }
+      R(62,42,68,18,"#0a0812"); pixText(g,"CLUB",73,45,on?"#f0c8ff":"#3a1a48",2); R(64,64,64,1,on?"#ff3d8b":"#3a1a48");
+      if(lv("booth")){ R(8,86,46,38,"#0a0812"); R(9,87,44,36,"#24152e"); R(12,82,40,6,"#4a4860"); R(14,83,12,4,"#1a1424"); R(30,83,12,4,"#1a1424"); const b=Math.floor(t/250);
+        for(let i=0;i<6;i++) R(12+i*7,98,4,2,(b+i)%3?"#3ef2e0":"#ff3d8b"); R(12,106,38,1,"#d06aff"); for(let k=0;k<5;k++){ const h=1+((b+k*3)%5); R(40+k*2,80-h,1,h,"#ffd23f"); } }
+      if(lv("vip")){ for(let x=4;x<60;x+=3) for(let y=56;y<150;y+=4) if((x+y+((t/220)|0))%5) R(x,y,1,2,y%8?"#c8a040":"#ff8ad8"); }
+    };
+    C.counter=(g,t)=>{
+      const R=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(a,b,w,h);};
+      if(!lv("stage")){ R(160,128,150,4,"#2a1830"); return; }
+      R(235,16,3,114,"#8a88a2"); R(235,16,1,114,"#e6e4f2"); R(232,14,9,3,"#4a4860"); R(232,128,9,3,"#4a4860");
+      if(C.open) lampGlow(g,236,18,128,"#ff8ad8",.42);
+      R(150,128,165,4,"#3a1a48"); R(150,128,165,1,"#d06aff"); R(150,132,165,12,"#140a1c");
+      for(let x=154;x<314;x+=6) R(x,136,2,2,((x/6|0)+Math.floor(t/300))%2?"#ff3d8b":"#3ef2e0");
+    };
+    C.fg=(g,t)=>{
+      if(!C.open||!lv("lights")) return; const R=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(a,b,w,h);}, a=t/900;
+      g.save(); g.globalAlpha=.22; g.globalCompositeOperation="lighter"; g.lineWidth=1;
+      for(let i=0;i<4;i++){ const ang=Math.sin(a+i*1.7)*.9, x0=70+i*66; g.strokeStyle=i%2?"#3ef2e0":"#ff3d8b"; g.beginPath(); g.moveTo(x0,12); g.lineTo(x0+Math.sin(ang)*200,12+Math.cos(ang)*170); g.stroke(); }
+      g.restore(); R(186,12,10,8,"#8a88a2"); const k=Math.floor(t/120)%4; for(let i=0;i<4;i++) R(187+i*2,14+((i+k)%3),1,1,"#ffffff");
     };
   }
   else {
@@ -1424,7 +1565,7 @@ function povCaptionDefault(C){
   if(C.built&&C.open&&C.noStaff) return `Nobody's behind the counter. Hire a ${ROLES[C.sec].title.toLowerCase()} in the Build tab.`;
   if(!C.built) return `Nothing built here yet. Build a ${C.need} spot in the Build tab to open this room.`;
   if(!C.open) return C.sec==="roof"&&!S.modules.lounge ? "The roof is quiet. Build the Rooftop Lounge to bring customers up here." : `Closed right now. ${C.opensText.charAt(0)+C.opensText.slice(1).toLowerCase()}.`;
-  return C.sec==="books" ? "Customers browse the stacks, buy a book, and settle in to read." : "Customers walk in, order at the counter, and grab a seat.";
+  return C.sec==="club" ? "Customers grab a seat by the stage, order a drink and watch the show." : C.sec==="books" ? "Customers browse the stacks, buy a book, and settle in to read." : "Customers walk in, order at the counter, and grab a seat.";
 }
 function newCust(C){ const it=pk(C.items); return {id:++pov.seq,look:makeLook(),x:C.door,base:LANE,dir:C.door>PW/2?-1:1,state:"enter",timer:0,seat:null,item:it[0],itemName:it[1],has:false,moving:false}; }
 function freeSeat(C){ const taken=new Set(pov.custs.filter(c=>c.seat!=null).map(c=>c.seat)); const free=C.seats.map((s,i)=>i).filter(i=>!taken.has(i)); return free.length?free[Math.floor(Math.random()*free.length)]:-1; }
@@ -1622,6 +1763,42 @@ const BOOK_REQ=[
   {line:"What's going on around here? Anything local?", tags:["local"]},
   {line:"Anything rare? I collect old paper.", tags:["rare"]}
 ];
+const SETS=[
+  {t:"Velvet Static",            a:"Kiro Lane",       tags:["slow","moody"],          b:"Low synth pads and a heartbeat kick. Lights down to red.", c:"#9a2458"},
+  {t:"Chrome Heart Overdrive",   a:"NERVE",           tags:["fast","loud","heavy"],   b:"Distorted bass and strobes. The floor shakes.", c:"#ff3d8b"},
+  {t:"Neon Slow Dance",          a:"The Halogens",    tags:["slow","sweet","retro"],  b:"An old torch song, remastered. Pink spotlight, soft haze.", c:"#ffa8cf"},
+  {t:"Glitter Cannon",           a:"Miss Voltage",    tags:["fast","glam"],           b:"Confetti on the drop. Pure showtime.", c:"#ffd23f"},
+  {t:"Rain on the Skylight",     a:"Low Tide Club",   tags:["chill","moody"],         b:"Lazy beat, rain samples, a long blue wash of light.", c:"#5a8fd8"},
+  {t:"Sugar Circuit",            a:"Pop Riot",        tags:["sweet","fast"],          b:"Bubblegum synths. Everybody claps along.", c:"#ff8ad8"},
+  {t:"Disco Inferno '84",        a:"Old World Gold",  tags:["retro","glam"],          b:"Mirror-ball classic from before the net. Platform boots required.", c:"#c8a040"},
+  {t:"Undertow",                 a:"Sable",           tags:["slow","heavy","moody"],  b:"Slow, heavy and dark. Smoke rolls across the stage.", c:"#4a1250"},
+  {t:"Night Shift Lounge",       a:"DJ Kettle",       tags:["chill","sweet"],         b:"Soft funk for tired regulars. Nobody's in a hurry.", c:"#3fbf6a"},
+  {t:"Breakbeat Riot",           a:"Static Saints",   tags:["fast","loud"],           b:"Breakbeats, sirens, the works.", c:"#ff8a3a"},
+  {t:"Silk & Smoke",             a:"Lady Cassette",   tags:["slow","retro","glam"],   b:"Cabaret strings and a feather boa. Old-school glamour.", c:"#d06aff"},
+  {t:"Static Lullaby",           a:"Halfsleep",       tags:["chill","slow"],          b:"Barely there. The lights pulse like breathing.", c:"#7ab8d8"},
+  {t:"Live Remix: House Request",a:"Your DJ Booth",   tags:["live","fast","loud"],    b:"The DJ mixes it live off the crowd's requests.", c:"#3ef2e0", needs:"booth"},
+  {t:"Laser Ritual",             a:"Prism Kids",      tags:["laser","heavy","glam"],  b:"Every laser in the rig, synced to the kick.", c:"#3ef2e0", needs:"lights"}
+];
+const CLUB_REQ=[
+  {line:"Something slow. I just want to watch the lights for a while.", tags:["slow"]},
+  {line:"Make it loud. I had a terrible day.", tags:["loud"]},
+  {line:"Got anything retro? Old-world stuff.", tags:["retro"]},
+  {line:"Something moody. Red lights, low bass.", tags:["moody"]},
+  {line:"Hit me with something heavy.", tags:["heavy"]},
+  {line:"I want sparkle. Glitter, the whole show.", tags:["glam"]},
+  {line:"Something sweet. It's my birthday.", tags:["sweet"]},
+  {line:"Fast and loud. My crew's watching from the back.", tags:["fast","loud"]},
+  {line:"Something chill. I'm just here for the drinks.", tags:["chill"]},
+  {line:"Old-school and slow, please.", tags:["retro","slow"]},
+  {line:"Can the DJ do something live?", tags:["live"]},
+  {line:"I heard about the laser rig. Show me.", tags:["laser"]}
+];
+const REACT_CLUB={
+  perfect:["That's the one. Wow.","Okay, I'm staying for another round.","That set was worth the cover charge.","Best seat in the house."],
+  close:["Not my song, but the show's good.","Hm. Still fun.","Fine. I'll stay for one more."],
+  miss:["Eh. Not my vibe.","I'll go get a drink, I guess.","...Was that the song I asked for?"]
+};
+function setPool(){ return SETS.filter(b=>!b.needs || S.modules[b.needs]); }
 const REACT={
   perfect:["Perfect. Exactly what I needed.","Oh, that's the stuff.","You get me. You really get me.","I'm telling everyone about this place."],
   close:["Not quite what I meant. Not bad, though.","Hm. Close enough.","It'll do. Thanks."],
@@ -1635,7 +1812,7 @@ const REACT_BOOK={
 
 let srv={open:false, sec:null, cust:null, mix:null, result:null, recipes:false, text:"", typed:0, mood:"neutral", choices:null};
 let srvTimer=null;
-const serveSide = sec => sec==="cafe"?"day":"night";
+const serveSide = sec => SIDE_OF[sec]||"night";
 function freshMix(sec){
   if(sec==="bar"){ const c={}; BAR_ING.forEach(i=>c[i.id]=0); return {c, ice:false}; }
   if(sec==="cafe") return {shot:0,milk:0,foam:0,water:0,syrup:"none",oat:false,iced:false};
@@ -1728,6 +1905,7 @@ function makeLook(){
 }
 Object.assign(STAFF.barista,{style:3,acc:"earring",outfit:"turtleneck",eye:"#5a3a22",_k:"barista"});
 Object.assign(STAFF.bartender,{style:2,acc:"cyber",outfit:"vest",eye:"#ff4a9a",_k:"bartender"});
+Object.assign(STAFF.dancer,{style:5,acc:"choker",outfit:"jacket",eye:"#9a5aff",_k:"dancer"});
 Object.assign(STAFF.bookseller,{style:4,acc:"glasses",outfit:"coat",eye:"#3a8a54",_k:"bookseller",top:"#2a7a7a"});
 
 /* ---- chibi sprite (inside view) ---- */
@@ -1851,7 +2029,7 @@ function paintPortrait(L,mood,talk,blink,sec,tall){
   const P=(x,y,col)=>R(x,y,1,1,col);
   const sk=ramp(L.skin), hr=ramp(L.hair), tp=ramp(L.top), ac=ramp(L.accent), ey=ramp(L.eye||"#5a3a22");
   const st=L.style||0, outfit=L.outfit||"jacket", acc=L.acc||"none";
-  const BG={cafe:["#2a1a1e","#4e3230","#ffb547"],bar:["#100a1c","#2c1242","#ff3d8b"],books:["#0c181e","#1a323a","#3ef2e0"]}[sec]||["#100a1c","#2c1242","#ff3d8b"];
+  const BG={cafe:["#2a1a1e","#4e3230","#ffb547"],bar:["#100a1c","#2c1242","#ff3d8b"],books:["#0c181e","#1a323a","#3ef2e0"],club:["#14081c","#2a0c34","#d06aff"]}[sec]||["#100a1c","#2c1242","#ff3d8b"];
   /* background */
   for(let y=0;y<W;y++){ Rg(0,y,W,1,y<30?BG[0]:BG[1]); if(y>=22&&y<46) for(let x=0;x<W;x++) if(BAYER[y&3][x&3]<(46-y)/24*16) Rg(x,y,1,1,BG[0]); }
   const br=seeded(L._k.split("").reduce((a,ch2)=>a+ch2.charCodeAt(0),0));
@@ -1985,16 +2163,17 @@ function imgFor(src){ if(!imgCache[src]){ const im=new Image(); im.src=src; imgC
 function resolveArt(v){ if(!v) return null; if(v==="builtin:mika") return MIKA_ART; if(typeof v==="string"&&v.indexOf("builtin:")===0) return BUILTIN[v.slice(8)]||null; if(typeof v==="string"&&v.indexOf("idb:")===0) return ART[v.slice(4)]||null; return v; }
 const artHalf=w=>outfitArt(w)||(w&&w.art==="builtin:mika"?MIKA_HALF:resolveArt(w&&w.art));
 const artSrc=w=>outfitArt(w)||resolveArt(w&&w.art);
-const ROLES={cafe:{title:"Barista",room:"café"},bar:{title:"Bartender",room:"bar"},books:{title:"Bookseller",room:"bookshop"}};
+const ROLES={cafe:{title:"Barista",room:"café"},books:{title:"Bookseller",room:"bookshop"},bar:{title:"Bartender",room:"bar"},club:{title:"Dancer",room:"club"}};
 const TRAITS={
   latte:{name:"Latte Artist",desc:"Sometimes saves a Close café order into a Perfect",save:.4,roles:["cafe"]},
   mixologist:{name:"Mixologist",desc:"Sometimes saves a Close cocktail into a Perfect",save:.4,roles:["bar"]},
   catalog:{name:"Walking Catalog",desc:"Sometimes saves a Close book pick into a Perfect",save:.4,roles:["books"]},
+  showstopper:{name:"Showstopper",desc:"Sometimes saves a Close set into a Perfect",save:.4,roles:["club"]},
   smooth:{name:"Smooth Talker",desc:"+30% tips",tip:.3},
   favorite:{name:"Regulars' Favorite",desc:"+15% tips, +1 hint a day",tip:.15,hint:1},
   learner:{name:"Fast Learner",desc:"Levels up 50% faster",xp:1.5},
-  owl:{name:"Night Owl",desc:"+1 hint a day on the night shift",hint:1,roles:["bar","books"]},
-  morning:{name:"Morning Person",desc:"+1 hint a day on the day shift",hint:1,roles:["cafe"]},
+  owl:{name:"Night Owl",desc:"+1 hint a day on the night shift",hint:1,roles:["bar","club"]},
+  morning:{name:"Morning Person",desc:"+1 hint a day on the day shift",hint:1,roles:["cafe","books"]},
   clumsy:{name:"Clumsy but Charming",desc:"Even a Miss tips like a Close",missTip:true}
 };
 const PERSONAS={
@@ -2008,7 +2187,7 @@ function starterWorker(){
   return {id:"mika",name:"Mika",role:"cafe",art:"builtin:mika",skill:2,charm:3,trait:"latte",persona:"bubbly",lv:1,xp:0,serves:0,perfects:0,tips:0,
     look:{skin:"#f7d6bc",hair:"#4ad8e0",hair2:"#9a5ad8",style:8,top:"#1e2a4a",pants:"#34507a",accent:"#3a8af0",visor:false,acc:"choker",outfit:"track",eye:"#3a7ad8",_k:"mika"}};
 }
-const workerFor=role=>S.staff.find(w=>w.role===role)||null;
+const workerFor=role=>{ const id=S.shift&&S.shift[role]; return (id&&S.staff.find(w=>w.id===id&&w.role===role))||S.staff.find(w=>w.role===role)||null; };
 const traitOf=w=>TRAITS[w.trait]||{};
 const traitApplies=(w,t)=>!t.roles||t.roles.includes(w.role);
 const pickR=(r,a)=>a[Math.floor(r()*a.length)];
@@ -2025,9 +2204,11 @@ function makeCandidate(r,role){
 }
 function board(){
   if(!S.board||S.board.day!==today()||!S.board.c){ const r=seeded(hashStr(today()+":"+(S.boardRoll||0))); S.board={day:today(),c:{}}; Object.keys(ROLES).forEach(role=>S.board.c[role]=[0,1,2].map(()=>makeCandidate(r,role))); }
+  Object.keys(ROLES).forEach(role=>{ if(!S.board.c[role]){ const r2=seeded(hashStr(today()+":"+role+":"+(S.boardRoll||0))); S.board.c[role]=[0,1,2].map(()=>makeCandidate(r2,role)); } });
+  Object.keys(ROLES).forEach(role=>(S.board.c[role]||[]).forEach((c,i)=>candJob(c,i)));
   return S.board;
 }
-function hintsMax(w){ const t=traitOf(w); return w.skill+((t.hint&&traitApplies(w,t))?t.hint:0); }
+function hintsMax(w){ const t=traitOf(w); return w.skill+((t.hint&&traitApplies(w,t))?t.hint:0)+(perkOf(w)==="service"?1:0); }
 function hintsUsed(w){ const d=S.serves[today()]; return (d&&d.hints&&d.hints[w.id])||0; }
 function tipFor(w,grade){ const t=traitOf(w); const g=(grade==="miss"&&t.missTip)?"close":grade; return Math.max(1,Math.round(REWARD[g]*(1+.1*(w.charm-1)+(t.tip||0)))); }
 function workerXP(w,grade){
@@ -2047,7 +2228,7 @@ function serveClose(){ srv.open=false; clearInterval(srvTimer); srvTimer=null; $
 function pushLines(arr){ srv.lines.push(...arr); srv.step=srv.lines.length-arr.length; srv.typed=0; srv.wait=0; }
 function hintText(){
   const sec=srv.sec, req=srv.cust.req;
-  if(sec==="books"){ const pool=srv.choices, b=pool.find(x=>req.tags.every(t=>x.tags.includes(t)))||pool[0]; return `Psst. Go with ${b.t}.`; }
+  if(sec==="books"||sec==="club"){ const pool=srv.choices, b=pool.find(x=>req.tags.every(t=>x.tags.includes(t)))||pool[0]; return `Psst. Go with ${b.t}.`; }
   if(sec==="bar"){ const d=req.drink?BAR_DRINKS.find(x=>x.id===req.drink):BAR_DRINKS.find(x=>unlocked(x)&&req.tags.every(t=>x.tags.includes(t)));
     return `${req.drink?"That's":"I'd make"} ${d.name}: ${BAR_ING.filter(i=>d.r[i.id]).map(i=>d.r[i.id]+" "+i.name).join(", ")}. ${d.ice?"Ice":"No ice"}, ${d.method==="shake"?"shaken":"stirred"}.`; }
   const d=req.drink?CAFE_DRINKS.find(x=>x.id===req.drink):CAFE_DRINKS.find(x=>req.tags.every(t=>x.tags.includes(t)));
@@ -2103,7 +2284,7 @@ function crewPanel(){
             <div class="actions" style="margin-top:8px">${p.skill<5?`<button class="btn" data-act="train" data-id="${p.id}" ${S.credits>=90*p.skill?"":"disabled"}>TRAIN · ${90*p.skill}₵</button>`:""}
               <label class="btn ghost" for="workerArt" style="text-align:center">${p.art?"NEW ART":"LOAD ART"}</label><input type="file" id="workerArt" class="srt" accept="image/*" data-id="${p.id}">
               ${p.art?`<button class="btn ghost" data-act="clearWorkerArt" data-id="${p.id}">CODE ART</button>`:""}
-              ${p.role==="cafe"?`<label class="btn ghost charmbtn" for="charmArt" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
+              ${true?`<label class="btn ghost charmbtn" for="charmArt" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
               <button class="btn danger" data-act="fire" data-id="${p.id}">LET GO</button></div>`}
       </div></div>`; };
   return `<section class="panel">
@@ -2134,17 +2315,16 @@ function handleCrew(act,id,ev,el){
     case "hire": {
       const c=board().c[crewRole].find(x=>x.id===id); if(!c) return true;
       if(S.credits<c.cost){ toast(`You need ${c.cost-S.credits}₵ more.`, true); return true; }
-      const cur=workerFor(c.role);
-      if(cur&&armed!==act+id){ armed=act+id; el.textContent="TAP TO REPLACE "+cur.name.toUpperCase(); return true; }
-      S.credits-=c.cost; S.staff=S.staff.filter(w=>w.role!==c.role);
+      if(staffAt(c.role).length>=VENUE_CAP){ toast(`The ${ROLES[c.role].room} is full (${VENUE_CAP} staff). Let someone go first.`, true); return true; }
+      candJob(c,0); S.credits-=c.cost;
       S.staff.push(Object.assign({},c,{id:uid(),lv:1,xp:0,serves:0,perfects:0,tips:0}));
       board().c[c.role]=board().c[c.role].filter(x=>x.id!==id); armed=null;
-      addLog(`Hired ${c.name} as ${ROLES[c.role].title.toLowerCase()}. -${c.cost}₵`,"build");
+      addLog(`Hired ${c.name} as ${(venueJobs(c.role).find(j=>j.id===c.job)||{name:ROLES[c.role].title}).name.toLowerCase()}. -${c.cost}₵`,"build");
       pop(ev,"HIRED!","var(--good)"); beep(660); setTimeout(()=>beep(990),90); povReset(povSec()); commit(); return true; }
     case "train": { const w=S.staff.find(x=>x.id===id); if(!w||w.skill>=5) return true; const cost=90*w.skill; if(S.credits<cost){ toast("Not enough creds.", true); return true; }
       S.credits-=cost; w.skill++; addLog(`${w.name} finished a training course. Skill ${w.skill}. -${cost}₵`,"build"); pop(ev,"SKILL UP","var(--good)"); commit(); return true; }
     case "fire": { const w=S.staff.find(x=>x.id===id); if(!w) return true; if(armed!==act+id){ armed=act+id; el.textContent="TAP AGAIN"; return true; }
-      S.staff=S.staff.filter(x=>x.id!==id); armed=null; addLog(`${w.name} hung up their apron.`); povReset(povSec()); commit(); return true; }
+      S.staff=S.staff.filter(x=>x.id!==id); if(S.shift&&S.shift[w.role]===id) delete S.shift[w.role]; armed=null; addLog(`${w.name} hung up their apron.`); povReset(povSec()); commit(); return true; }
     case "renameWorker": { const w=S.staff.find(x=>x.id===id); if(w) workerRenameSheet(w); return true; }
     case "clearWorkerArt": { const w=S.staff.find(x=>x.id===id); if(w){ w.art=null; commit(); } return true; }
   }
@@ -2204,32 +2384,43 @@ function sceneBack(g,sec,t){
     for(let i=0;i<4;i++){ R(14,22+i*5,26-((i*7)%9),1,"#c8d0c8"); R(50,22+i*5,8,1,"#ffb547"); }
     R(72,52,72,2,"#8a5e3e"); [76,86,96,108,120,132].forEach((x,i)=>{ R(x,44,7,8,["#ffb547","#3ef2e0","#f4eee6","#ff3d8b","#ffb547","#f4eee6"][i]); R(x+1,42,5,2,"#5a3a26"); });
     [92,128].forEach(x=>{ R(x,0,1,20,"#14101a"); R(x-5,20,11,4,"#ffb547"); R(x-1,24,3,2,"#fff4d0"); });
+  } else if(sec==="club"){
+    R(0,0,SW,SH,"#170a20"); for(let x=0;x<SW;x+=10){ R(x,0,4,104,"#1e0c2a"); }
+    R(40,6,160,98,"#0a0812"); R(42,8,156,96,"#20283a"); for(let x=42;x<198;x+=12) R(x,8,1,96,"#2c3a50");
+    g.globalAlpha=.3; for(let i=0;i<5;i++) R(50+i*32+Math.round(Math.sin(t/900+i)*3),12,5,88,"#9fd0e8"); g.globalAlpha=1;
+    for(let x=0;x<40;x+=3) R(x,0,3,104,(x/3)%2?"#7a1040":"#9a2458"); for(let x=200;x<SW;x+=3) R(x,0,3,104,(x/3)%2?"#7a1040":"#9a2458");
+    R(0,0,SW,3,"#c8a040");
+    R(158,0,3,104,"#8a88a2"); R(158,0,1,104,"#e6e4f2");
+    const on=Math.sin(t/140)>-.9; if(on){ g.globalAlpha=.25; R(204,10,32,14,"#d06aff"); g.globalAlpha=1; } pixText(g,"CLUB",208,14,on?"#f0c8ff":"#3a1a48",1);
+    if(S.modules.lights){ const k=Math.floor(t/150)%6; R(12,10,14,14,"#8a88a2"); for(let i=0;i<9;i++) R(13+(i%3)*4,11+((i/3)|0)*4,3,3,(i+k)%4?"#c8c6d8":"#ffffff"); }
   } else {
     R(0,0,SW,SH,"#14222a");
     const bc=["#3ef2e0","#ff3d8b","#ffd23f","#7a5aff","#ff8a3a","#f4eee6","#3fbf6a","#1a807a","#9a2458"], r=seeded(31);
     for(let row=0;row<4;row++){ const y=12+row*24; R(0,y+20,SW,2,"#8a5e3e"); let x=2; while(x<SW-2){ const w=2+Math.floor(r()*3), h=12+Math.floor(r()*8); R(x,y+20-h,w,h,bc[Math.floor(r()*bc.length)]); R(x,y+20-h,1,h,"rgba(0,0,0,.25)"); x+=w+(r()<.1?3:0); } }
-    povWindow(g,180,6,44,36,true,t);
+    povWindow(g,180,6,44,36,viewSide()==="night",t);
     R(20,30,1,40,"#8a88a2"); R(14,26,13,5,"#ffd23f"); R(15,25,11,1,"#fff0b0");
   }
 }
 function sceneGlow(g,sec,t){
   g.save(); g.globalCompositeOperation="lighter";
-  const L=sec==="bar"?[[120,0,120,"#ff3d8b",.16],[60,70,70,"#b18cff",.12],[200,24,40,"#3ef2e0",.18]]:sec==="cafe"?[[92,26,60,"#ffcf8a",.3],[128,26,60,"#ffcf8a",.3],[190,40,90,"#ffe6c0",.22]]:[[20,34,60,"#ffcf8a",.3],[200,24,50,"#8a8cff",.15]];
+  const L=sec==="club"?[[159,0,110,"#ff8ad8",.22],[20,10,60,"#d06aff",.18],[220,16,40,"#d06aff",.2]]:sec==="bar"?[[120,0,120,"#ff3d8b",.16],[60,70,70,"#b18cff",.12],[200,24,40,"#3ef2e0",.18]]:sec==="cafe"?[[92,26,60,"#ffcf8a",.3],[128,26,60,"#ffcf8a",.3],[190,40,90,"#ffe6c0",.22]]:[[20,34,60,"#ffcf8a",.3],[200,24,50,"#8a8cff",.15]];
   L.forEach(([x,y,r,c,a])=>{ const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,c); gr.addColorStop(1,"rgba(0,0,0,0)"); g.globalAlpha=a; g.fillStyle=gr; g.fillRect(x-r,y-r,r*2,r*2); });
   g.restore();
 }
 function sceneCounter(g,sec){
   const R=(x,y,w,h,c)=>{ g.fillStyle=c; g.fillRect(x,y,w,h); };
-  const top=sec==="cafe"?"#b8885e":sec==="books"?"#8a5e3e":"#5a3a26", front=sec==="cafe"?"#5a3a26":sec==="books"?"#3a2418":"#24152e";
+  const top=sec==="cafe"?"#b8885e":sec==="books"?"#8a5e3e":sec==="club"?"#3a1a48":"#5a3a26", front=sec==="cafe"?"#5a3a26":sec==="books"?"#3a2418":sec==="club"?"#140a1c":"#24152e";
   R(0,104,SW,4,top); g.fillStyle="rgba(255,255,255,.2)"; g.fillRect(0,104,SW,1);
   R(0,108,SW,SH-108,front); g.fillStyle="rgba(0,0,0,.25)"; for(let x=16;x<SW;x+=24) g.fillRect(x,110,1,SH-112);
   if(sec==="bar"){ R(0,110,SW,1,"#ff3d8b"); g.globalAlpha=.25; R(0,108,SW,5,"#ff3d8b"); g.globalAlpha=1; }
+  if(sec==="club"){ R(0,104,SW,1,"#d06aff"); const k=Math.floor(performance.now()/300); for(let x=4;x<SW;x+=8) R(x,114,2,2,((x/8|0)+k)%2?"#ff3d8b":"#3ef2e0"); }
 }
 function sceneDrink(g,sec){
   if(!srv.result) return;
   const R=(x,y,w,h,c)=>{ g.fillStyle=c; g.fillRect(x,y,w,h); }, x=176, bot=103;
   if(sec==="bar"){ const m=srv.mix; R(x-1,bot-13,1,14,"#8a88a2"); R(x+10,bot-13,1,14,"#8a88a2"); R(x-1,bot+1,12,1,"#8a88a2"); let y=bot; BAR_ING.forEach(i=>{ for(let k=0;k<(m.c[i.id]||0);k++){ R(x,y,10,1,i.c); y--; } }); if(m.ice){ g.globalAlpha=.6; R(x+2,y+2,4,4,"#e8f6ff"); g.globalAlpha=1; } }
   else if(sec==="cafe"){ R(x-1,bot-9,12,10,"#f4eee6"); R(x,bot-8,10,2,srv.mix.milk||srv.mix.foam?"#efe2cc":"#4a2a12"); R(x+11,bot-7,2,4,"#f4eee6"); }
+  else if(sec==="club"){ R(x+4,bot-12,1,10,"#e6e4f2"); R(x,bot-14,9,3,"#e6e4f2"); R(x+1,bot-13,7,1,srv.result.grade==="perfect"?"#ffd23f":"#ff3d8b"); R(x+2,bot,5,1,"#e6e4f2"); }
   else { R(x-2,bot-4,14,4,"#3ef2e0"); R(x-2,bot-1,14,1,"#f4eee6"); }
 }
 function drawScene(){
@@ -2279,7 +2470,7 @@ function renderChat(){
   const art=L.who==="w"&&!faceSet(w)&&artSrc(w);
   box.className="dbox "+L.who;
   box.innerHTML=`${L.who==="n"?"":art?`<img class="dface" src="${art}" alt="">`:`<canvas id="dface" class="dface" width="144" height="144" aria-hidden="true"></canvas>`}
-    <div><span class="spk">${esc(who.toUpperCase())}${L.who==="w"?` <span class="muted">· ${ROLES[srv.sec].title.toUpperCase()}</span>`:""}</span><p id="curLine">${esc(L.text.slice(0,srv.typed))}</p></div>
+    <div><span class="spk">${esc(who.toUpperCase())}${L.who==="w"?` <span class="muted">· ${esc(jobTitle(srv.worker).toUpperCase())}</span>`:""}</span><p id="curLine">${esc(L.text.slice(0,srv.typed))}</p></div>
     ${more?`<span class="dnext" aria-hidden="true">▼</span>`:""}`;
 }
 const drawConvoPortraits=drawScene;
@@ -2317,7 +2508,7 @@ function stationCafe(){
   </div>`;
 }
 function stationBooks(){
-  return `<div class="station"><p class="hint" style="margin:0">Pick the book ${esc(srv.worker.name)} should recommend.</p><div class="bookcards">${srv.choices.map((b,i)=>`<button class="bookcard" style="--c:${b.c}" data-act="book" data-id="${i}"><span class="sp" aria-hidden="true"></span><span><b>${esc(b.t)}</b><small class="muted">${esc(b.a)}</small><span class="btags">${b.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</span><span class="bl">${esc(b.b)}</span></span></button>`).join("")}</div></div>`;
+  return `<div class="station"><p class="hint" style="margin:0">${srv.sec==="club"?`Pick the song for ${esc(srv.worker.name)}'s set.`:`Pick the book ${esc(srv.worker.name)} should recommend.`}</p><div class="bookcards">${srv.choices.map((b,i)=>`<button class="bookcard" style="--c:${b.c}" data-act="book" data-id="${i}"><span class="sp" aria-hidden="true"></span><span><b>${esc(b.t)}</b><small class="muted">${esc(b.a)}</small><span class="btags">${b.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</span><span class="bl">${esc(b.b)}</span></span></button>`).join("")}</div></div>`;
 }
 function recipeText(sec){
   if(sec==="bar") return BAR_DRINKS.map(d=>unlocked(d)?`<div class="rec"><b>${esc(d.name)}</b><span>${BAR_ING.filter(i=>d.r[i.id]).map(i=>`${d.r[i.id]} ${i.name}`).join(" · ")} · ${d.ice?"ice":"no ice"} · ${d.method==="shake"?"shaken":"stirred"}</span><small>${d.tags.join(", ")} · ${esc(d.desc)}</small></div>`:`<div class="rec locked"><b>??? · locked</b><small>Build the ${needName(d.need)} to unlock this recipe.</small></div>`).join("");
@@ -2353,13 +2544,10 @@ function flirtBlock(){
       <button class="povtab" data-act="flirt" data-id="play">PLAY ALONG</button><button class="povtab" data-act="flirt" data-id="laugh">LAUGH IT OFF</button><button class="povtab" data-act="flirt" data-id="shut">SHUT IT DOWN</button></div>
     <p class="hint">Play along: ${pc}% chance of +40% tip (Charm helps), or it gets awkward. Laugh it off: +10%. Shut it down: no change.</p></div>`;
 }
-function charmButton(){
-  if(srv.sec!=="cafe"||srv.result) return "";
-  const w=srv.worker, left=charmMax(w)-charmUsed(w);
-  return `<button class="btn charmbtn" data-act="charm" style="flex:1" ${srv.charmed||left<=0?"disabled":""}>✦ CHARM · ${Math.max(0,left)} LEFT</button>`;
-}
 function handleCharm(act,id,ev){
   if(!srv.open) return false;
+  if(act==="charmPick"){ if(!srv.charmed&&!srv.result){ srv.charmPick=!srv.charmPick; renderServe(); } return true; }
+  if(act==="charmMove"){ doCharmMove(id,ev); return true; }
   const w=srv.worker, C=srv.cust, P=w.persona||"chill";
   if(act==="flirt"){
     if(!srv.flirt||!srv.flirt.pending) return true;
@@ -2434,6 +2622,7 @@ function povLights(C){
   const lv=id=>S.modules[id]||0, night=viewSide()==="night", dim="#8a80a8";
   if(C.sec==="cafe"){ C.tint=C.open?"#fff1e0":dim; C.lights=C.open?[{x:46,y:40,r:62,c:"#ffcf8a",a:.45},{x:116,y:40,r:62,c:"#ffcf8a",a:.45},{x:242,y:66,r:120,c:"#ffe6c0",a:.3},{x:105,y:110,r:40,c:"#fff4d8",a:lv("espresso")?.25:0}]:[]; }
   else if(C.sec==="bar"){ C.tint=C.open?"#cdb6e6":dim; C.lights=C.open?[{x:80,y:8,r:130,c:"#ff3d8b",a:.22,flicker:true},{x:82,y:80,r:80,c:"#b18cff",a:lv("counter")?.2:0},{x:292,y:120,r:56,c:"#3ef2e0",a:lv("jukebox")?.3:0,flicker:true},{x:205,y:78,r:56,c:"#ff3d8b",a:lv("still")?.2:0},{x:142,y:116,r:24,c:"#ffd23f",a:.35,flicker:true}]:[]; }
+  else if(C.sec==="club"){ C.tint=C.open?"#d6b8e8":dim; C.lights=C.open?[{x:236,y:20,r:90,c:"#ff8ad8",a:.35},{x:236,y:120,r:60,c:"#d06aff",a:.3,flicker:true},{x:96,y:36,r:50,c:"#d06aff",a:.22},{x:30,y:100,r:50,c:"#3ef2e0",a:lv("booth")?.25:0,flicker:true},{x:30,y:150,r:50,c:"#ffd23f",a:lv("vip")?.2:0}]:[]; }
   else if(C.sec==="books"){ C.tint=C.open?"#bccbd4":dim; C.lights=C.open?[{x:45,y:108,r:44,c:"#c8ffb0",a:.3},{x:32,y:38,r:44,c:"#8a8cff",a:.18},{x:200,y:60,r:120,c:"#ffe0b0",a:.12}].concat(Array.from({length:Math.min(3,lv("nook"))},(_,i)=>({x:286-i*38,y:120,r:58,c:"#ffcf8a",a:.45}))):[]; }
   else { C.tint=night?"#a9a6d8":"#fff2e4"; C.lights=[]; if(night&&lv("lounge")) for(let x=60;x<300;x+=40) C.lights.push({x,y:44,r:34,c:NEONC[(x/40)%5|0],a:.24,flicker:true}); if(night&&lv("hydro")) C.lights.push({x:80,y:110,r:60,c:"#d06aff",a:.25}); if(night) C.lights.push({x:15,y:130,r:30,c:"#ffd08a",a:C.open?.35:0}); }
 }
@@ -2441,11 +2630,12 @@ const money=c=>(c<0?"-":"")+"$"+(Math.abs(c)/100).toLocaleString("en-US",{minimu
 const toCents=v=>{ const n=parseFloat(String(v).replace(/[^0-9.]/g,"")); return isFinite(n)&&n>0?Math.round(n*100):0; };
 const RANK2=[[0,"Street Kid"],[10,"Barback"],[30,"Barista"],[60,"Bartender"],[100,"Night Manager"],[160,"Fixer"],[240,"Proprietor"],[350,"Block Boss"],[500,"Legend of the District"]];
 function rankInfo(){ let i=0; RANK2.forEach((r,k)=>{ if(S.rep>=r[0]) i=k; }); const nxt=RANK2[i+1]; return {name:RANK2[i][1],lv:i+1,lo:RANK2[i][0],hi:nxt?nxt[0]:RANK2[i][0]+1,next:nxt&&nxt[1]}; }
-const SEC_ROOMS={cafe:["espresso","pastry","roaster","booths"],bar:["counter","still","jukebox","lounge"],books:["shelves","nook","press","archive"]};
-const SEC_OF_ROLE={cafe:"CAFE",bar:"BAR",books:"BOOKS"};
+const SEC_ROOMS={cafe:["espresso","pastry","roaster","booths"],books:["shelves","nook","press","archive"],bar:["counter","still","jukebox","lounge"],club:["stage","booth","vip","lights"]};
+const SEC_OF_ROLE={cafe:"CAFE",books:"BOOKS",bar:"BAR",club:"CLUB"};
+const SEC_NAME={cafe:"Café",books:"Bookshop",bar:"Bar",club:"Club"};
 
 /* ---------- favors: data model + starter deck ---------- */
-function blankFavor(){ return {id:uid(),title:"New favor",on:true,where:["cafe","bar","books"],when:"any",weight:2,ask:"",accept:"",outcome:"",thanks:"",decline:"",declined:"",reward:20,tipMult:1,rep:1,repDecline:0,minCharm:0,worker:"any",art:null,needLw:0,lwGain:0}; }
+function blankFavor(){ return {id:uid(),title:"New favor",on:true,where:["cafe","books","bar","club"],when:"any",weight:2,ask:"",accept:"",outcome:"",thanks:"",decline:"",declined:"",reward:20,tipMult:1,rep:1,repDecline:0,minCharm:0,worker:"any",art:null,needLw:0,lwGain:0}; }
 function defaultFavors(){
   const F=(o)=>Object.assign(blankFavor(),o);
   return [
@@ -2453,7 +2643,7 @@ function defaultFavors(){
     F({title:"Pass a message",ask:"If someone in a red visor asks for me, tell them the rain stopped. Exactly that.",accept:"The rain stopped. Got it.",outcome:"{w} writes it on the back of a receipt and tucks it away.",thanks:"Perfect. You didn't hear it from me.",decline:"I'd rather stay out of it.",declined:"No worries. Forget I asked.",reward:30,rep:1}),
     F({title:"Stall the fixer",where:["bar"],when:"night",ask:"A fixer's looking for me. Keep him busy for ten minutes?",accept:"Ten minutes. I'll talk his ear off.",outcome:"{w} pours the fixer a free drink and a very long story.",thanks:"I owe you one. A big one.",decline:"Not getting between you and a fixer.",declined:"...Yeah. Smart.",reward:45,rep:2,minCharm:3}),
     F({title:"Run a tab",ask:"Put it on my tab? I'll pay double next week, swear on my deck.",accept:"Double. I'm writing that down.",outcome:"{w} opens a tab with a very underlined note.",thanks:"Next week. Double. You'll see.",decline:"House rule: no tabs.",declined:"Worth a try.",reward:0,tipMult:2,rep:1}),
-    F({title:"Hide in the stacks",where:["books"],when:"night",ask:"Can I sit in the back stacks for a while? Long story. Nobody needs to know.",accept:"Back row, by the atlases. Nobody goes there.",outcome:"{c} vanishes between the shelves. Nobody comes looking.",thanks:"Thank you. Really.",decline:"We close the back at night, sorry.",declined:"Okay. I'll keep moving.",reward:20,rep:2}),
+    F({title:"Hide in the stacks",where:["books"],when:"any",ask:"Can I sit in the back stacks for a while? Long story. Nobody needs to know.",accept:"Back row, by the atlases. Nobody goes there.",outcome:"{c} vanishes between the shelves. Nobody comes looking.",thanks:"Thank you. Really.",decline:"We close the back at night, sorry.",declined:"Okay. I'll keep moving.",reward:20,rep:2}),
     F({title:"Charge a cyberdeck",where:["cafe"],when:"day",ask:"Mind if I charge my deck behind the counter? It's at three percent.",accept:"Plug it in by the grinder.",outcome:"{w} finds an outlet behind the espresso machine.",thanks:"You just saved my whole afternoon.",decline:"Outlets are staff only, sorry.",declined:"No problem, I'll find a kiosk.",reward:10,rep:1})
   ];
 }
@@ -2512,6 +2702,7 @@ function migrate(o){
   o.staff.forEach(w=>{ if(w.anim) ["fidle","fwalk"].forEach(k=>{ const r=w.anim[k]&&w.anim[k].ref; if(typeof r==="string"&&r.indexOf("builtin:mika")===0) delete w.anim[k]; }); });
   o.habits.forEach(h=>{ h.hist=h.hist||{}; h.days=Array.isArray(h.days)?h.days:[]; h.created=h.created||today(); });
   o.buckets.forEach(x=>{ x.entries=x.entries||[]; x.deposits=x.deposits||[]; });
+  jobsMigrate(o); charmMigrate(o);
   return o;
 }
 function loadState(){ try{ const raw=localStorage.getItem(LS2); S=migrate(raw?JSON.parse(raw):freshState()); }catch(e){ S=migrate(freshState()); } }
@@ -2545,7 +2736,8 @@ async function storeArt(dataUrl){
   return "idb:"+k;
 }
 function dropArt(ref){ if(typeof ref==="string"&&ref.indexOf("idb:")===0){ const k=ref.slice(4); delete ART[k]; ArtDB.del(k); } }
-function artRefsInUse(){ const s=new Set(); S.staff.forEach(w=>{ [w.art,w.charmArt,...Object.values(w.anim||{}).map(x=>x&&x.ref),...Object.values(w.faces||{}),...Object.values(w.outfits||{}).map(o=>o&&o.art)].forEach(v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }); }); S.favors.deck.forEach(f=>{ if(f.art&&f.art.indexOf("idb:")===0) s.add(f.art.slice(4)); const r=f.anim&&f.anim.ref; if(typeof r==="string"&&r.indexOf("idb:")===0) s.add(r.slice(4)); }); return s; }
+function artRefsInUse(){ const s=new Set(); S.staff.forEach(w=>{ [w.art,w.charmArt,...Object.values(w.charmArts||{}),...Object.values(w.anim||{}).map(x=>x&&x.ref),...Object.values(w.faces||{}),...Object.values(w.outfits||{}).map(o=>o&&o.art)].forEach(v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }); }); const ad=v=>{ if(typeof v==="string"&&v.indexOf("idb:")===0) s.add(v.slice(4)); }; if(S.xs){ S.xs.cards.forEach(c=>{ ad(c.art); ad(c.anim&&c.anim.ref); }); Object.values(S.xs.rooms||{}).forEach(r=>ad(r&&r.art)); } S.staff.forEach(w=>Object.values(w.xsArt||{}).forEach(v=>{ ad(v&&v.art); ad(v&&v.anim&&v.anim.ref); }));
+  S.favors.deck.forEach(f=>{ if(f.art&&f.art.indexOf("idb:")===0) s.add(f.art.slice(4)); const r=f.anim&&f.anim.ref; if(typeof r==="string"&&r.indexOf("idb:")===0) s.add(r.slice(4)); }); return s; }
 function cleanArt(){ const keep=artRefsInUse(); let n=0; Object.keys(ART).forEach(k=>{ if(!keep.has(k)){ delete ART[k]; ArtDB.del(k); n++; } }); return n; }
 function bigArt(file,max,done){
   if(!file) return;
@@ -2570,7 +2762,7 @@ function totals(secs){ let amb=0,seats=2,lv=0; for(const id in S.modules){ const
 function patrons(side){ return Math.max(1,Math.min(14,totals(SIDE_SECS[side]).seats)); }
 const upgradeCost=id=>Math.round(MODULES[id].cost*Math.pow(1.8,S.modules[id]||0));
 function counterState(sec){
-  const built=SEC_ROOMS[sec].some(id=>S.modules[id]), open=sec==="cafe"?clockSide()==="day":clockSide()==="night", w=workerFor(sec);
+  const built=SEC_ROOMS[sec].some(id=>S.modules[id]), open=(SIDE_OF[sec]||"night")===clockSide(), w=workerFor(sec);
   return {built,open,w,ok:built&&open&&!!w};
 }
 
@@ -2644,20 +2836,21 @@ function srvNewCustomer(){
   let req, choices=null;
   if(srv.sec==="bar") req=pk(BAR_REQ.filter(unlocked));
   else if(srv.sec==="cafe") req=pk(CAFE_REQ);
+  else if(srv.sec==="club"){ const pool=setPool(); req=pk(CLUB_REQ.filter(r=>pool.some(b=>r.tags.every(t=>b.tags.includes(t))))); choices=bookChoices(req,pool); }
   else { const pool=bookPool(); req=pk(BOOK_REQ.filter(r=>pool.some(b=>r.tags.every(t=>b.tags.includes(t))))); choices=bookChoices(req,pool); }
   const vip=S.clients.vip>0, P=PERSONAS[w.persona]||PERSONAS.chill;
   Object.assign(srv,{worker:w,cust:{look,name,job,req,vip},choices,result:null,mix:freshMix(srv.sec),recipes:false,hinted:false,
-    lines:[{who:"w",text:fillT(pk(P.greet),{shop:prettyShop()})},{who:"c",text:req.line},{who:"w",text:pk(srv.sec==="books"?P.book:P.ack)}],
-    step:0,typed:0,wait:0,tipMod:0,charmed:false,charmFlash:0,flirt:null,favor:null,favorState:null,favorMult:1,showFavorArt:false});
-  if(S.favors.on&&Math.random()<S.favors.chance){ const f=pickFavor(srv.sec); if(f){ srv.favor=f; srv.favorState="ask"; srv.lines.push({who:"c",text:favText(f.ask)||"Can I ask you a favor?"}); } }
-  if(!srv.favor&&srv.sec==="cafe"&&Math.random()<.3){ const f=pk(FLIRTS); srv.lines.splice(2,0,{who:"c",text:f}); srv.lines.pop(); srv.flirt={line:f,pending:true}; }
+    lines:[{who:"w",text:fillT(pk(P.greet),{shop:prettyShop()})},{who:"c",text:req.line},{who:"w",text:pk(srv.sec==="books"||srv.sec==="club"?P.book:P.ack)}],
+    step:0,typed:0,wait:0,tipMod:0,charmed:false,charmFlash:0,flirt:null,favor:null,favorState:null,favorMult:1,showFavorArt:false,charmPick:false,charmMove:null,showCharmArt:false});
+  if(S.favors.on&&Math.random()<Math.min(.95,S.favors.chance*(perkOf(w)==="entertain"?2:1))){ const f=pickFavor(srv.sec); if(f){ srv.favor=f; srv.favorState="ask"; srv.lines.push({who:"c",text:favText(f.ask)||"Can I ask you a favor?"}); } }
+  if(!srv.favor&&(srv.sec==="cafe"||srv.sec==="club")&&Math.random()<.3){ const f=pk(FLIRTS); srv.lines.splice(2,0,{who:"c",text:f}); srv.lines.pop(); srv.flirt={line:f,pending:true}; }
 }
 function favText(s){ return s?fillT(s,{w:srv.worker.name,c:srv.cust.name,shop:prettyShop()}):""; }
 function serveOpen(sec){
   const st=counterState(sec);
-  if(!st.w){ toast(`Hire a ${ROLES[sec].title.toLowerCase()} first, in the Upgrade tab.`, true); return; }
+  if(!st.w){ toast(`Hire someone for the ${ROLES[sec].room} first, in the Upgrade tab.`, true); return; }
   if(!st.built){ toast(`Build something in the ${ROLES[sec].room} first, in the Upgrade tab.`, true); return; }
-  if(!st.open){ toast(sec==="cafe"?"The café opens in the daytime.":"The bar and books open at night.", true); return; }
+  if(!st.open){ toast(SIDE_OF[sec]==="day"?`The ${ROLES[sec].room} opens in the daytime.`:`The ${ROLES[sec].room} opens at night.`, true); return; }
   if(ticketsLeft()<=0){ toast("No clients waiting. Finish a task or habit to bring one in.", true); return; }
   srv.open=true; srv.sec=sec; srvNewCustomer(); renderServe();
   clearInterval(srvTimer); srvTimer=setInterval(srvTick,45);
@@ -2674,11 +2867,12 @@ function srvTick(){
   drawScene();
 }
 function srvFinish(res,ev){
-  const w=srv.worker, t=traitOf(w), sec=srv.sec; let g=res.grade, saved=false;
+  const w=srv.worker, t=traitOf(w), sec=srv.sec; let g=res.grade, saved=false, savedBy=t.name;
   if(g==="close"&&t.save&&traitApplies(w,t)&&Math.random()<t.save){ g="perfect"; saved=true; }
+  if(g==="close"&&!saved&&perkOf(w)==="service"&&Math.random()<.25){ g="perfect"; saved=true; savedBy=jobTitle(w); }
   const d=serveDay(); d.n++; if(g==="perfect") d.perf[serveSide(sec)]++;
   const amb=totals(SIDE_SECS[serveSide(sec)]).amb;
-  const tip=Math.max(1,Math.round(tipFor(w,g)*(1+amb/40)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w))));
+  const tip=Math.max(1,Math.round(tipFor(w,g)*(1+amb/40)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w))*(perkOf(w)==="tips"?1.2:1)));
   S.credits+=tip; S.xp+=tip; d.tips=(d.tips||0)+tip;
   S.stats.served++; if(g==="perfect") S.stats.perfect++; S.stats.tips+=tip;
   S.rep+=g==="perfect"?2:g==="close"?1:0;
@@ -2686,9 +2880,9 @@ function srvFinish(res,ev){
   w.serves++; if(g==="perfect") w.perfects++; w.tips+=tip;
   const lvl=workerXP(w,g);
   srv.result={grade:g,made:res.made,tip,saved,lvl};
-  const P=PERSONAS[w.persona]||PERSONAS.chill, R2=sec==="books"?REACT_BOOK:REACT;
+  const P=PERSONAS[w.persona]||PERSONAS.chill, R2=sec==="books"?REACT_BOOK:sec==="club"?REACT_CLUB:REACT;
   srv.step=srv.lines.length-1; srv.typed=srv.lines[srv.step].text.length;
-  pushLines([{who:"n",text:`${w.name} ${sec==="books"?"hands over":"serves"} ${res.made}.`+(saved?` ${t.name} instincts save it at the last second.`:"")},{who:"c",text:pk(R2[g])},{who:"w",text:pk(P.after[g])}]);
+  pushLines([{who:"n",text:`${w.name} ${sec==="books"?"hands over":sec==="club"?"takes the stage to":"serves"} ${res.made}.`+(saved?` ${savedBy} instincts save it at the last second.`:"")},{who:"c",text:pk(R2[g])},{who:"w",text:pk(P.after[g])}]);
   addLog(`${w.name} served ${srv.cust.name}${srv.cust.vip?" (VIP)":""} ${res.made}. ${g.toUpperCase()} · +${tip}₵`,"gain");
   pop(ev,"+"+tip+"₵",g==="perfect"?"var(--good)":"var(--ink)"); beep(g==="perfect"?1320:g==="close"?880:300);
   save(); renderTop(); renderServe();
@@ -2702,7 +2896,7 @@ function handleFavor(act,ev){
     srv.favorState="done"; srv.favorMult=Math.max(.1,f.tipMult||1); srv.showFavorArt=!!(f.art||(f.anim&&f.anim.ref)); srv.favAnimT=performance.now();
     if(f.reward){ S.credits+=f.reward; S.xp+=f.reward; pop(ev,"+"+f.reward+"₵","#ffd23f"); }
     { const dd=serveDay(); dd.favors=(dd.favors||0)+1; dd.favorCreds=(dd.favorCreds||0)+(f.reward||0); }
-    S.rep+=f.rep||0; S.stats.favors++; if(f.lwGain) gainProg(w,f.lwGain);
+    S.rep+=f.rep||0; S.stats.favors++; { const lg=(f.lwGain||0)+(perkOf(w)==="entertain"?1:0); if(lg) gainProg(w,lg); }
     srv.step=srv.lines.length-1; srv.typed=srv.lines[srv.step].text.length;
     const al=[{who:"w",text:favText(f.accept)},{who:"n",text:favText(f.outcome)},{who:"c",text:favText(f.thanks)}].filter(l=>l.text);
     pushLines(al.length?al:[{who:"n",text:`${w.name} agrees to help.`}]);
@@ -2731,12 +2925,12 @@ function renderServe(){
   const el=$("srv"); document.body.classList.toggle("serving",!!srv.open); if(!srv.open){ el.hidden=true; return; }
   el.hidden=false;
   const w=srv.worker, C=srv.cust, sec=srv.sec, done=!!srv.result, left=ticketsLeft(), hl=hintsMax(w)-hintsUsed(w);
-  const title={cafe:"☀ CAFÉ COUNTER",bar:"☾ BAR",books:"☾ BOOKSHOP DESK"}[sec];
+  const title={cafe:"☀ CAFÉ COUNTER",bar:"☾ BAR",books:"☀ BOOKSHOP DESK",club:"☾ CLUB STAGE"}[sec];
   let station;
   if(done){
     const r=srv.result, col=r.grade==="perfect"?"var(--good)":r.grade==="close"?"var(--accent)":"var(--bad)";
     station=`<div class="station"><div class="result" style="border-color:${col};color:${col}">${r.grade.toUpperCase()} · +${r.tip}₵</div>
-      <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>
+      <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":sec==="club"?"danced to":"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>
       <div class="actions">${left>0?`<button class="btn solid" data-act="srvNext">NEXT CLIENT · ${left}</button>`:`<p class="hint" style="margin:0;flex-basis:100%">That's everyone. Finish a task or habit to bring in the next client.</p>`}<button class="btn ghost" data-act="srvClose">BACK TO THE SHOP</button></div></div>`;
   } else station=sec==="bar"?stationBar():sec==="cafe"?stationCafe():stationBooks();
   const favAnim=srv.showFavorArt&&srv.favor&&srv.favor.anim&&srv.favor.anim.ref&&resolveArt(srv.favor.anim.ref);
@@ -2748,6 +2942,7 @@ function renderServe(){
       <div class="vnleft">
         <div class="scenewrap"><canvas id="scene" width="${SW}" height="${SH}" role="img" aria-label="${esc(w.name)} behind the ${ROLES[sec].room} counter, talking with ${esc(C.name)}"></canvas><canvas id="sceneHi" class="layer" width="${SW*4}" height="${SH*4}" aria-hidden="true"></canvas><canvas id="sceneFront" class="layer" width="${SW}" height="${SH}" aria-hidden="true"></canvas>
           ${charmArt?`<img class="cg" id="cgCharm" src="${charmArt}" alt="" style="display:none">`:""}
+          ${charmCG()}
           ${favArt?`<button class="cgbtn" data-act="hideFavArt" aria-label="Hide favor art"><img class="cg" src="${favArt}" alt=""></button>`:""}
           ${favAnim?`<button class="cgbtn" data-act="hideFavArt" aria-label="Hide favor animation"><canvas id="favAnim" class="cg" width="960" height="540"></canvas></button>`:""}</div>
         <div class="dbox" id="dbox" data-act="dlgNext" role="button" tabindex="0" aria-label="Next line"></div>
@@ -2758,7 +2953,7 @@ function renderServe(){
         ${favorBlock()}
         ${flirtBlock()}
         ${station}
-        ${!done?`<div class="rowflex">${charmButton()}<button class="btn" data-act="hint" style="flex:1" ${srv.hinted||hl<=0?"disabled":""}>ASK ${esc(w.name.toUpperCase())} · ${Math.max(0,hl)} LEFT</button>${sec!=="books"?`<button class="btn ghost" style="flex:1" data-act="recipes" aria-expanded="${srv.recipes}">${sec==="bar"?"RECIPES":"MENU"}</button>`:""}</div>${srv.recipes&&sec!=="books"?`<div class="recipes">${recipeText(sec)}</div>`:""}`:""}
+        ${!done?`<div class="rowflex">${charmButton()}<button class="btn" data-act="hint" style="flex:1" ${srv.hinted||hl<=0?"disabled":""}>ASK ${esc(w.name.toUpperCase())} · ${Math.max(0,hl)} LEFT</button>${sec!=="books"&&sec!=="club"?`<button class="btn ghost" style="flex:1" data-act="recipes" aria-expanded="${srv.recipes}">${sec==="bar"?"RECIPES":"MENU"}</button>`:""}</div>${charmPicker()}${srv.recipes&&sec!=="books"?`<div class="recipes">${recipeText(sec)}</div>`:""}`:""}
       </div>
     </div>
   </div>`;
@@ -2814,7 +3009,7 @@ function meter(label,frac,val,cls){ const p=Math.max(0,Math.min(1,frac))*100; re
 function renderTop(){
   const r=rankInfo(), side=clockSide();
   $("top").innerHTML=`
-    <div class="px">${esc(S.shopName)} · ${side==="day"?"☀ CAFÉ HOURS":"☾ BAR + BOOKS HOURS"}</div>
+    <div class="px">${esc(S.shopName)} · ${side==="day"?"☀ CAFÉ + BOOKS HOURS":"☾ BAR + CLUB HOURS"}</div>
     <div class="topright"><span class="px clock" id="clock">${clockText()}</span><button class="morebtn" data-act="tab" data-id="more" aria-label="More: settings, backup and art storage" ${tab==="more"?'aria-current="page"':""}>≡</button></div>
     <div class="wallet"><b>₵</b>${S.credits.toLocaleString()}</div>
     <div class="rank">${esc(r.name)} · ${S.rep} REP</div>
@@ -2834,9 +3029,9 @@ function vShop(){
   const r=rankInfo(), k=today(), d=S.serves[k]||{n:0,tips:0};
   const habDone=S.habits.filter(h=>h.hist[k]).length, taskDone=doneCount(k);
   const counters=Object.keys(ROLES).map(sec=>{ const st=counterState(sec), R=ROLES[sec];
-    const status=!st.built?`Build a ${R.room} spot first`:!st.w?`Hire a ${R.title.toLowerCase()}`:!st.open?(sec==="cafe"?"Opens in the daytime":"Opens at night"):`${st.w.name} is on shift`;
-    return `<div class="ctr ${st.ok?"on":""}"><div><b>${sec==="cafe"?"☀ Café":sec==="bar"?"☾ Bar":"☾ Bookshop"}</b><span class="muted">${esc(status)}</span></div>
-      ${st.ok?`<button class="btn solid" data-act="serveOpen" data-id="${sec}" ${S.clients.waiting?"":"disabled"}>WORK IT</button>`:!st.built||!st.w?`<button class="btn ghost" data-act="tab" data-id="upgrade">SET UP</button>`:`<span class="px muted">CLOSED</span>`}</div>`; }).join("");
+    const status=!st.built?`Build a ${R.room} spot first`:!st.w?`Hire someone`:!st.open?(SIDE_OF[sec]==="day"?"Opens in the daytime":"Opens at night"):`${st.w.name} (${jobTitle(st.w)}) is at the counter${staffAt(sec).length>1?` · ${staffAt(sec).length} on staff`:""}`;
+    return `<div class="ctr ${st.ok?"on":""}"><div><b>${SIDE_OF[sec]==="day"?"☀":"☾"} ${SEC_NAME[sec]}</b><span class="muted">${esc(status)}</span></div>
+      ${st.ok?`<button class="btn solid" data-act="serveOpen" data-id="${sec}" ${S.clients.waiting?"":"disabled"}>WORK IT</button>`:!st.built||!st.w?`<button class="btn ghost" data-act="tab" data-id="upgrade">SET UP</button>`:`<span class="px muted">CLOSED</span>`}${st.ok?shiftPicker(sec):""}</div>`; }).join("");
   return `
   ${depositDue()?`<section class="panel jarbanner"><h2><span>DEPOSIT DAY</span><span>SAVINGS</span></h2><p style="margin:0 0 10px">You have <b class="good">${money(totalPending())}</b> waiting across your buckets. Move it into real savings, then log it.</p><button class="btn solid" data-act="tab" data-id="save">OPEN SAVINGS</button></section>`:""}
   <section class="panel">
@@ -3256,10 +3451,10 @@ function vSave(){
   </section>
   ${hist.length?`<section class="panel"><h2><span>HISTORY</span><span>${hist.length}</span></h2><div class="log">${hist.slice(0,40).map(h=>`<div><time>${shortDate(h.d)}</time><span class="k-${h.k}">${h.t} <button class="linkbtn" data-act="delMoney" data-id="${h.type}:${h.b}:${h.id}">remove</button></span></div>`).join("")}</div></section>`:""}`;
 }
-const AREAS=[["cafe","CAFE","☀","Café","Day"],["bar","BAR","☾","Bar","Night"],["books","BOOKS","☾","Bookshop","Night"],["shop","SHOP","▣","Whole shop","Always"]];
+const AREAS=[["cafe","CAFE","☀","Café","Day"],["books","BOOKS","☀","Bookshop","Day"],["bar","BAR","☾","Bar","Night"],["club","CLUB","☾","Club","Night"],["shop","SHOP","▣","Whole shop","Always"]];
 let openAreas=null, manageOpen=null;
 function defaultOpenAreas(){ return new Set([clockSide()==="day"?"cafe":"bar"]); }
-const UNLOCKS={hydro:"Unlocks Mint Leaf + Garden Mojito",still:"Unlocks Smoke Oil + Smog Cutter",jukebox:"Unlocks Velvet Cream + Night Velvet",press:"Adds zines to the book desk",archive:"Adds rare books to the book desk",sign:"Your name on the billboard"};
+const UNLOCKS={booth:"Adds live remixes to the stage",lights:"Adds laser sets to the stage",hydro:"Unlocks Mint Leaf + Garden Mojito",still:"Unlocks Smoke Oil + Smog Cutter",jukebox:"Unlocks Velvet Cream + Night Velvet",press:"Adds zines to the book desk",archive:"Adds rare books to the book desk",sign:"Your name on the billboard"};
 function roomRow(id){
   const m=MODULES[id], L=S.modules[id]||0, cost=L<MAX_LVL?upgradeCost(id):0, can=S.credits>=cost;
   let lv=""; for(let i=0;i<MAX_LVL;i++) lv+=`<i class="${i<L?"on":""}"></i>`;
@@ -3274,7 +3469,7 @@ function workerMini(p){
     <div class="cport sm">${p.art?`<img src="${artSrc(p)}" alt="">`:`<canvas width="72" height="72" data-port="w:${p.role}:${p.id}" aria-hidden="true"></canvas>`}</div>
     <div class="rinfo"><b>${esc(p.name)}</b> <span class="muted">LV ${p.lv} · ${PERSONAS[p.persona].label} · ${esc(PL())} ${progLevel(p)}</span>
       <small>Skill <span class="pip">${pips(p.skill)}</span> Charm <span class="pip">${pips(p.charm)}</span></small>
-      <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc)}</small></div>
+      <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc)}</small><small class="muted">${esc(jobTitle(p))}: ${esc((PERKS[perkOf(p)]||{}).desc||"")}</small></div>
     ${p.skill<5?`<button class="btn ${S.credits>=cost?"solid":""} rbtn" data-act="train" data-id="${p.id}" ${S.credits>=cost?"":"disabled"}>TRAIN<br>${cost}₵</button>`:`<span class="px muted">MAX</span>`}
   </div>
   <details class="sub" ${manageOpen===p.id?"open":""}><summary>Manage ${esc(p.name)}</summary>
@@ -3289,7 +3484,7 @@ function workerStudio(p){
     <div class="actions">
       <label class="btn ghost" for="workerArt-${p.id}" style="text-align:center">${p.art?"NEW ART":"LOAD ART"}</label><input type="file" id="workerArt-${p.id}" data-up="worker" class="srt" accept="image/*" data-id="${p.id}">
       ${p.art?`<button class="btn ghost" data-act="clearWorkerArt" data-id="${p.id}">CODE ART</button>`:""}
-      ${p.role==="cafe"?`<label class="btn ghost charmbtn" for="charmArt-${p.id}" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt-${p.id}" data-up="charm" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
+      ${true?`<label class="btn ghost charmbtn" for="charmArt-${p.id}" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt-${p.id}" data-up="charm" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
     </div>
     <details class="sub" ${p.anim&&Object.values(p.anim).some(x=>x&&x.ref)?"open":""}><summary>Animations · sprite sheets</summary>
       <p class="hint" style="margin:4px 0 8px">One image with every frame the same size, side by side or in a grid. Set how many frames go across and down before loading. Animated workers skip the automatic breathing.</p>
@@ -3308,7 +3503,7 @@ function candRow(c,role){
   return `<div class="wmini cand"><div class="cport sm"><canvas width="72" height="72" data-port="c:${role}:${c.id}" aria-hidden="true"></canvas></div>
     <div class="rinfo"><b>${esc(c.name)}</b> <span class="muted">${PERSONAS[c.persona].label}</span>
       <small>Skill <span class="pip">${pips(c.skill)}</span> Charm <span class="pip">${pips(c.charm)}</span></small>
-      <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc||"")}</small></div>
+      ${candJobLine(c)}<small><span class="tag">${esc(t.name)}</span> ${esc(t.desc||"")}</small></div>
     <button class="btn ${can?"solid":""} rbtn" data-act="hire" data-role="${role}" data-id="${c.id}" ${can?"":"disabled"}>HIRE<br>${c.cost}₵</button></div>`;
 }
 function areaPanel([key,sec,icon,label,when]){
@@ -3316,15 +3511,15 @@ function areaPanel([key,sec,icon,label,when]){
   const built=ids.filter(id=>S.modules[id]).length, isRole=!!ROLES[key], w=isRole&&workerFor(key);
   const ready=ids.some(id=>(S.modules[id]||0)<MAX_LVL&&S.credits>=upgradeCost(id))||(w&&w.skill<5&&S.credits>=90*w.skill);
   const cands=isRole?board().c[key]:[];
-  const status=[`${built}/${ids.length} built`, isRole?(w?`${esc(w.name)} on staff`:`<span class="bad">no ${ROLES[key].title.toLowerCase()}</span>`):""].filter(Boolean).join(" · ");
+  const status=[`${built}/${ids.length} built`, isRole?(w?`${staffAt(key).length} on staff`:`<span class="bad">no staff</span>`):""].filter(Boolean).join(" · ");
   return `<details class="area" data-area="${key}" ${openAreas.has(key)?"open":""}>
     <summary><span class="aico" aria-hidden="true">${icon}</span><span class="atitle"><b>${label}</b><small>${when} · ${status}</small></span>${ready?`<span class="ready">CAN UPGRADE</span>`:""}<span class="chev" aria-hidden="true">▾</span></summary>
     <div class="abody">
-      ${isRole?`<p class="alabel">${ROLES[key].title.toUpperCase()}</p>${w?workerMini(w):`<p class="hint" style="margin:0 0 6px">Hire a ${ROLES[key].title.toLowerCase()} below to open this counter.</p>`}`:""}
+      ${isRole?`<p class="alabel">STAFF · ${staffAt(key).length}/${VENUE_CAP}</p>${rosterBlock(key)}`:""}
       <p class="alabel">ROOMS</p><div class="rooms">${ids.map(roomRow).join("")}</div>
       ${isRole?`<details class="sub" ${w?"":"open"}><summary>Hiring board · ${cands.length} applicant${cands.length===1?"":"s"}</summary>
         ${cands.length?cands.map(c=>candRow(c,key)).join(""):`<p class="hint">You've hired from today's board. New faces tomorrow.</p>`}
-        ${w&&cands.length?`<p class="hint">Hiring replaces ${esc(w.name)}.</p>`:""}</details>`:""}
+        <p class="hint">Hiring adds to the team. Up to ${VENUE_CAP} per venue.</p></details>`:""}
     </div></details>`;
 }
 function vUpgrade(){
@@ -3355,7 +3550,7 @@ function vFavors(){
   </section>
   <section class="panel">
     <h2><span>FAVOR DECK</span><span>${show.length}</span></h2>
-    <div class="povtabs" style="grid-template-columns:repeat(4,1fr)">${[["all","ALL"],["cafe","CAFÉ"],["bar","BAR"],["books","BOOKS"]].map(([v,l])=>`<button class="povtab ${favFilter===v?"on":""}" data-act="favFilter" data-id="${v}">${l}</button>`).join("")}</div>
+    <div class="povtabs" style="grid-template-columns:repeat(5,1fr)">${[["all","ALL"],["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club","CLUB"]].map(([v,l])=>`<button class="povtab ${favFilter===v?"on":""}" data-act="favFilter" data-id="${v}">${l}</button>`).join("")}</div>
     <div class="list">${show.map(f=>{ const a=resolveArt(f.art); return `<div class="favrow ${f.on?"":"off"}">
       <div class="favthumb">${a?`<img src="${a}" alt="">`:`<span>${f.anim&&f.anim.ref?"▶":"✦"}</span>`}</div>
       <button class="info" data-act="editFavor" data-id="${f.id}"><span class="nm">${esc(f.title)}</span><span class="meta"><span class="tag">${f.where.map(x=>x==="cafe"?"CAFÉ":x.toUpperCase()).join(" ")}</span><span>${f.when==="any"?"any time":f.when}</span><span>${f.reward?"+"+f.reward+"₵":""}${(f.tipMult||1)!==1?" tip ×"+f.tipMult:""}</span>${f.needLw?`<span class="acc">Lv ${f.needLw}+</span>`:""}${f.lwGain?`<span class="good">+${f.lwGain} ${esc(PL())}</span>`:""}</span></button>
@@ -3555,11 +3750,7 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(!t.id||t.id.index
   if(t.id==="ssSwatch"){ SS.color=t.value; if(SS.tool!=="pen"&&SS.tool!=="fill") SS.tool="pen"; render(); }
   if(t.id==="ssAcross") SS.upCols=Math.max(1,Math.min(16,+t.value||1));
   if(t.id==="ssDown") SS.upRows=Math.max(1,Math.min(8,+t.value||1));
-  if(t.id==="ssImport"&&t.files&&t.files[0]){ const n=Math.max(1,Math.min(16,+($("ssAcross").value)||1)), m=Math.max(1,Math.min(8,+($("ssDown").value)||1)); SS.upCols=n; SS.upRows=m;
-    readImage(t.files[0]).then(img=>{ const c=document.createElement("canvas"); c.width=img.width||img.naturalWidth; c.height=img.height||img.naturalHeight; c.getContext("2d").drawImage(img,0,0); ssLoadSheet(c.toDataURL("image/png"),n,m,()=>{ ssSaveDraft(); render(); toast(`Uploaded ${n*m} frame${n*m===1?"":"s"} to edit.`); }); }).catch(()=>toast(imgErr(t.files[0]), true)); }
-  if(t.id==="ssDirect"&&t.files&&t.files[0]){ const w=S.staff.find(x=>x.id===SS.wid); if(!w){ toast("Pick a worker first.", true); return; }
-    const n=Math.max(1,Math.min(16,+($("ssAcross").value)||1)), m=Math.max(1,Math.min(8,+($("ssDown").value)||1)); SS.upCols=n; SS.upRows=m;
-    sheetUploadNoBox(t.files[0],w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; }
+  if(t.id==="ssImport"||t.id==="ssDirect") return routeSS(t);
   ssSaveDraft(); });
 
 let devSub="workers", devWorker=null;
@@ -3567,9 +3758,9 @@ function vDev(){
   const subs=[["workers","WORKERS"],["sprites","SPRITES"],["favors","FAVORS"],["tools","TOOLS"]];
   let body="";
   if(devSub==="workers"){
-    if(!S.staff.length) body=`<section class="panel"><p class="empty">No staff yet. Hire someone in the Upgrade tab.</p></section>`;
+    if(!S.staff.length) body=empPanel()+`<section class="panel"><p class="empty">No staff yet. Hire someone in the Upgrade tab, or create one above.</p></section>`;
     else { if(!S.staff.some(w=>w.id===devWorker)) devWorker=S.staff[0].id; const p=S.staff.find(w=>w.id===devWorker);
-      body=`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${ROLES[w.role].title}</small></span></button>`).join("")}</div>${workerStudio(p)}`; }
+      body=`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${charmGallery(p)}${charmMovesPanel()}${empPanel()}`; }
   } else if(devSub==="sprites") body=S.staff.length?vSprites():`<section class="panel"><p class="empty">Hire someone first, then draw their sprites here.</p></section>`;
   else if(devSub==="favors") body=vFavors();
   else body=devTools();
@@ -3582,6 +3773,7 @@ function devTools(){
   return `  <section class="panel">
     <h2><span>ART STORAGE</span><span>${Object.keys(ART).length} IMAGES · ${kb} KB</span></h2>
     <p style="margin:0 0 10px">Uploaded art stays in this browser's storage, never inside the app file.</p>
+    <div class="spread" style="align-items:center;margin:0 0 10px;gap:10px"><span>Offer background removal when importing art</span><button class="btn ${S.bgOffer===false?"ghost":""}" data-act="bgOffer" aria-pressed="${S.bgOffer!==false}">${S.bgOffer===false?"OFF":"ON"}</button></div>
     <div class="actions" style="margin-top:0"><button class="btn ghost" data-act="cleanArt">CLEAN UP UNUSED</button><button class="btn danger" data-act="purgeArt">DELETE ALL UPLOADED ART</button></div>
   </section>
   <section class="panel">
@@ -3605,7 +3797,7 @@ function vMore(){
     <div class="spread" style="margin-top:14px;align-items:center"><span>Sound effects</span><button class="btn ${S.sound?"":"ghost"}" data-act="sound" aria-pressed="${S.sound}">${S.sound?"ON":"OFF"}</button></div>
     <span class="fl" style="margin-top:14px">Shop clock</span>
     <div class="povtabs" style="grid-template-columns:repeat(3,1fr);margin:0">${[["auto","REAL TIME"],["day","☀ ALWAYS DAY"],["night","☾ ALWAYS NIGHT"]].map(([v,l])=>`<button class="povtab ${(S.clockMode||"auto")===v?"on":""}" data-act="clockMode" data-id="${v}">${l}</button>`).join("")}</div>
-    <p class="hint">Real time: café 6 AM to 5 PM, bar and books after 5 PM. The day rolls over at 4 AM.</p>
+    <p class="hint">Real time: café and bookshop 6 AM to 5 PM, bar and club after 5 PM. The day rolls over at 4 AM.</p>
   </section>
   <section class="panel">
     <h2><span>BACKUP</span><span></span></h2>
@@ -3696,7 +3888,7 @@ function favorSheet(f){
   openSheet(`<h3>${d._isNew?"NEW FAVOR":"EDIT FAVOR"}</h3>
   <form data-form="favor" class="stack">
     ${T("fTitle","Title",d.title,"Short name for the deck")}
-    <div><span class="fl">Where</span><div class="seg">${[["cafe","CAFÉ"],["bar","BAR"],["books","BOOKS"]].map(([v,l])=>`<input type="checkbox" name="fwhere" id="fw-${v}" value="${v}" ${d.where.includes(v)?"checked":""}><label for="fw-${v}">${l}</label>`).join("")}</div></div>
+    <div><span class="fl">Where</span><div class="seg">${[["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club","CLUB"]].map(([v,l])=>`<input type="checkbox" name="fwhere" id="fw-${v}" value="${v}" ${d.where.includes(v)?"checked":""}><label for="fw-${v}">${l}</label>`).join("")}</div></div>
     <div class="formgrid"><div><label class="fl" for="fWhen">When</label><select class="field" id="fWhen">${[["any","Any time"],["day","Day only"],["night","Night only"]].map(([v,l])=>`<option value="${v}" ${d.when===v?"selected":""}>${l}</option>`).join("")}</select></div>
       <div><label class="fl" for="fWeight">How often (1–5)</label><input class="field num" id="fWeight" type="number" min="1" max="5" value="${d.weight||2}"></div>
       <div><label class="fl" for="fWorker">Only for</label><select class="field" id="fWorker"><option value="any">Any worker</option>${S.staff.map(w=>`<option value="${w.id}" ${d.worker===w.id?"selected":""}>${esc(w.name)} (${ROLES[w.role].title})</option>`).join("")}</select></div>
@@ -3737,14 +3929,14 @@ function refreshFavArtPreview(){ const el=$("favArtPrev"); if(!el||!favDraft) re
 
 /* ---------- THE FLOOR: dollhouse cutaway of the building, all rooms live ---------- */
 const FW=336, CROP=30, RH=150, SLAB=10, STREET=22, FH=RH*3+SLAB*2+STREET;
-const ROOM_LABEL={cafe:"CAFE",bar:"BAR",books:"BOOKS",roof:"ROOF"};
+const ROOM_LABEL={cafe:"CAFE",bar:"BAR",books:"BOOKS",club:"CLUB",roof:"ROOF"};
 let floorPov={}, floorOff={}, floorCap={s:"",sec:""}, floorRAF=0, floorLast=0, shopView="inside";
 function setCaption(s){
   if(pov) pov.caption=s;
   floorCap={s,sec:pov&&pov.sec};
   const el=$("floorcap"); if(el) el.innerHTML=`<b>${ROOM_LABEL[floorCap.sec]||""}</b> ${esc(s)}<span class="cursor" aria-hidden="true"></span>`;
 }
-function floorStack(){ return [["roof",0],["books",RH+SLAB],[viewSide()==="day"?"cafe":"bar",(RH+SLAB)*2]]; }
+function floorStack(){ const d=viewSide()==="day"; return [["roof",0],[d?"books":"club",RH+SLAB],[d?"cafe":"bar",(RH+SLAB)*2]]; }
 function drawRoom(g,sec,now){
   if(floorPov[sec]) pov=floorPov[sec];
   if(!floorPov[sec]||pov.sec!==sec||pov.side!==viewSide()) povReset(sec);
@@ -3813,7 +4005,7 @@ function floorTick(now){
 }
 function startFloor(){ if(!$("floor")) return; if(!floorRAF) floorRAF=requestAnimationFrame(floorTick); else drawFloor($("floor"),performance.now()); }
 function floorBlock(){
-  return `<div class="floorwrap"><canvas id="floor" width="${FW}" height="${FH}" data-act="floorTap" role="img" aria-label="Cutaway of ${esc(S.shopName)}: rooftop, bookshop loft and ${viewSide()==="day"?"café":"bar"} on the ground floor, with staff and clients moving around"></canvas></div>
+  return `<div class="floorwrap"><canvas id="floor" width="${FW}" height="${FH}" data-act="floorTap" role="img" aria-label="Cutaway of ${esc(S.shopName)}: rooftop, ${viewSide()==="day"?"bookshop loft and café":"club loft and bar"} on the ground floor, with staff and clients moving around"></canvas></div>
   <p class="comms floorcap" id="floorcap">${floorCap.s?`<b>${ROOM_LABEL[floorCap.sec]||""}</b> ${esc(floorCap.s)}`:"Tap a counter to serve the next client."}<span class="cursor" aria-hidden="true"></span></p>
   <div class="rowflex"><button class="btn ghost" style="flex:1" data-act="peek">${viewSide()==="day"?"☾ PEEK AT NIGHT":"☀ PEEK AT DAY"}</button><button class="btn ghost" style="flex:1" data-act="tab" data-id="upgrade">BUILD</button></div>`;
 }
@@ -3821,7 +4013,7 @@ function floorTap(ev){
   const cv=$("floor"), r=cv.getBoundingClientRect(), y=(ev.clientY-r.top)*FH/r.height;
   const hit=floorStack().find(([sec,fy])=>y>=fy&&y<fy+RH); if(!hit) return;
   const sec=hit[0];
-  if(sec==="roof"){ toast(S.modules.lounge?"The roof is self-serve. Serve clients at the café, bar or bookshop.":"Build the Rooftop Lounge to open the roof."); return; }
+  if(sec==="roof"){ toast(S.modules.lounge?"The roof is self-serve. Serve clients downstairs.":"Build the Rooftop Lounge to open the roof."); return; }
   if(peek&&peek!==clockSide()){ toast("You're peeking. Switch back to "+(clockSide()==="day"?"day":"night")+" to serve.", true); return; }
   serveOpen(sec);
 }
@@ -3841,13 +4033,14 @@ function glow(g,x,y,r,c,a){ g.save(); g.globalCompositeOperation="lighter"; cons
 function sceneAir(g,sec,t){
   /* light cones from pendant lamps + drifting dust */
   const R=(x,y,w,h,c)=>{ g.fillStyle=c; g.fillRect(x,y,w,h); };
-  const col=sec==="bar"?"#ff8cc4":sec==="books"?"#c8f0ff":"#fff0c8";
+  const col=sec==="bar"||sec==="club"?"#ff8cc4":sec==="books"?"#c8f0ff":"#fff0c8";
   g.save(); for(let i=0;i<14;i++){ const px=((i*53+t*(.004+i%3*.002))%SW), py=12+((i*29+Math.sin(t/2000+i)*8+t*.003*(i%2?1:-1))%88+88)%88; g.globalAlpha=.25+.25*Math.sin(t/600+i); R(Math.round(px),Math.round(py),1,1,col); } g.restore();
   if(sec==="bar"){ const f=.85+.15*Math.sin(t/70)*Math.sin(t/230); g.save(); g.globalAlpha=.10*f; R(0,0,SW,104,"#ff3d8b"); g.restore(); }
 }
 function sceneCones(g,sec){
   if(sec==="cafe"){ [92,128].forEach(x=>{ for(let y=26;y<104;y++){ const s=Math.floor((y-26)*.32); if((y&1)===0) dither(g,x-s,y,s*2+1,1,"#ffe2a8",.08); } }); }
   if(sec==="books"){ for(let y=32;y<104;y++){ const s=Math.floor((y-32)*.36); if((y&1)===0) dither(g,20-s,y,s*2+1,1,"#ffe2a8",.08); } }
+  if(sec==="club"){ for(let y=4;y<104;y++){ const s=Math.floor((y-4)*.4); if((y&1)===0) dither(g,120-s,y,s*2+1,1,"#ff8ad8",.07); } }
 }
 function sceneProps(g,sec,t){
   const R=(x,y,w,h,c)=>{ g.fillStyle=c; g.fillRect(x,y,w,h); }, top=103;
@@ -3862,6 +4055,11 @@ function sceneProps(g,sec,t){
     R(30,top-9,8,9,"#9a7aff"); g.save(); g.globalAlpha=.5; R(31,top-8,6,7,"#2a1840"); g.restore(); R(33,top-12+Math.round(fl),2,3,"#ffd23f"); R(33,top-11+Math.round(fl),2,1,"#fff4d0"); glow(g,34,top-10,22,"#ffb547",.35+.1*fl);
     [[204,"#3ef2e0"],[216,"#ff3d8b"]].forEach(([x,c],i)=>{ R(x,top-10,6,10,"#9ab8c8"); R(x+1,top-6,4,6,c); g.save(); g.globalAlpha=.6; R(x,top-10,1,10,"#dff2ff"); g.restore(); if(Math.floor((t+i*700)/1300)%4===0) R(x+4,top-9,1,1,"#ffffff"); });
     const rx=(t/25)%(SW+60)-30; g.save(); g.globalAlpha=.35; R(Math.round(rx),104,24,1,"#ff8cc4"); R(Math.round(rx)+6,105,12,1,"#ff3d8b"); g.restore();
+  } else if(sec==="club"){
+    /* champagne bucket, tip jar, a feather boa draped along the stage lip */
+    R(24,top-12,12,12,"#8a88a2"); R(25,top-11,10,10,"#c8c6d8"); R(27,top-20,3,9,"#2a5a3a"); R(28,top-22,1,2,"#ffd23f"); R(31,top-18,3,7,"#2a5a3a"); g.save(); g.globalAlpha=.5; R(25,top-11,2,10,"#ffffff"); g.restore();
+    R(200,top-11,10,11,"#9fd0e8"); g.save(); g.globalAlpha=.4; R(201,top-10,8,9,"#dff2ff"); g.restore(); R(201,top-5,8,5,"#3fbf6a"); R(203,top-7,4,2,"#7fe0a0"); pixText(g,"TIPS",197,top-17,"#f0c8ff",1);
+    for(let x=60;x<180;x+=3){ const y=top-1+Math.round(Math.sin(x/6+t/700)); R(x,y,2,1,(x/3|0)%2?"#ff8ad8":"#ffb0e0"); }
   } else {
     /* book stack, tea mug with steam, reading lamp pool on the counter */
     ["#3ef2e0","#ff3d8b","#ffd23f","#7a5aff"].forEach((c,i)=>{ R(20+(i%2),top-4-i*4,18-i*2,4,c); R(20+(i%2),top-1-i*4,18-i*2,1,"rgba(0,0,0,.3)"); });
@@ -3983,7 +4181,7 @@ function sheetUploadNoBox(file,id,kind,opts){
 }
 function sheetRows(p,list){
   const floor=list===FSHEETS;
-  return (list||SHEETS).filter(([k])=>k!=="charm"||p.role==="cafe").map(([k,l,d])=>{ const a=(p.anim&&p.anim[k])||{cols:4,rows:1,fps:8}, has=!!(a.ref&&resolveArt(a.ref)), fr=has?sheetFrames(a).n:0;
+  return (list||SHEETS).filter(([k])=>true).map(([k,l,d])=>{ const a=(p.anim&&p.anim[k])||{cols:4,rows:1,fps:8}, has=!!(a.ref&&resolveArt(a.ref)), fr=has?sheetFrames(a).n:0;
     return `<div class="sheetrow" id="sh-${k}-${p.id}"><div class="spread"><b>${l}</b><span class="muted">${has?fr+" frames":"none"}</span></div><p class="hint" style="margin:2px 0 6px">${d}</p>
       <div class="sheetnums"><label>Across<input class="field num" type="number" min="1" max="16" data-anim="cols" data-kind="${k}" data-id="${p.id}" value="${a.cols||4}"></label>
         <label>Down<input class="field num" type="number" min="1" max="8" data-anim="rows" data-kind="${k}" data-id="${p.id}" value="${a.rows||1}"></label>
@@ -4012,7 +4210,7 @@ document.addEventListener("input",ev=>{ const t=ev.target; if(!t.dataset||!t.dat
 document.addEventListener("click",ev=>{
   const el=ev.target.closest("[data-act]"); if(!el) return;
   const id=el.dataset.id, act=el.dataset.act;
-  if(!["delBad","undoBad","ssClear","ssDel","ssNew","zeroCreds","undoWin","delWin","delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
+  if(!["delCharmMove","delBad","undoBad","ssClear","ssDel","ssNew","zeroCreds","undoWin","delWin","delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
   const twoTap=(label)=>{ if(armed!==act+id){ armed=act+id; el.textContent=label||"TAP AGAIN"; return false; } armed=null; return true; };
   switch(act){
     case "tab": if(id==="favors"){ devSub="favors"; tab="dev"; render(); window.scrollTo(0,0); break; } if(id==="today") taskView="today"; tab=id==="today"?"tasks":id==="build"?"upgrade":id; peek=null; render(); window.scrollTo(0,0); break;
@@ -4030,6 +4228,7 @@ document.addEventListener("click",ev=>{
     case "delTask": if(!twoTap()) return; S.tasks=S.tasks.filter(t=>t.id!==id); closeSheet(); commit(); break;
     case "taskView": taskView=id; render(); window.scrollTo(0,0); break;
     case "taskFilter": taskFilter=id; render(); break;
+    case "bgOffer": S.bgOffer=S.bgOffer===false; commit(); toast(S.bgOffer?"Background removal will open on import.":"Images import as-is now."); break;
     case "fab": if(taskView==="habits") addSheetHabits(); else quickSheet({today:taskView==="today",list:taskFilter.indexOf("list:")===0?taskFilter.slice(5):""}); break;
     case "bad": tapBad(id,ev); break;
     case "newBad": badSheet(null); break;
@@ -4067,6 +4266,12 @@ document.addEventListener("click",ev=>{
     case "clearFace": { const [wid,k]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.faces){ dropArt(w.faces[k]); delete w.faces[k]; faceOpen=wid; manageOpen=wid; commit(); } break; }
     case "clearSheet": { const [wid,k]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.anim&&w.anim[k]){ dropArt(w.anim[k].ref); delete w.anim[k].ref; commit(); } break; }
     case "hideFavArt": srv.showFavorArt=false; renderServe(); break;
+    case "hideCharmArt": srv.showCharmArt=false; renderServe(); break;
+    case "viewCharm": { const [w,s]=id.split(":"); charmView(w,s); break; }
+    case "clearCharmSlot": { const [wid,s]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(!w) return; if(s==="general"){ dropArt(w.charmArt); w.charmArt=null; } else if(w.charmArts){ dropArt(w.charmArts[s]); delete w.charmArts[s]; } commit(); break; }
+    case "newCharmMove": charmMoveSheet(null); break;
+    case "editCharmMove": charmMoveSheet(charmMove(id)); break;
+    case "delCharmMove": { if(!twoTap()) return; if(S.charm.moves.length<2){ toast("Keep at least one move.", true); return; } S.charm.moves=S.charm.moves.filter(m=>m.id!==id); S.staff.forEach(w=>{ if(w.charmArts&&w.charmArts[id]){ dropArt(w.charmArts[id]); delete w.charmArts[id]; } }); closeSheet(); commit(); break; }
     case "favToggleAll": S.favors.on=!S.favors.on; commit(); break;
     case "favFilter": favFilter=id; render(); break;
     case "favOn": { const f=S.favors.deck.find(x=>x.id===id); if(f){ f.on=!f.on; commit(); } break; }
@@ -4083,9 +4288,9 @@ document.addEventListener("click",ev=>{
     case "copySave": { const t=JSON.stringify(S); $("saveText").value=t; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Save copied.")).catch(()=>{ $("saveText").select(); toast("Copy the save from the box below.", true); }); break; }
     case "importSave": restoreSave(($("saveText").value||"").trim()); break;
     case "cleanArt": { const n=cleanArt(); toast(`Removed ${n} unused image${n===1?"":"s"}.`); render(); break; }
-    case "purgeArt": if(!twoTap("TAP AGAIN TO DELETE ALL")) return; S.staff.forEach(w=>{ if(w.art&&w.art!=="builtin:mika") w.art=null; w.charmArt=null; w.anim={}; w.faces={}; w.outfits={}; w.outfit=1; }); S.favors.deck.forEach(f=>{ f.art=null; f.anim=null; }); Object.keys(ART).forEach(k=>{ delete ART[k]; ArtDB.del(k); }); S.sprites={}; Object.keys(spriteCache).forEach(k=>delete spriteCache[k]); addLog("All uploaded art deleted.","warn"); commit(); toast("All uploaded art deleted."); break;
+    case "purgeArt": if(!twoTap("TAP AGAIN TO DELETE ALL")) return; S.staff.forEach(w=>{ if(w.art&&w.art!=="builtin:mika") w.art=null; w.charmArt=null; w.charmArts={}; w.anim={}; w.faces={}; w.outfits={}; w.outfit=1; }); S.favors.deck.forEach(f=>{ f.art=null; f.anim=null; }); Object.keys(ART).forEach(k=>{ delete ART[k]; ArtDB.del(k); }); S.sprites={}; Object.keys(spriteCache).forEach(k=>delete spriteCache[k]); addLog("All uploaded art deleted.","warn"); commit(); toast("All uploaded art deleted."); break;
     case "sound": S.sound=!S.sound; commit(); break;
-    case "clockMode": S.clockMode=id==="auto"?undefined:id; peek=null; commit(); toast(id==="auto"?"Back on real time.":id==="day"?"It's daytime. The café is open.":"It's night. The bar and books are open."); break;
+    case "clockMode": S.clockMode=id==="auto"?undefined:id; peek=null; commit(); toast(id==="auto"?"Back on real time.":id==="day"?"It's daytime. The café and bookshop are open.":"It's night. The bar and club are open."); break;
     case "testCreds": S.credits+=+id; addLog("Test creds: +"+id+"₵."); commit(); break;
     case "zeroCreds": if(armed!==act){ armed=act; el.textContent="TAP AGAIN"; return; } armed=null; S.credits=0; addLog("Test: creds set to 0."); commit(); break;
     case "testClients": S.clients.waiting+=10; addLog("Test: 10 clients walked in."); commit(); break;
@@ -4157,10 +4362,12 @@ document.addEventListener("submit",ev=>{
     favDraft=null; closeSheet(); commit(); toast("Favor saved.");
   }
 });
-document.addEventListener("change",ev=>{
-  const t=ev.target, file=t.files&&t.files[0];
+document.addEventListener("change",ev=>routeUpload(ev.target));
+function routeUpload(t){
+  const file=t.files&&t.files[0];
   if(t.id==="workerArt"||t.dataset.up==="worker") return workerArtUpload(file,t.dataset.id);
   if(t.id==="charmArt"||t.dataset.up==="charm") return charmArtUpload(file,t.dataset.id);
+  if(t.dataset&&t.dataset.up==="charmslot") return charmSlotUpload(file,t.dataset.id,t.dataset.kind);
   if(t.id==="favArt") return favArtUpload(file);
   if(t.id==="favAnimFile") return favAnimUpload(file);
   if(t.dataset&&t.dataset.up==="sheet") return sheetUpload(file,t.dataset.id,t.dataset.kind);
@@ -4169,6 +4376,400 @@ document.addEventListener("change",ev=>{
   if(t.id==="artFile") return shrinkArt(file,96,data=>{ S.sprites[t.dataset.id]=data; delete spriteCache[t.dataset.id]; commit(); toast("Room art loaded."); });
   if(t.id==="packFile"&&file){ const r=new FileReader(); r.onload=()=>importPack(String(r.result)); r.readAsText(file); return; }
   if(t.id==="saveFile"&&file){ const r=new FileReader(); r.onload=()=>restoreSave(String(r.result)); r.readAsText(file); return; }
+}
+
+function routeSS(t){
+  if(t.id==="ssImport"&&t.files&&t.files[0]){ const n=Math.max(1,Math.min(16,+($("ssAcross").value)||1)), m=Math.max(1,Math.min(8,+($("ssDown").value)||1)); SS.upCols=n; SS.upRows=m;
+    readImage(t.files[0]).then(img=>{ const c=document.createElement("canvas"); c.width=img.width||img.naturalWidth; c.height=img.height||img.naturalHeight; c.getContext("2d").drawImage(img,0,0); ssLoadSheet(c.toDataURL("image/png"),n,m,()=>{ ssSaveDraft(); render(); toast(`Uploaded ${n*m} frame${n*m===1?"":"s"} to edit.`); }); }).catch(()=>toast(imgErr(t.files[0]), true)); }
+  if(t.id==="ssDirect"&&t.files&&t.files[0]){ const w=S.staff.find(x=>x.id===SS.wid); if(!w){ toast("Pick a worker first.", true); return; }
+    const n=Math.max(1,Math.min(16,+($("ssAcross").value)||1)), m=Math.max(1,Math.min(8,+($("ssDown").value)||1)); SS.upCols=n; SS.upRows=m;
+    sheetUploadNoBox(t.files[0],w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; }
+}
+/* ---------- background remover (opens on image import) ---------- */
+const BX={};
+document.addEventListener("change",ev=>{
+  const t=ev.target; if(!t||t.type!=="file"||!t.files||!t.files[0]||!/image/.test(t.accept||"")) return;
+  if(S.bgOffer===false||BX.open) return;
+  ev.stopImmediatePropagation();
+  const file=t.files[0], stub={id:t.id,dataset:Object.assign({},t.dataset),files:[file],accept:t.accept};
+  t.value="";
+  const deliver=f=>{ stub.files=[f]; if(stub.id==="ssImport"||stub.id==="ssDirect") routeSS(stub); else routeUpload(stub); };
+  readImage(file).then(img=>{
+    let W=img.width||img.naturalWidth, H=img.height||img.naturalHeight; const sc=Math.min(1,Math.sqrt(12e6/(W*H)));
+    W=Math.max(1,Math.round(W*sc)); H=Math.max(1,Math.round(H*sc));
+    const c=document.createElement("canvas"); c.width=W; c.height=H; const g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(img,0,0,W,H);
+    const src=g.getImageData(0,0,W,H); let tr=0; for(let i=3;i<src.data.length;i+=4) if(src.data[i]<16) tr++;
+    if(tr>W*H*0.01){ toast("Already has a transparent background. Imported as is."); deliver(file); return; }
+    bxOpen(c,src,file,deliver);
+  }).catch(()=>deliver(file));
+},true);
+function bxEdgeKeys(src,W,H){
+  const d=src.data, B=new Map(); let tot=0;
+  const add=i=>{ const o=i*4; if(d[o+3]<16) return; tot++; const q=(d[o]>>4)<<8|(d[o+1]>>4)<<4|(d[o+2]>>4); let b=B.get(q); if(!b){ b=[0,0,0,0]; B.set(q,b); } b[0]++; b[1]+=d[o]; b[2]+=d[o+1]; b[3]+=d[o+2]; };
+  for(let x=0;x<W;x++){ add(x); add((H-1)*W+x); } for(let y=1;y<H-1;y++){ add(y*W); add(y*W+W-1); }
+  return [...B.values()].sort((p,q)=>q[0]-p[0]).filter(b=>b[0]>=tot*0.08).slice(0,4).map(b=>[b[1]/b[0],b[2]/b[0],b[3]/b[0]]);
+}
+function bxOpen(canvas,src,file,deliver){
+  const W=canvas.width, H=canvas.height;
+  Object.assign(BX,{open:true,W,H,src,orig:canvas,file,deliver,tol:42,mode:"edge",shrink:0,soft:false,specks:false,tool:"remove",brush:24,zoom:1,bg:"check",edgeKeys:bxEdgeKeys(src,W,H)});
+  BX.acts=BX.edgeKeys.length?[{type:"edge"}]:[];
+  const el=document.createElement("div"); el.id="bgx"; el.className="bgx"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label","Remove background");
+  el.innerHTML=`<div class="bgxhead"><b>REMOVE BACKGROUND</b><span id="bgxInfo"></span></div>
+  <div class="bgxview" id="bgxView" data-bg="check"><canvas id="bgxCan" width="${W}" height="${H}"></canvas></div>
+  <div class="bgxctl">
+    <div class="bgxrow"><span class="fl">Tap to</span><div class="bgxseg" data-grp="tool">
+      <button data-bx="tool" data-v="remove" class="on">✂ Remove area</button><button data-bx="tool" data-v="erase">Erase</button><button data-bx="tool" data-v="restore">Restore</button></div></div>
+    <div class="bgxrow" id="bgxBrushRow" hidden><label class="fl" for="bgxBrush">Brush size</label><input type="range" id="bgxBrush" min="4" max="80" value="24"></div>
+    <div class="bgxrow"><label class="fl" for="bgxTol">How close a color counts · <b id="bgxTolV">42</b></label><input type="range" id="bgxTol" min="0" max="160" value="42"></div>
+    <div class="bgxrow"><span class="fl">Remove</span><div class="bgxseg">
+      <button data-bx="mode" data-v="edge" class="on">Only touching the area</button><button data-bx="mode" data-v="all">That color everywhere</button></div></div>
+    <div class="bgxrow bgxtog">
+      <label><span>Trim edge</span><select class="field" id="bgxShrink"><option value="0">off</option><option value="1">1 px</option><option value="2">2 px</option><option value="3">3 px</option></select></label>
+      <label class="bgxchk"><input type="checkbox" id="bgxSoft"><span>Soften edge</span></label>
+      <label class="bgxchk"><input type="checkbox" id="bgxSpecks"><span>Clear specks</span></label></div>
+    <div class="bgxrow bgxtog"><span class="fl" style="margin:0">Preview on</span><div class="bgxseg sm">
+      <button data-bx="bg" data-v="check" class="on">▦</button><button data-bx="bg" data-v="dark">Dark</button><button data-bx="bg" data-v="light">Light</button><button data-bx="bg" data-v="pink">Pink</button></div>
+      <div class="bgxseg sm"><button data-bx="zoom" data-v="-1" aria-label="Zoom out">−</button><button data-bx="zoom" data-v="1" aria-label="Zoom in">+</button></div></div>
+    <div class="bgxrow bgxtog"><button class="btn ghost smallbtn" data-bx="undo">UNDO</button><button class="btn ghost smallbtn" data-bx="reset">START OVER</button></div>
+  </div>
+  <div class="bgxact"><button class="btn ghost" data-bx="cancel">CANCEL</button><button class="btn" data-bx="keep">KEEP BACKGROUND</button><button class="btn solid" data-bx="use">USE THIS</button></div>`;
+  document.body.appendChild(el); document.body.classList.add("bgxon");
+  BX.can=$("bgxCan"); BX.g=BX.can.getContext("2d"); bxFit(); bxCompute();
+  const cv=BX.can;
+  cv.addEventListener("pointerdown",bxDown); cv.addEventListener("pointermove",bxMove); cv.addEventListener("pointerup",bxUp); cv.addEventListener("pointercancel",()=>{ BX.down=null; });
+  el.addEventListener("click",bxClick); el.addEventListener("input",bxInput); el.addEventListener("change",bxInput);
+  BX.key=e=>{ if(e.key==="Escape") bxClose(); }; document.addEventListener("keydown",BX.key);
+  setTimeout(()=>{ const b=el.querySelector('[data-bx="use"]'); b&&b.focus(); },30);
+}
+function bxClose(){ const el=$("bgx"); if(el) el.remove(); document.body.classList.remove("bgxon"); document.removeEventListener("keydown",BX.key); BX.open=false; BX.src=null; BX.orig=null; }
+function bxFit(){
+  const v=$("bgxView"); if(!v) return; const vw=v.clientWidth-2, vh=Math.max(160,v.clientHeight-2), f=Math.min(vw/BX.W,vh/BX.H)*BX.zoom;
+  BX.can.style.width=Math.round(BX.W*f)+"px"; BX.can.style.height=Math.round(BX.H*f)+"px";
+  BX.can.style.imageRendering=f>=2?"pixelated":"auto"; v.classList.toggle("zoomed",BX.zoom>1);
+}
+function bxPos(ev){ const r=BX.can.getBoundingClientRect(); return [Math.floor((ev.clientX-r.left)*BX.W/r.width),Math.floor((ev.clientY-r.top)*BX.H/r.height),BX.W/r.width]; }
+function bxDown(ev){
+  const [x,y,k]=bxPos(ev); BX.down={x:ev.clientX,y:ev.clientY,ix:x,iy:y};
+  if(BX.tool!=="remove"){ ev.preventDefault(); BX.can.setPointerCapture&&BX.can.setPointerCapture(ev.pointerId); BX.stroke={type:"brush",m:BX.tool,r:Math.max(1,BX.brush*k/2),pts:[[x,y]]}; bxDab(x,y); }
+}
+function bxMove(ev){ if(!BX.stroke) return; const [x,y]=bxPos(ev), p=BX.stroke.pts[BX.stroke.pts.length-1]; if(p[0]===x&&p[1]===y) return; BX.stroke.pts.push([x,y]); bxDab(x,y,p); }
+function bxUp(ev){
+  const d=BX.down; BX.down=null;
+  if(BX.stroke){ BX.acts.push(BX.stroke); BX.stroke=null; bxCompute(); return; }
+  if(!d||Math.hypot(ev.clientX-d.x,ev.clientY-d.y)>8) return;
+  const x=d.ix, y=d.iy; if(x<0||y<0||x>=BX.W||y>=BX.H) return; const o=(y*BX.W+x)*4, s=BX.src.data;
+  if(s[o+3]<16||BX.rm&&BX.rm[y*BX.W+x]){ toast("That spot is already removed. Use Restore to bring it back.", true); return; }
+  BX.acts.push({type:"seed",x,y,c:[s[o],s[o+1],s[o+2]]}); bxCompute();
+}
+function bxDab(x,y,p){ /* live preview while dragging; the full recompute runs on release */
+  const g=BX.g, r=BX.stroke.r; g.save(); g.lineCap="round"; g.lineWidth=r*2;
+  const path=()=>{ g.beginPath(); if(p){ g.moveTo(p[0]+.5,p[1]+.5); g.lineTo(x+.5,y+.5); } else { g.moveTo(x+.5,y+.5); g.lineTo(x+.51,y+.5); } };
+  if(BX.stroke.m==="erase"){ g.globalCompositeOperation="destination-out"; path(); g.stroke(); }
+  else { path(); g.strokeStyle="#000"; g.globalCompositeOperation="destination-out"; g.stroke(); g.globalCompositeOperation="destination-over"; g.restore(); g.save();
+    g.beginPath(); if(p){ /* clip to the swept capsule approximately */ } g.arc(x+.5,y+.5,r,0,Math.PI*2); g.clip(); g.drawImage(BX.orig,0,0); }
+  g.restore();
+}
+function bxCompute(){
+  const {W,H,src}=BX, n=W*H, d=src.data, rm=new Uint8Array(n), T=BX.tol*BX.tol;
+  for(let i=0;i<n;i++) if(d[i*4+3]<16) rm[i]=1;
+  const near=(i,keys)=>{ const o=i*4; if(d[o+3]<16) return true; for(let k=0;k<keys.length;k++){ const K=keys[k], a=d[o]-K[0], b=d[o+1]-K[1], c=d[o+2]-K[2]; if(a*a+b*b+c*c<=T) return true; } return false; };
+  const stack=new Int32Array(n);
+  const flood=(seeds,keys)=>{ const vis=new Uint8Array(n); let sp=0;
+    seeds.forEach(i=>{ if(!vis[i]&&near(i,keys)){ vis[i]=1; stack[sp++]=i; } });
+    while(sp){ const i=stack[--sp]; rm[i]=1; const x=i%W;
+      if(x>0){ const j=i-1; if(!vis[j]&&near(j,keys)){ vis[j]=1; stack[sp++]=j; } }
+      if(x<W-1){ const j=i+1; if(!vis[j]&&near(j,keys)){ vis[j]=1; stack[sp++]=j; } }
+      if(i>=W){ const j=i-W; if(!vis[j]&&near(j,keys)){ vis[j]=1; stack[sp++]=j; } }
+      if(i<n-W){ const j=i+W; if(!vis[j]&&near(j,keys)){ vis[j]=1; stack[sp++]=j; } } } };
+  const every=keys=>{ for(let i=0;i<n;i++) if(!rm[i]&&near(i,keys)) rm[i]=1; };
+  const border=[]; for(let x=0;x<W;x++){ border.push(x,(H-1)*W+x); } for(let y=1;y<H-1;y++) border.push(y*W,y*W+W-1);
+  const brush=[];
+  BX.acts.forEach(a=>{
+    if(a.type==="edge"){ if(BX.mode==="all") every(BX.edgeKeys); else flood(border,BX.edgeKeys); }
+    else if(a.type==="seed"){ if(BX.mode==="all") every([a.c]); else flood([a.y*W+a.x],[a.c]); }
+    else brush.push(a);
+  });
+  for(let s=0;s<BX.shrink;s++){ const cut=[]; for(let i=0;i<n;i++){ if(rm[i]) continue; const x=i%W; if((x>0&&rm[i-1])||(x<W-1&&rm[i+1])||(i>=W&&rm[i-W])||(i<n-W&&rm[i+W])) cut.push(i); } cut.forEach(i=>rm[i]=1); }
+  if(BX.specks){ const lab=new Int32Array(n), min=Math.max(12,Math.round(n*0.0003)); let id=0;
+    for(let i0=0;i0<n;i0++){ if(rm[i0]||lab[i0]) continue; id++; let sp=0, cnt=0; const mem=[]; lab[i0]=id; stack[sp++]=i0;
+      while(sp){ const i=stack[--sp]; cnt++; if(mem.length<min) mem.push(i); const x=i%W, y=(i/W)|0;
+        for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ if(!dx&&!dy) continue; const xx=x+dx, yy=y+dy; if(xx<0||yy<0||xx>=W||yy>=H) continue; const j=yy*W+xx; if(!rm[j]&&!lab[j]){ lab[j]=id; stack[sp++]=j; } } }
+      if(cnt<min) mem.forEach(i=>rm[i]=1); } }
+  const keep=new Uint8Array(n); /* 1 = forced back by Restore */
+  brush.forEach(b=>{ const r=b.r, r2=r*r; for(let p=0;p<b.pts.length;p++){ const [x1,y1]=b.pts[p], [x0,y0]=p?b.pts[p-1]:b.pts[p], steps=Math.max(1,Math.ceil(Math.hypot(x1-x0,y1-y0)/Math.max(1,r/2)));
+    for(let s=0;s<=steps;s++){ const cx=x0+(x1-x0)*s/steps, cy=y0+(y1-y0)*s/steps;
+      for(let y=Math.max(0,Math.floor(cy-r));y<=Math.min(H-1,Math.ceil(cy+r));y++) for(let x=Math.max(0,Math.floor(cx-r));x<=Math.min(W-1,Math.ceil(cx+r));x++){ const dx=x-cx, dy=y-cy; if(dx*dx+dy*dy<=r2){ const i=y*W+x; if(b.m==="erase"){ rm[i]=1; keep[i]=0; } else { rm[i]=d[i*4+3]<16?1:0; keep[i]=1; } } } } } });
+  const out=new ImageData(new Uint8ClampedArray(d),W,H), o=out.data; let gone=0;
+  for(let i=0;i<n;i++){ if(rm[i]){ o[i*4+3]=0; gone++; continue; }
+    if(BX.soft&&!keep[i]){ const x=i%W; if((x>0&&rm[i-1])||(x<W-1&&rm[i+1])||(i>=W&&rm[i-W])||(i<n-W&&rm[i+W])) o[i*4+3]=o[i*4+3]>>1; } }
+  BX.rm=rm; BX.g.putImageData(out,0,0);
+  const inf=$("bgxInfo"); if(inf) inf.textContent=`${W}×${H} · ${Math.round(gone*100/n)}% clear`;
+}
+let bxRaf=0; const bxSoon=()=>{ cancelAnimationFrame(bxRaf); bxRaf=requestAnimationFrame(bxCompute); };
+function bxSeg(grp,v){ document.querySelectorAll(`#bgx [data-bx="${grp}"]`).forEach(b=>{ const on=b.dataset.v===v; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); }); }
+function bxClick(ev){
+  const b=ev.target.closest("[data-bx]"); if(!b) return; const k=b.dataset.bx, v=b.dataset.v;
+  if(k==="tool"){ BX.tool=v; bxSeg("tool",v); $("bgxBrushRow").hidden=v==="remove"; BX.can.classList.toggle("brush",v!=="remove"); }
+  else if(k==="mode"){ BX.mode=v; bxSeg("mode",v); bxCompute(); }
+  else if(k==="bg"){ BX.bg=v; bxSeg("bg",v); $("bgxView").dataset.bg=v; }
+  else if(k==="zoom"){ const Z=[1,2,4,8], i=Z.indexOf(BX.zoom); BX.zoom=Z[Math.max(0,Math.min(Z.length-1,i+ +v))]; bxFit(); }
+  else if(k==="undo"){ if(!BX.acts.length){ toast("Nothing to undo."); return; } BX.acts.pop(); bxCompute(); }
+  else if(k==="reset"){ BX.acts=BX.edgeKeys.length?[{type:"edge"}]:[]; bxCompute(); }
+  else if(k==="cancel"){ bxClose(); }
+  else if(k==="keep"){ const f=BX.file, dl=BX.deliver; bxClose(); dl(f); }
+  else if(k==="use"){ const dl=BX.deliver, name=((BX.file&&BX.file.name)||"art").replace(/\.\w+$/,"")+"-cut.png";
+    const finish=blob=>{ bxClose(); let f; try{ f=new File([blob],name,{type:"image/png"}); }catch(e){ f=blob; f.name=name; } dl(f); };
+    if(BX.can.toBlob) BX.can.toBlob(bl=>{ if(bl) finish(bl); else finish(bxBlob(BX.can.toDataURL("image/png"))); },"image/png");
+    else finish(bxBlob(BX.can.toDataURL("image/png"))); }
+}
+function bxBlob(url){ const s=atob(url.split(",")[1]), u=new Uint8Array(s.length); for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i); return new Blob([u],{type:"image/png"}); }
+function bxInput(ev){ const t=ev.target;
+  if(t.id==="bgxTol"){ BX.tol=+t.value; $("bgxTolV").textContent=t.value; bxSoon(); }
+  if(t.id==="bgxBrush") BX.brush=+t.value;
+  if(t.id==="bgxShrink"){ BX.shrink=+t.value; bxSoon(); }
+  if(t.id==="bgxSoft"){ BX.soft=t.checked; bxSoon(); }
+  if(t.id==="bgxSpecks"){ BX.specks=t.checked; bxSoon(); }
+}
+window.addEventListener("resize",()=>{ if(BX.open) bxFit(); });
+/* ================= CHARM MOVES: named moves, per-employee art slots, gallery ================= */
+function defaultCharm(){ const M=(id,name,tip,chance,needLv,lwGain,act,yes,no)=>({id,name,tip,chance,needLv,lwGain,act,yes,no});
+  return {moves:[
+    M("wink","Wink",25,95,1,0,"{w} catches {c}'s eye and winks.","Oh. Hi.","...Was that at me?"),
+    M("compliment","Compliment",35,85,1,0,"{w} leans in: \"You look great today, {c}.\"","Stop it. Okay, don't stop.","Uh, thanks. I guess."),
+    M("tease","Tease",50,75,2,0,"{w} plays coy with {c}, all smiles.","You're trouble, you know that?","Not my thing, sorry."),
+    M("flash","Flash",80,60,3,1,"{w} gives {c} a quick little show.","I... need a minute.","Whoa. Okay. Wrong moment.")
+  ]}; }
+function charmMigrate(o){ const d=defaultCharm(); if(!o.charm||!Array.isArray(o.charm.moves)||!o.charm.moves.length) o.charm=d; }
+const charmMove=id=>S.charm.moves.find(m=>m.id===id);
+function charmOdds(w,m){ return Math.max(5,Math.min(98,Math.round((m.chance||50)+((w.charm||1)-1)*5))); }
+function charmArtFor(w,id){ const r=(w.charmArts&&w.charmArts[id])||w.charmArt; return r?resolveArt(r):null; }
+
+/* ---------- at the counter ---------- */
+function charmAllowed(){ return srv.sec==="cafe"||srv.sec==="club"||perkOf(srv.worker)==="entertain"; }
+function charmButton(){
+  if(!charmAllowed()||srv.result) return "";
+  const w=srv.worker, left=charmMax(w)-charmUsed(w);
+  return `<button class="btn charmbtn" data-act="charmPick" style="flex:1" aria-expanded="${!!srv.charmPick}" ${srv.charmed||left<=0?"disabled":""}>✦ CHARM · ${Math.max(0,left)} LEFT</button>`;
+}
+function charmPicker(){
+  if(!srv.charmPick||srv.charmed||srv.result||!charmAllowed()) return ""; const w=srv.worker, lv=progLevel(w);
+  return `<div class="charmpick" role="group" aria-label="Charm moves">${S.charm.moves.map(m=>{ const lock=lv<(m.needLv||1), a=charmArtFor(w,m.id);
+    return `<button class="cmove" data-act="charmMove" data-id="${m.id}" ${lock?"disabled":""}>${a?`<img src="${a}" alt="">`:`<span class="ci" aria-hidden="true">✦</span>`}
+      <b>${esc(m.name)}</b><small>${lock?`${esc(PL())} ${m.needLv} needed`:`+${m.tip}% tip · ${charmOdds(w,m)}%`}</small></button>`; }).join("")}</div>`;
+}
+function doCharmMove(id,ev){
+  const w=srv.worker, C=srv.cust, m=charmMove(id); if(!m||srv.charmed||srv.result) return;
+  if(progLevel(w)<(m.needLv||1)){ toast(`${w.name} needs ${PL()} ${m.needLv} for ${m.name}.`, true); return; }
+  if(charmUsed(w)>=charmMax(w)){ toast(`${w.name} is out of charm for today.`, true); return; }
+  const d=serveDay(); d.charm=d.charm||{}; d.charm[w.id]=(d.charm[w.id]||0)+1;
+  const ok=Math.random()*100<charmOdds(w,m), f=s=>fillT(s||"",{w:w.name,c:C.name});
+  srv.charmed=true; srv.charmPick=false; srv.charmMove=m.id; srv.charmFlash=performance.now();
+  if(ok){ srv.tipMod+=(m.tip||0)/100; srv.showCharmArt=!!charmArtFor(w,m.id); if(m.lwGain) gainProg(w,m.lwGain); }
+  else { srv.tipMod-=.1; srv.showCharmArt=false; }
+  srv.step=srv.lines.length-1; srv.typed=srv.lines[srv.step].text.length;
+  pushLines([{who:"n",text:f(m.act)||`${w.name} tries a ${m.name.toLowerCase()}.`},{who:"c",text:f(ok?m.yes:m.no)||(ok?"Wow.":"Hm.")}]);
+  pop(ev,ok?`✦ +${m.tip}% TIP`:"MISSED",ok?"#ff8cc4":"var(--bad)"); beep(ok?1320:300); if(ok) setTimeout(()=>beep(1760),110);
+  save(); renderServe();
+}
+function charmCG(){
+  if(!srv.showCharmArt||!srv.charmMove) return ""; const a=charmArtFor(srv.worker,srv.charmMove); if(!a) return "";
+  return `<button class="cgbtn" data-act="hideCharmArt" aria-label="Hide charm art"><img class="cg" src="${a}" alt=""></button>`;
+}
+
+/* ---------- Dev: gallery per employee + moves editor ---------- */
+function charmGallery(p){
+  const slots=[["general","General · fallback"],...S.charm.moves.map(m=>[m.id,m.name])];
+  return `<section class="panel"><h2><span>CHARM ART</span><span>${esc(p.name.toUpperCase())}</span></h2>
+    <p class="hint" style="margin:0 0 8px">One slot per charm move. A move with no art of its own uses the General slot. Tap a picture to view it full size.</p>
+    <div class="cgal">${slots.map(([id,label])=>{ const ref=id==="general"?p.charmArt:(p.charmArts||{})[id], a=ref&&resolveArt(ref), fid=`cs-${id}-${p.id}`;
+      return `<div class="cslot">${a?`<button class="cthumb" data-act="viewCharm" data-id="${p.id}:${id}" aria-label="View ${esc(label)} art"><img src="${a}" alt=""></button>`:`<div class="cthumb empty"><span>✦</span></div>`}
+        <b>${esc(label)}</b>
+        <div class="rowflex" style="gap:4px"><label class="btn ghost smallbtn" for="${fid}" style="text-align:center">${a?"REPLACE":"LOAD"}</label><input type="file" id="${fid}" class="srt" accept="image/*" data-up="charmslot" data-id="${p.id}" data-kind="${id}">
+        ${a?`<button class="btn ghost smallbtn" data-act="clearCharmSlot" data-id="${p.id}:${id}">✕</button>`:""}</div></div>`; }).join("")}</div>
+  </section>`;
+}
+function charmMovesPanel(){
+  return `<section class="panel"><h2><span>CHARM MOVES</span><span>ALL STAFF</span></h2>
+    <p class="hint" style="margin:0 0 8px">Moves show at the counter when you tap Charm. Each uses one charm for the day. The chance shown rises 5% per Charm point.</p>
+    <div class="list">${S.charm.moves.map(m=>`<div class="favrow"><div class="favthumb"><span>✦</span></div><button class="info" data-act="editCharmMove" data-id="${m.id}"><span class="nm">${esc(m.name)}</span>
+      <span class="meta"><span>+${m.tip}% tip</span><span>${m.chance}% base</span><span class="tag">${esc(PL())} ${m.needLv}+</span>${m.lwGain?`<span>+${m.lwGain} ${esc(PL())}</span>`:""}</span></button></div>`).join("")}</div>
+    <div class="actions">${S.charm.moves.length<8?`<button class="btn solid" data-act="newCharmMove">+ NEW MOVE</button>`:""}</div></section>`;
+}
+function charmMoveSheet(m){
+  const isNew=!m; m=m||{id:"",name:"",tip:40,chance:80,needLv:1,lwGain:0,act:"",yes:"",no:""};
+  const T=(id,l,v,ph)=>`<div class="full"><label class="fl" for="${id}">${l}</label><textarea class="field" id="${id}" rows="2" maxlength="300" placeholder="${ph}">${esc(v||"")}</textarea></div>`;
+  openSheet(`<h3>${isNew?"NEW CHARM MOVE":"EDIT "+esc(m.name.toUpperCase())}</h3>
+  <form data-form="charmMove" data-id="${m.id}" class="stack"><div class="formgrid">
+    <div class="full"><label class="fl" for="cmName">Move name</label><input class="field" id="cmName" maxlength="20" value="${esc(m.name)}" placeholder="Flash" required autocomplete="off"></div>
+    <div><label class="fl" for="cmTip">Tip bonus %</label><input class="field num" id="cmTip" type="number" min="0" max="300" value="${m.tip}"></div>
+    <div><label class="fl" for="cmChance">Base chance %</label><input class="field num" id="cmChance" type="number" min="5" max="100" value="${m.chance}"></div>
+    <div><label class="fl" for="cmLv">${esc(PL())} level needed</label><select class="field" id="cmLv">${[1,2,3,4,5].map(n=>`<option ${m.needLv===n?"selected":""}>${n}</option>`).join("")}</select></div>
+    <div><label class="fl" for="cmLw">${esc(PL())} gained</label><input class="field num" id="cmLw" type="number" min="0" max="10" value="${m.lwGain||0}"></div>
+    ${T("cmAct","What happens",m.act,"{w} ... {c}")}${T("cmYes","Client reaction when it lands",m.yes,"")}${T("cmNo","Client reaction when it misses",m.no,"")}
+    <p class="hint full" style="margin:0">Use {w} for the worker and {c} for the client. A miss costs 10% of the tip.</p></div>
+    <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delCharmMove" data-id="${m.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
+  </form>`);
+}
+function charmSubmit(ev){
+  const f=ev.target; if(!f.dataset||f.dataset.form!=="charmMove") return; ev.preventDefault(); ev.stopImmediatePropagation();
+  const v=id=>($(id)||{}).value, n=(id,a,b)=>Math.max(a,Math.min(b,Math.round(+v(id)||0))), name=(v("cmName")||"").trim().slice(0,20); if(!name) return;
+  const o={name,tip:n("cmTip",0,300),chance:n("cmChance",5,100),needLv:+v("cmLv")||1,lwGain:n("cmLw",0,10),act:v("cmAct"),yes:v("cmYes"),no:v("cmNo")};
+  const m=f.dataset.id&&charmMove(f.dataset.id); if(m) Object.assign(m,o); else S.charm.moves.push(Object.assign({id:"m"+uid().slice(0,6)},o));
+  closeSheet(); commit(); toast(m?"Move saved.":"Move added. Load art for it per employee in Dev › Workers.");
+}
+document.addEventListener("submit",charmSubmit,true);
+function charmSlotUpload(file,wid,slot){
+  const w=S.staff.find(x=>x.id===wid); if(!w||!file) return;
+  bigArt(file,900,async data=>{ const ref=await storeArt(data);
+    if(slot==="general"){ dropArt(w.charmArt); w.charmArt=ref; } else { w.charmArts=w.charmArts||{}; dropArt(w.charmArts[slot]); w.charmArts[slot]=ref; }
+    commit(); toast("Charm art loaded."); });
+}
+function charmView(wid,slot){
+  const w=S.staff.find(x=>x.id===wid); if(!w) return; const ref=slot==="general"?w.charmArt:(w.charmArts||{})[slot], a=ref&&resolveArt(ref); if(!a) return;
+  const m=charmMove(slot), slots=["general",...S.charm.moves.map(x=>x.id)].filter(s=>{ const r=s==="general"?w.charmArt:(w.charmArts||{})[s]; return !!r; }), i=slots.indexOf(slot);
+  openSheet(`<h3>${esc(w.name.toUpperCase())} · ${esc(m?m.name.toUpperCase():"GENERAL")}</h3>
+    <img src="${a}" alt="" class="cview">
+    <div class="actions">${slots.length>1?`<button class="btn ghost" data-act="viewCharm" data-id="${wid}:${slots[(i-1+slots.length)%slots.length]}">‹ PREV</button><button class="btn ghost" data-act="viewCharm" data-id="${wid}:${slots[(i+1)%slots.length]}">NEXT ›</button>`:""}<button class="btn solid" data-act="close">CLOSE</button></div>`);
+}
+
+/* ================= JOBS: several per venue, roster, employee import/export ================= */
+const PERKS={
+  service:{label:"Counter specialist",desc:"+1 hint a day, and sometimes saves a Close into a Perfect"},
+  tips:{label:"Money handler",desc:"+20% tips on every client they serve"},
+  entertain:{label:"Entertainer",desc:"Clients ask favors twice as often, favors give +1 extra progression, and Charm works at any venue"}
+};
+const VENUE_CAP=8;
+function defaultJobs(){ return {
+  cafe:[{id:"cashier",name:"Cashier",perk:"tips"},{id:"barista",name:"Barista",perk:"service"},{id:"cafe_ent",name:"Entertainer",perk:"entertain"}],
+  books:[{id:"clerk",name:"Clerk",perk:"tips"},{id:"bookseller",name:"Bookseller",perk:"service"},{id:"books_ent",name:"Entertainer",perk:"entertain"}],
+  bar:[{id:"server",name:"Server",perk:"tips"},{id:"bartender",name:"Bartender",perk:"service"},{id:"bar_ent",name:"Entertainer",perk:"entertain"}],
+  club:[{id:"host",name:"Host",perk:"tips"},{id:"dancer",name:"Dancer",perk:"service"},{id:"club_ent",name:"VIP Entertainer",perk:"entertain"}]}; }
+function jobsMigrate(o){
+  const d=defaultJobs(); if(!o.jobs||typeof o.jobs!=="object") o.jobs=d;
+  Object.keys(d).forEach(v=>{ if(!Array.isArray(o.jobs[v])||!o.jobs[v].length) o.jobs[v]=d[v]; });
+  if(!o.shift||typeof o.shift!=="object") o.shift={};
+  (o.staff||[]).forEach(w=>{ const js=o.jobs[w.role]||[]; if(!js.some(j=>j.id===w.job)){ const s=js.find(j=>j.perk==="service")||js[0]; w.job=s&&s.id; } });
+}
+const venueJobs=v=>(S.jobs&&S.jobs[v])||[];
+function jobOf(w){ const js=venueJobs(w&&w.role); return js.find(j=>j.id===w.job)||js.find(j=>j.perk==="service")||js[0]||{id:"",name:(ROLES[w&&w.role]||{title:"Staff"}).title,perk:"service"}; }
+const jobTitle=w=>jobOf(w).name;
+const perkOf=w=>w?jobOf(w).perk:"";
+const staffAt=v=>S.staff.filter(w=>w.role===v);
+function candJob(c,i){ if(!c.job){ const js=venueJobs(c.role); if(js.length) c.job=js[(i||0)%js.length].id; } return c; }
+
+/* ---------- roster UI (Upgrade tab + shop counter) ---------- */
+function rosterBlock(key){
+  const team=staffAt(key), on=workerFor(key);
+  if(!team.length) return `<p class="hint" style="margin:0 0 6px">Hire someone below to open this counter.</p>`;
+  return team.map(p=>`<div class="rosterhd"><span class="tag">${esc(jobTitle(p))}</span>${p===on?`<span class="onshift">● AT THE COUNTER</span>`:`<button class="btn ghost smallbtn" data-emp="shift" data-id="${p.id}">PUT AT THE COUNTER</button>`}</div>${workerMini(p)}`).join("");
+}
+function shiftPicker(sec){
+  const team=staffAt(sec); if(team.length<2) return ""; const on=workerFor(sec);
+  return `<label class="srt" for="shift-${sec}">Who works the ${ROLES[sec].room} counter</label><select class="field shiftsel" id="shift-${sec}" data-shift="${sec}">${team.map(w=>`<option value="${w.id}" ${w===on?"selected":""}>${esc(w.name)} · ${esc(jobTitle(w))}</option>`).join("")}</select>`;
+}
+function candJobLine(c){ const j=venueJobs(c.role).find(x=>x.id===c.job); if(!j) return ""; const P=PERKS[j.perk]||{}; return `<small><span class="tag">${esc(j.name)}</span> ${esc(P.desc||"")}</small>`; }
+
+/* ---------- Dev › Workers: create, edit, import, export ---------- */
+function empPanel(){
+  return `<section class="panel">
+    <h2><span>EMPLOYEES</span><span>${S.staff.length} ON STAFF</span></h2>
+    <p style="margin:0 0 10px">Create someone from scratch, or import an employee file with their art, outfits, faces and animations. Created and imported staff are free and don't replace anyone. Up to ${VENUE_CAP} per venue.</p>
+    <div class="actions" style="margin-top:0"><button class="btn solid" data-emp="new">+ CREATE EMPLOYEE</button>
+      <label class="btn" for="empFile" style="text-align:center">IMPORT FILE</label><input type="file" id="empFile" class="srt" accept=".json,application/json,text/plain">
+      ${S.staff.length?`${FRAMED?"":`<button class="btn ghost" data-emp="exportAll">DOWNLOAD ALL STAFF</button>`}<button class="btn ghost" data-emp="copyAll">COPY ALL AS TEXT</button>`:""}</div>
+    <details class="sub"><summary>Paste an employee file</summary>
+      <textarea class="field" id="empText" rows="3" placeholder='{"type":"nightkettle-employee",...}'></textarea>
+      <div class="actions"><button class="btn ghost" data-emp="importText">IMPORT PASTED</button></div></details>
+  </section>
+  <section class="panel">
+    <h2><span>JOBS</span><span>PER VENUE</span></h2>
+    <p class="hint" style="margin:0 0 8px">Rename jobs and pick each one's perk. Whoever is at the counter uses their job's perk.</p>
+    ${Object.keys(ROLES).map(v=>`<p class="alabel">${esc(SEC_NAME[v].toUpperCase())}</p>
+      ${venueJobs(v).map(j=>`<div class="jobrow"><input class="field" data-jobname="${v}:${j.id}" maxlength="24" value="${esc(j.name)}" aria-label="${esc(SEC_NAME[v])} job name">
+        <select class="field" data-jobperk="${v}:${j.id}" aria-label="Perk for ${esc(j.name)}">${Object.entries(PERKS).map(([k,P])=>`<option value="${k}" ${j.perk===k?"selected":""}>${P.label}</option>`).join("")}</select>
+        <button class="btn ghost smallbtn" data-emp="delJob" data-id="${v}:${j.id}" ${venueJobs(v).length<2?"disabled":""} aria-label="Remove ${esc(j.name)}">✕</button></div>`).join("")}
+      ${venueJobs(v).length<5?`<button class="btn ghost smallbtn" data-emp="addJob" data-id="${v}" style="margin:4px 0 10px">+ JOB</button>`:""}`).join("")}
+  </section>`;
+}
+function empStudioBar(p){
+  return `<div class="actions" style="margin:0 0 10px"><button class="btn" data-emp="edit" data-id="${p.id}">JOB &amp; DETAILS</button>${FRAMED?"":`<button class="btn ghost" data-emp="export" data-id="${p.id}">DOWNLOAD ${esc(p.name.toUpperCase())}</button>`}<button class="btn ghost" data-emp="copy" data-id="${p.id}">COPY AS TEXT</button></div>`;
+}
+function empSheet(w){
+  const isNew=!w; w=w||{name:pk(NAMES),role:"cafe",job:"",skill:2,charm:2,persona:Object.keys(PERSONAS)[0],trait:"smooth",lw:0};
+  const jobOpts=Object.keys(ROLES).map(v=>`<optgroup label="${esc(SEC_NAME[v])}">${venueJobs(v).map(j=>`<option value="${v}:${j.id}" ${w.role===v&&jobOf(w).id===j.id?"selected":""}>${esc(SEC_NAME[v])} · ${esc(j.name)}</option>`).join("")}</optgroup>`).join("");
+  openSheet(`<h3>${isNew?"CREATE EMPLOYEE":"EDIT "+esc(w.name.toUpperCase())}</h3>
+  <form data-form="emp" data-id="${isNew?"":w.id}" class="stack">
+    <div class="formgrid">
+      <div class="full"><label class="fl" for="empName">Name</label><input class="field" id="empName" maxlength="16" value="${esc(w.name)}" required autocomplete="off"></div>
+      <div class="full"><label class="fl" for="empJob">Venue &amp; job</label><select class="field" id="empJob">${jobOpts}</select></div>
+      <div><label class="fl" for="empSkill">Skill</label><select class="field" id="empSkill">${[1,2,3,4,5].map(n=>`<option ${w.skill===n?"selected":""}>${n}</option>`).join("")}</select></div>
+      <div><label class="fl" for="empCharm">Charm</label><select class="field" id="empCharm">${[1,2,3,4,5].map(n=>`<option ${w.charm===n?"selected":""}>${n}</option>`).join("")}</select></div>
+      <div><label class="fl" for="empPersona">Personality</label><select class="field" id="empPersona">${Object.entries(PERSONAS).map(([k,P])=>`<option value="${k}" ${w.persona===k?"selected":""}>${esc(P.label)}</option>`).join("")}</select></div>
+      <div><label class="fl" for="empTrait">Trait</label><select class="field" id="empTrait">${Object.entries(TRAITS).map(([k,T])=>`<option value="${k}" ${w.trait===k?"selected":""}>${esc(T.name)}</option>`).join("")}</select></div>
+      <div class="full"><label class="fl" for="empLw">${esc(PL())} points</label><input class="field num" id="empLw" type="number" min="0" max="9999" value="${w.lw||0}"></div>
+    </div>
+    ${isNew?`<p class="hint" style="margin:0">They start with code-drawn art. Load their art, outfits and animations in Dev › Workers afterwards.</p>`:""}
+    <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"CREATE":"SAVE"}</button></div>
+  </form>`);
+}
+function empSubmit(ev){
+  const f=ev.target; if(!f.dataset||f.dataset.form!=="emp") return; ev.preventDefault(); ev.stopImmediatePropagation();
+  const v=id=>($(id)||{}).value, name=(v("empName")||"").trim().slice(0,16); if(!name) return;
+  const [role,job]=(v("empJob")||"cafe:").split(":"), id=f.dataset.id, w=id&&S.staff.find(x=>x.id===id);
+  if((!w||w.role!==role)&&staffAt(role).length>=VENUE_CAP){ toast(`${SEC_NAME[role]} is full (${VENUE_CAP} staff).`, true); return; }
+  const o={name,role,job,skill:+v("empSkill")||1,charm:+v("empCharm")||1,persona:v("empPersona"),trait:v("empTrait"),lw:Math.max(0,Math.round(+v("empLw")||0))};
+  if(w){ if(w.role!==role&&S.shift[w.role]===w.id) delete S.shift[w.role]; Object.assign(w,o); }
+  else S.staff.push(Object.assign({id:uid(),look:makeLook(),lv:1,xp:0,serves:0,perfects:0,tips:0,cost:0},o));
+  devWorker=w?w.id:S.staff[S.staff.length-1].id; closeSheet(); povReset(povSec()); commit(); toast(w?"Saved.":`${name} joined the ${ROLES[role].room} as ${jobTitle(S.staff.find(x=>x.id===devWorker)).toLowerCase()}.`);
+}
+document.addEventListener("submit",empSubmit,true);
+
+/* export: every stored image inside the worker is embedded so the file is self-contained */
+function deepMap(o,fn){ if(typeof o==="string") return fn(o); if(Array.isArray(o)) return o.map(x=>deepMap(x,fn)); if(o&&typeof o==="object"){ const r={}; for(const k in o) r[k]=deepMap(o[k],fn); return r; } return o; }
+async function deepMapAsync(o,fn){ if(typeof o==="string") return await fn(o); if(Array.isArray(o)){ const r=[]; for(const x of o) r.push(await deepMapAsync(x,fn)); return r; } if(o&&typeof o==="object"){ const r={}; for(const k in o) r[k]=await deepMapAsync(o[k],fn); return r; } return o; }
+function empExport(list){
+  const employees=list.map(w=>{ const o=deepMap(w,s=>s.indexOf("idb:")===0?(resolveArt(s)||null):s); delete o.deck; o.jobName=jobTitle(w); return o; });
+  return JSON.stringify({type:"nightkettle-employee",v:1,exported:new Date().toISOString(),employees});
+}
+async function empImport(text){
+  let o; try{ o=JSON.parse(text); }catch(e){ toast("That isn't an employee file.", true); return; }
+  const list=o&&(o.employees||(o.employee?[o.employee]:null)); if(!Array.isArray(list)||!list.length){ toast("No employees found in that file.", true); return; }
+  let n=0, skipped=0;
+  for(const raw of list){
+    const role=ROLES[raw.role]?raw.role:"cafe"; if(staffAt(role).length>=VENUE_CAP){ skipped++; continue; }
+    const w=await deepMapAsync(raw,async s=>s.indexOf("data:image")===0?await storeArt(s):s);
+    const js=venueJobs(role); let job=js.find(j=>j.id===w.job)||js.find(j=>w.jobName&&j.name.toLowerCase()===String(w.jobName).toLowerCase());
+    Object.assign(w,{id:uid(),role,job:(job||js.find(j=>j.perk==="service")||js[0]).id,look:w.look||makeLook(),lv:w.lv||1,xp:w.xp||0,serves:w.serves||0,perfects:w.perfects||0,tips:w.tips||0,
+      skill:Math.max(1,Math.min(5,w.skill|0||1)),charm:Math.max(1,Math.min(5,w.charm|0||1)),persona:PERSONAS[w.persona]?w.persona:Object.keys(PERSONAS)[0],trait:TRAITS[w.trait]?w.trait:"smooth",name:String(w.name||pk(NAMES)).slice(0,16)});
+    delete w.jobName; delete w.deck;
+    if(S.staff.some(x=>x.name===w.name)) w.name=(w.name+" 2").slice(0,16);
+    S.staff.push(w); n++; devWorker=w.id;
+  }
+  addLog(`Imported ${n} employee${n===1?"":"s"}.`,"build"); povReset(povSec()); commit();
+  toast(`Imported ${n} employee${n===1?"":"s"}.${skipped?` ${skipped} skipped: venue full.`:""}`);
+}
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("[data-emp]"); if(!b) return; const a=b.dataset.emp, id=b.dataset.id;
+  switch(a){
+    case "shift": { const w=S.staff.find(x=>x.id===id); if(!w) return; S.shift[w.role]=w.id; commit(); toast(`${w.name} is at the ${ROLES[w.role].room} counter.`); break; }
+    case "new": empSheet(null); break;
+    case "edit": empSheet(S.staff.find(x=>x.id===id)); break;
+    case "export": { const w=S.staff.find(x=>x.id===id); if(w&&!downloadText(`nightkettle-${w.name.toLowerCase().replace(/\W+/g,"-")}.json`,empExport([w]))) toast("Downloads are blocked here. Use Copy as text.", true); break; }
+    case "exportAll": if(!downloadText("nightkettle-staff.json",empExport(S.staff))) toast("Downloads are blocked here. Use Copy as text.", true); break;
+    case "copy": case "copyAll": { const list=a==="copy"?S.staff.filter(x=>x.id===id):S.staff, t=empExport(list);
+      (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(list.length>1?"All staff copied.":"Employee copied.")).catch(()=>{ const ta=$("empText"); if(ta){ ta.value=t; ta.closest("details").open=true; ta.select(); } toast("Copy it from the paste box.", true); }); break; }
+    case "importText": { const t=($("empText")||{}).value||""; if(t.trim()) empImport(t); break; }
+    case "addJob": { const js=venueJobs(id); if(js.length>=5) return; js.push({id:id+"_"+uid().slice(0,5),name:"New job",perk:"tips"}); commit(); break; }
+    case "delJob": { const [v,j]=id.split(":"), js=venueJobs(v); if(js.length<2) return;
+      if(b.dataset.armed!=="1"){ b.dataset.armed="1"; b.textContent="SURE?"; return; }
+      S.jobs[v]=js.filter(x=>x.id!==j); S.staff.forEach(w=>{ if(w.role===v&&w.job===j) w.job=S.jobs[v][0].id; }); commit(); break; }
+  }
+});
+document.addEventListener("change",ev=>{ const t=ev.target;
+  if(t.dataset&&t.dataset.shift){ S.shift[t.dataset.shift]=t.value; commit(); return; }
+  if(t.dataset&&t.dataset.jobname){ const [v,j]=t.dataset.jobname.split(":"), x=venueJobs(v).find(q=>q.id===j); if(x){ x.name=t.value.trim().slice(0,24)||x.name; commit(); } return; }
+  if(t.dataset&&t.dataset.jobperk){ const [v,j]=t.dataset.jobperk.split(":"), x=venueJobs(v).find(q=>q.id===j); if(x&&PERKS[t.value]){ x.perk=t.value; commit(); } return; }
+  if(t.id==="empFile"&&t.files&&t.files[0]){ const r=new FileReader(); r.onload=()=>empImport(String(r.result)); r.readAsText(t.files[0]); t.value=""; }
 });
 
 /* ---------- boot ---------- */
