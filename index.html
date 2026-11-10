@@ -920,6 +920,10 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .croprow{display:flex;align-items:center;gap:10px;margin-top:10px}.croprow input[type=range]{flex:1;accent-color:var(--accent)}
 .croprow.small{gap:8px}
 
+.repwrap .rep-again{display:none}.repwrap[data-rep="again"] .rep-again{display:block}.repwrap[data-rep="again"] .rep-hint{display:none}
+.againc{font-family:var(--pixel);font-size:10px;letter-spacing:.06em;color:var(--accent);border:1px solid var(--line);padding:1px 5px}
+.againc.good{color:var(--good);border-color:var(--good)}
+
 </style>
 </head>
 <body class="night">
@@ -3065,7 +3069,7 @@ const lastDom=k=>{ const d=new Date(k+"T12:00:00"); return new Date(d.getFullYea
 function ymd(y,m,d){ return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
 function nextOcc(r,from){
   /* first occurrence strictly after `from` */
-  if(!r||r.type==="none") return null;
+  if(!r||r.type==="none"||r.type==="again") return null;
   if(r.type==="daily") return addDays(from,1);
   if(r.type==="every"){ const n=Math.max(1,r.n|0||1); let k=r.anchor||from; let g=0; while(k<=from&&g++<4000) k=addDays(k,n); return k; }
   if(r.type==="weekly"){ const ds=(r.days&&r.days.length)?r.days:[dowOf(from)]; let k=addDays(from,1); for(let i=0;i<8;i++){ if(ds.includes(dowOf(k))) return k; k=addDays(k,1); } return k; }
@@ -3081,18 +3085,31 @@ function repeatText(r){
   if(r.type==="weekly"){ const ds=(r.days||[]).slice().sort((x,y)=>((x+6)%7)-((y+6)%7)); return ds.length===7?"every day":ds.length===5&&!ds.includes(0)&&!ds.includes(6)?"weekdays":"every "+ds.map(d=>DOWL[d]).join(", "); }
   if(r.type==="monthly") return r.dom==="last"?"last day of each month":`monthly on the ${ordinal(+r.dom)}`;
   if(r.type==="yearly") return `yearly on ${MON3[r.m-1]} ${r.d}`;
+  if(r.type==="again") return `comes back when done · counted per ${r.per==="month"?"month":"week"}${r.goal?`, goal ${r.goal}`:""}`;
   return "";
 }
 const isRec=t=>!!(t&&t.repeat&&t.repeat.type&&t.repeat.type!=="none");
-const doneToday=t=>isRec(t)?t.lastDone===today():(t.done&&t.doneOn===today());
+/* "again" tasks: come straight back when done and count completions per week or month */
+const isAgain=t=>!!(t&&t.repeat&&t.repeat.type==="again");
+const doneFlag=t=>t.done||(isRec(t)&&!isAgain(t)&&t.lastDone===today());
+function againCount(t,k){ k=k||today(); const r=t.repeat||{}, from=r.per==="month"?k.slice(0,8)+"01":weekStart(k); return (t.doneLog||[]).filter(d=>d>=from&&d<=k).length; }
+function againLabel(t){ const r=t.repeat||{}, n=againCount(t), per=r.per==="month"?"this month":"this week"; return r.goal?`${n}/${r.goal} ${per}`:`×${n} ${per}`; }
+const doneToday=t=>isRec(t)?(!isAgain(t)&&t.lastDone===today()):(t.done&&t.doneOn===today());
 const tasksDoneOn=k=>S.tasks.filter(t=>isRec(t)?(t.doneLog||[]).includes(k):(t.done&&t.doneOn===k));
 const doneCount=k=>S.taskLog.filter(l=>l.d===k).length;
 function logTask(t){ S.taskLog.push({id:uid(),d:today(),tid:t.id,title:t.title}); if(S.taskLog.length>3000) S.taskLog.splice(0,S.taskLog.length-3000); }
 function unlogTask(t){ for(let i=S.taskLog.length-1;i>=0;i--){ const l=S.taskLog[i]; if(l.tid===t.id&&l.d===today()){ S.taskLog.splice(i,1); return; } } }
 /* end of day: finished one-off tasks are cleared out; repeating ones are already waiting on their next date */
 function rollTasks(){ const k=today(), n=S.tasks.length; S.tasks=S.tasks.filter(t=>isRec(t)||!t.done||t.doneOn===k); if(S.tasks.length!==n){ addLog(`Cleared ${n-S.tasks.length} finished task${n-S.tasks.length===1?"":"s"} from yesterday.`); save(); } }
+function againUndo(id){ const t=S.tasks.find(x=>x.id===id); if(!t||!isAgain(t)) return; const k=today(), i=(t.doneLog||[]).lastIndexOf(k); if(i<0) return;
+  t.doneLog.splice(i,1); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; const vip=t.pri===3; takeReward(t,vip); if(S.xs) glGain(-Math.round((vip?S.xs.meter.vip:S.xs.meter.task)*dOf(t).e)); taskSaveOut(t,k); unlogTask(t); addLog("Undid one "+t.title+"."); commit(); }
 function toggleTask(id,ev){
   const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3, eg=()=>S.xs?Math.round((vip?S.xs.meter.vip:S.xs.meter.task)*dOf(t).e):0;
+  if(isAgain(t)){ const k=today(); t.doneLog=(t.doneLog||[]).concat(k).slice(-400); t.lastDone=k; ckReset(t);
+    logTask(t); giveReward(t,vip,t.title); glGain(eg()); const sv=taskSaveIn(t,k,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)");
+    const n=againCount(t), g=t.repeat.goal; addLog(`Done: ${t.title} (${againLabel(t)}). ${vip?"A VIP":"A client"} walked in.${sv}`,"gain");
+    if(g&&n===g) setTimeout(()=>toast(`Goal reached: ${t.title} ${n}/${g} ${t.repeat.per==="month"?"this month":"this week"}.`),500);
+    commit(); return; }
   if(isRec(t)){ const k=today();
     if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; takeReward(t,vip); glGain(-eg()); taskSaveOut(t,k); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
     else { t.prevDue=t.due; t.doneLog=(t.doneLog||[]).concat(k).slice(-120); t.lastDone=k; ckReset(t); const base=t.due&&t.due>k?t.due:k; t.due=nextOcc(t.repeat,base)||t.due;
@@ -3362,24 +3379,24 @@ function habitRowH(h){
   </div>`;
 }
 function shortDue(t){
-  if(isRec(t)&&t.lastDone===today()) return `<span class="good">next ${shortDate(t.due)}</span>`;
+  if(isRec(t)&&!isAgain(t)&&t.lastDone===today()) return `<span class="good">next ${shortDate(t.due)}</span>`;
   if(t.done) return `<span class="good">done</span>`;
   if(!t.due) return "";
   const n=daysBetween(today(),t.due);
   return n<0?`<span class="bad">${-n}d late</span>`:n===0?`<span class="acc">today</span>`:n===1?"tmrw":shortDate(t.due);
 }
 function taskRowT(t){
-  const on=t.done||(isRec(t)&&t.lastDone===today()), l=t.list&&listById(t.list);
+  const on=doneFlag(t), l=t.list&&listById(t.list), ag=isAgain(t), agGoal=ag&&t.repeat.goal&&againCount(t)>=t.repeat.goal;
   return `<div class="trow ${on?"done":""} ${t.pri===3?"hi":t.pri===1?"lo":""}">
     <button class="tchk" data-act="task" data-id="${t.id}" aria-pressed="${!!on}" aria-label="${on?"Undo":"Complete"} ${esc(t.title)}">${on?"✓":""}</button>
     <button class="ttl" data-act="editTask" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><span>${esc(t.title)}</span>${noteLine(t)}</button>
-    ${ckButton(t)}<span class="tmeta">${diffTag(t,3)}${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
+    ${ckButton(t)}<span class="tmeta">${diffTag(t,3)}${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${ag?` <span class="againc ${agGoal?"good":""}">${againLabel(t)}</span>${t.lastDone===today()?` <button class="linkbtn" data-act="againUndo" data-id="${t.id}">undo</button>`:""}`:isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
   </div>${ckList(t)}`;
 }
 const listById=id=>S.lists.find(l=>l.id===id);
 const dueSort=(x,y)=>((x.due||"9999")<(y.due||"9999")?-1:(x.due||"9999")>(y.due||"9999")?1:y.pri-x.pri);
-const openTasks=()=>S.tasks.filter(t=>!t.done&&!(isRec(t)&&t.lastDone===today()));
-const doneNow=()=>S.tasks.filter(t=>t.done||(isRec(t)&&t.lastDone===today()));
+const openTasks=()=>S.tasks.filter(t=>!doneFlag(t));
+const doneNow=()=>S.tasks.filter(t=>doneFlag(t));
 const doneTail=xs=>xs.length?`<p class="sh donelabel">DONE TODAY · ${xs.length}</p><div class="tlist donelist">${xs.map(taskRowT).join("")}</div>`:"";
 const overdue=()=>openTasks().filter(t=>t.due&&t.due<today());
 const dueToday=()=>openTasks().filter(t=>t.due===today());
@@ -3389,10 +3406,13 @@ function repeatUI(pfx,r,due){
   const days=r.type==="weekly"&&r.days?r.days:[dow];
   return `<div class="repwrap" data-rep="${r.type}" id="${pfx}RepWrap">
     <label class="fl" for="${pfx}Rep">Repeat</label>
-    <select class="field" id="${pfx}Rep" data-repsel="${pfx}">${[["none","Doesn't repeat"],["daily","Every day"],["weekly","Weekly on…"],["every","Every few days"],["monthly","Monthly"],["yearly","Yearly"]].map(([v,l])=>`<option value="${v}" ${r.type===v?"selected":""}>${l}</option>`).join("")}</select>
+    <select class="field" id="${pfx}Rep" data-repsel="${pfx}">${[["none","Doesn't repeat"],["daily","Every day"],["weekly","Weekly on…"],["every","Every few days"],["monthly","Monthly"],["yearly","Yearly"],["again","Again when done · counter"]].map(([v,l])=>`<option value="${v}" ${r.type===v?"selected":""}>${l}</option>`).join("")}</select>
     <div class="rep-weekly"><div class="seg" style="margin-top:6px">${[1,2,3,4,5,6,0].map(d=>`<input type="checkbox" name="${pfx}RepDay" id="${pfx}rd${d}" value="${d}" ${days.includes(d)?"checked":""}><label for="${pfx}rd${d}">${DOWL[d].slice(0,2)}</label>`).join("")}</div></div>
     <div class="rep-every"><label class="fl" for="${pfx}RepN" style="margin-top:6px">Every how many days?</label><input class="field num" id="${pfx}RepN" type="number" min="2" max="365" value="${r.type==="every"?r.n:3}"></div>
     <div class="rep-monthly"><label class="fl" for="${pfx}RepDom" style="margin-top:6px">On day</label><select class="field" id="${pfx}RepDom">${[...Array(31)].map((_,i)=>`<option value="${i+1}" ${String(r.dom||dd.getDate())===String(i+1)?"selected":""}>${ordinal(i+1)}</option>`).join("")}<option value="last" ${r.dom==="last"?"selected":""}>Last day</option></select></div>
+    <div class="rep-again"><div class="formgrid" style="margin-top:6px"><div><label class="fl" for="${pfx}RepPer">Count per</label><select class="field" id="${pfx}RepPer"><option value="week" ${r.per!=="month"?"selected":""}>Week</option><option value="month" ${r.per==="month"?"selected":""}>Month</option></select></div>
+      <div><label class="fl" for="${pfx}RepGoal">Goal <small class="muted">optional</small></label><input class="field num" id="${pfx}RepGoal" type="number" min="0" max="99" value="${r.goal||""}" placeholder="—"></div></div>
+      <p class="hint" style="margin:4px 0 0">No due date. Each time you finish it, it goes straight back on the list and the counter goes up. It sends a client every time.</p></div>
     <p class="hint rep-hint" style="margin:4px 0 0">Finishing it moves it to the next date and sends a client every time.</p>
   </div>`;
 }
@@ -3404,10 +3424,11 @@ function readRepeat(pfx,due){
   if(v==="every") return {type:"every",n:Math.max(2,Math.min(365,+($(pfx+"RepN")||{}).value||3)),anchor:due||today()};
   if(v==="monthly"){ const x=($(pfx+"RepDom")||{}).value||String(d0.getDate()); return {type:"monthly",dom:x==="last"?"last":+x}; }
   if(v==="yearly") return {type:"yearly",m:d0.getMonth()+1,d:d0.getDate()};
+  if(v==="again"){ const g=Math.max(0,Math.min(99,+($(pfx+"RepGoal")||{}).value||0)); return {type:"again",per:($(pfx+"RepPer")||{}).value==="month"?"month":"week",goal:g||0}; }
   return null;
 }
 /* first due date for a new repeating task: the given date if it fits, otherwise the next occurrence from today */
-function firstDue(r,due){ if(!r) return due; if(due) return due; const k=today(); const fits=r.type==="daily"||(r.type==="weekly"&&r.days.includes(dowOf(k)))||(r.type==="monthly"&&(r.dom==="last"?lastDom(k)===+k.slice(8):+k.slice(8)===r.dom))||r.type==="every"; return fits?k:nextOcc(r,k); }
+function firstDue(r,due){ if(!r) return due; if(r.type==="again") return due||""; if(due) return due; const k=today(); const fits=r.type==="daily"||(r.type==="weekly"&&r.days.includes(dowOf(k)))||(r.type==="monthly"&&(r.dom==="last"?lastDom(k)===+k.slice(8):+k.slice(8)===r.dom))||r.type==="every"; return fits?k:nextOcc(r,k); }
 document.addEventListener("change",ev=>{ const t=ev.target; if(t.dataset&&t.dataset.repsel){ const w=$(t.dataset.repsel+"RepWrap"); if(w) w.dataset.rep=t.value; } });
 /* ---------- smart add: "pay rent every month on the 1st !high #home" ---------- */
 const WD=[["sunday","sun"],["monday","mon"],["tuesday","tue","tues"],["wednesday","wed"],["thursday","thu","thur","thurs"],["friday","fri"],["saturday","sat"]];
@@ -4720,6 +4741,7 @@ document.addEventListener("click",ev=>{
     case "task": toggleTask(id,ev); break;
     case "newHabit": habitSheet(null); break;
     case "win": tapWin(id,ev); break;
+    case "againUndo": againUndo(id); break;
     case "winMinus": tapMinus(id,ev); break;
     case "newWin": winSheet(null); break;
     case "editWin": winSheet(winById(id)); break;
