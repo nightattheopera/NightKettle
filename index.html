@@ -825,6 +825,62 @@ p.sh.tsh::after{content:" ▾";color:var(--accent)}
 p.sh.tsh.shut::after{content:" ▸"}
 .tfold-hide{display:none!important}
 
+.crewlock{margin:2px 0 0;font-size:13px}
+.rankrw{margin-top:10px}
+.rrlist{list-style:none;margin:6px 0 4px;padding:0;display:flex;flex-direction:column;gap:2px}
+.rrlist li{display:grid;grid-template-columns:1fr auto;gap:0 8px;padding:6px 8px;border-left:2px solid var(--line);opacity:.6}
+.rrlist li.got{opacity:1;border-left-color:var(--good)}
+.rrlist li.cur{border-left-color:var(--accent);background:rgba(255,255,255,.04)}
+.rrlist .rrn{font-weight:600}
+.rrlist .rrr{font-size:12px;color:var(--dim);align-self:center}
+.rrlist small{grid-column:1/-1;color:var(--dim);font-size:13px}
+
+/* ---------- Running the Edge ---------- */
+.edgep.on{border-color:var(--accent)}
+.edgebig{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;background:none;border:0;padding:4px 0;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.edgecd{font-family:var(--pixel);font-size:44px;line-height:1;color:var(--accent);text-shadow:0 0 14px var(--glow);font-variant-numeric:tabular-nums}
+.edgebar{position:relative;height:8px;background:rgba(255,255,255,.08);border:1px solid var(--line);margin-top:8px}
+.edgebar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);box-shadow:0 0 10px var(--glow);transition:width .9s linear}
+.edgebar.route em{position:absolute;top:-4px;width:2px;height:14px;background:var(--ink);opacity:.7}
+.edgelens{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.edgelen input,.edgepick input{position:absolute;opacity:0;pointer-events:none}
+.edgelen span{display:block;text-align:center;padding:10px 0;border:1px solid var(--line);cursor:pointer}
+.edgelen input:checked+span{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.edgelen input:focus-visible+span,.edgepick input:focus-visible+span{outline:2px solid var(--accent)}
+.edgewho{display:flex;flex-direction:column;gap:6px;max-height:42vh;overflow-y:auto}
+.edgepick{position:relative;display:block}
+.edgepick span{display:flex;flex-direction:column;gap:2px;padding:9px 11px;border:1px solid var(--line);cursor:pointer}
+.edgepick input:checked+span{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.edgepick small{font-size:13px}
+.hlist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:3px}
+.hitem{padding:6px 9px;border-left:3px solid var(--line);background:rgba(255,255,255,.03)}
+.hitem.t1{border-left-color:#3fd0c9}.hitem.t2{border-left-color:#ffd23f;background:rgba(255,210,63,.07)}
+.htier{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.hitem.t1 .htier{color:#3fd0c9}.hitem.t2 .htier{color:#ffd23f}
+.hev{padding:8px 10px;border:1px solid var(--line);margin-bottom:8px}.hev p{margin:3px 0 0}
+.hev.good{border-color:var(--good)}.hev.good b{color:var(--good)}.hev.bad{border-color:var(--bad)}.hev.bad b{color:var(--bad)}
+.edgepill{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom));z-index:26;display:flex;align-items:center;gap:7px;padding:8px 14px;background:var(--bg);color:var(--ink);border:1px solid var(--accent);box-shadow:0 0 14px var(--glow);font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;font-variant-numeric:tabular-nums}
+.edgepill[hidden]{display:none}
+.edgepill .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:edgeblink 1.2s infinite}
+@keyframes edgeblink{50%{opacity:.25}}
+.edgeview{position:fixed;inset:0;z-index:72;background:var(--bg);overflow-y:auto;padding:calc(8px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;max-width:620px;margin:0 auto}
+.edgeview[hidden]{display:none}
+body.edgeopen .tabs,body.edgeopen .fab{display:none}
+.evtop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.evstage{border:1px solid var(--line);background:#07051a;line-height:0}
+.evstage canvas{width:100%;height:auto;image-rendering:pixelated;display:block}
+.evinfo{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.evinfo .edgecd{font-size:34px}
+.evstops{display:flex;justify-content:space-between;gap:6px;font-size:12px;color:var(--dim)}
+.evlog{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:15px}
+.evlog li{padding:6px 9px;border-left:2px solid var(--line)}
+.evlog li.new{border-left-color:var(--accent);background:rgba(255,255,255,.04)}
+.evlog .muted{font-variant-numeric:tabular-nums;margin-right:6px}
+.edgeslot{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.esthumb{width:64px;height:48px;flex:none;display:flex;align-items:center;justify-content:center;background:#0a0812;border:1px solid var(--line);overflow:hidden}
+.esthumb img{max-width:100%;max-height:100%;image-rendering:pixelated}
+.esinfo{display:flex;flex-direction:column;gap:1px;min-width:0}
+
 </style>
 </head>
 <body class="night">
@@ -2326,7 +2382,7 @@ function starterWorker(){
   return {id:"mika",name:"Mika",role:"cafe",art:"builtin:mika",skill:1,charm:1,trait:"latte",persona:"bubbly",lv:1,xp:0,serves:0,perfects:0,tips:0,
     look:{skin:"#f7d6bc",hair:"#4ad8e0",hair2:"#9a5ad8",style:8,top:"#1e2a4a",pants:"#34507a",accent:"#3a8af0",visor:false,acc:"choker",outfit:"track",eye:"#3a7ad8",_k:"mika"}};
 }
-const workerFor=role=>{ const H=S.staff.filter(w=>w.hired!==false), id=S.shift&&S.shift[role], a=id&&H.find(w=>w.id===id); if(a) return a; const busy=new Set(Object.entries(S.shift||{}).filter(([k])=>k!==role).map(([,v])=>v)); return H.find(w=>w.role===role&&!busy.has(w.id))||null; };
+const workerFor=role=>{ const er=S.edge&&S.edge.run; if(er&&er.left===role) return null; const H=S.staff.filter(w=>w.hired!==false&&!(er&&er.runner===w.id)), id=S.shift&&S.shift[role], a=id&&H.find(w=>w.id===id); if(a) return a; if(id&&er&&er.runner===id) return null; const busy=new Set(Object.entries(S.shift||{}).filter(([k])=>k!==role).map(([,v])=>v)); Object.values(S.crew||{}).forEach(v=>Array.isArray(v)&&v.forEach(x=>x&&busy.add(x))); return H.find(w=>w.role===role&&!busy.has(w.id))||null; };
 const traitOf=w=>TRAITS[w.trait]||{};
 const traitApplies=(w,t)=>!t.roles||t.roles.includes(w.role);
 const pickR=(r,a)=>a[Math.floor(r()*a.length)];
@@ -2352,8 +2408,8 @@ function hintsUsed(w){ const d=S.serves[today()]; return (d&&d.hints&&d.hints[w.
 function tipFor(w,grade){ const t=traitOf(w); const g=(grade==="miss"&&t.missTip)?"close":grade; return Math.max(1,Math.round(REWARD[g]*(1+.1*(w.charm-1)+(t.tip||0)))); }
 /* worker XP per level: steeper than linear, so levels keep coming for months */
 function lvNeed(lv){ return Math.round(40*Math.pow(Math.max(1,lv||1),1.5)); }
-function workerXP(w,grade){
-  const lv0=w.lv||1, t=traitOf(w); w.xp+=Math.round((grade==="perfect"?15:10)*(t.xp||1)*(hasSkill(w,"learner")?1.25:1)); let msg=null;
+function workerXP(w,grade,mult){
+  const lv0=w.lv||1, t=traitOf(w); w.xp+=Math.round((grade==="perfect"?15:10)*(t.xp||1)*(hasSkill(w,"learner")?1.25:1)*(mult||1)); let msg=null;
   while(w.xp>=lvNeed(w.lv)){ w.xp-=lvNeed(w.lv); w.lv++;
     if(w.skill<5&&(w.lv%2===0||w.charm>=5)){ w.skill++; msg=`${w.name} reached LV ${w.lv}. Skill up: one more hint a day.`; }
     else if(w.charm<5){ w.charm++; msg=`${w.name} reached LV ${w.lv}. Charm up: bigger tips.`; }
@@ -2457,7 +2513,7 @@ function handleCrew(act,id,ev,el){
     case "hire": {
       const c=board().c[crewRole].find(x=>x.id===id); if(!c) return true;
       if(S.credits<c.cost){ toast(`You need ${c.cost-S.credits}₵ more.`, true); return true; }
-      if(staffAt(c.role).length>=VENUE_CAP){ toast(`The ${ROLES[c.role].room} is full (${VENUE_CAP} staff). Let someone go first.`, true); return true; }
+      if(staffAt(c.role).length>=hireCap()){ toast(hireFullMsg(c.role), true); return true; }
       candJob(c,0); S.credits-=c.cost;
       S.staff.push(Object.assign({},c,{id:uid(),lv:1,xp:0,serves:0,perfects:0,tips:0,base:{skill:c.skill,charm:c.charm}}));
       board().c[c.role]=board().c[c.role].filter(x=>x.id!==id); armed=null;
@@ -3037,13 +3093,13 @@ function srvNewCustomer(){
     lines:[{who:"w",text:fillT(pk(P.greet),{shop:prettyShop()})},{who:"c",text:req.line},{who:"w",text:pk(srv.sec==="books"||srv.sec==="club"?P.book:P.ack)}],
     step:0,typed:0,wait:0,tipMod:0,charmed:false,charmFlash:0,flirt:null,favor:null,favorState:null,favorMult:1,showFavorArt:false,charmPick:false,charmMove:null,showCharmArt:false});
   if(typeof scnAssignPatron==="function") scnAssignPatron(srv.sec,srv.cust);
-  if(S.favors.on&&Math.random()<Math.min(.95,S.favors.chance*(perkOf(w)==="entertain"?2:1))){ const f=pickFavor(srv.sec); if(f){ srv.favor=f; srv.favorState="ask"; srv.lines.push({who:"c",text:favText(f.ask)||"Can I ask you a favor?"}); } }
+  if(S.favors.on&&Math.random()<Math.min(.95,S.favors.chance*(perkOf(w)==="entertain"?2:1)*crewFavorMult(srv.sec))){ const f=pickFavor(srv.sec); if(f){ srv.favor=f; srv.favorState="ask"; srv.lines.push({who:"c",text:favText(f.ask)||"Can I ask you a favor?"}); } }
   if(FEATURES.charm&&!srv.favor&&(srv.sec==="cafe"||srv.sec==="club")&&Math.random()<.3){ const f=pk(FLIRTS); srv.lines.splice(2,0,{who:"c",text:f}); srv.lines.pop(); srv.flirt={line:f,pending:true}; }
 }
 function favText(s){ return s?fillT(s,{w:srv.worker.name,c:srv.cust.name,shop:prettyShop()}):""; }
 function serveOpen(sec){
   const st=counterState(sec);
-  if(!st.w){ toast(`Hire someone for the ${ROLES[sec].room} first, in the Upgrade tab.`, true); return; }
+  if(!st.w){ const am=edgeAwayMsg(sec); toast(am||`Hire someone for the ${ROLES[sec].room} first, in the Upgrade tab.`, true); return; }
   if(!st.built){ toast(`Build something in the ${ROLES[sec].room} first, in the Upgrade tab.`, true); return; }
   if(!st.open){ toast(SIDE_OF[sec]==="day"?`The ${ROLES[sec].room} opens in the daytime.`:`The ${ROLES[sec].room} opens at night.`, true); return; }
   if(ticketsLeft()<=0){ toast("No clients waiting. Finish a task or habit to bring one in.", true); return; }
@@ -3066,19 +3122,20 @@ function srvFinish(res,ev){
   if(g==="close"&&t.save&&traitApplies(w,t)&&Math.random()<t.save){ g="perfect"; saved=true; }
   if(g==="close"&&!saved&&perkOf(w)==="service"&&Math.random()<.25){ g="perfect"; saved=true; savedBy=jobTitle(w); }
   if(g==="close"&&!saved&&hasSkill(w,"steady")&&Math.random()<.15){ g="perfect"; saved=true; savedBy="Steady Hands"; }
+  if(g==="close"&&!saved&&Math.random()<crewSaveChance(sec)){ g="perfect"; saved=true; savedBy="The crew's"; }
   const d=serveDay(); d.n++; if(g==="perfect") d.perf[serveSide(sec)]++;
   const amb=totals(SIDE_SECS[serveSide(sec)]).amb;
-  const tip=Math.max(1,Math.round(tipFor(w,g)*ambMult(amb)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)*skillTipMult(w,sec)));
+  const tip=Math.max(1,Math.round(tipFor(w,g)*ambMult(amb)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)*skillTipMult(w,sec)*crewTipMult(sec)*edgeTipMult(sec))); edgeConsume(sec);
   S.credits+=tip; S.xp+=tip; d.tips=(d.tips||0)+tip;
   S.stats.served++; if(g==="perfect") S.stats.perfect++; S.stats.tips+=tip;
   S.rep+=g==="perfect"?2:g==="close"?1:0;
   removeClient(srv.cust.vip); if(typeof scnServed==="function") scnServed(sec,srv.cust);
   w.serves++; if(g==="perfect") w.perfects++; w.tips+=tip;
-  const lvl=workerXP(w,g);
+  const lvl=workerXP(w,g); crewServe(sec,g);
   srv.result={grade:g,made:res.made,tip,saved,lvl};
   const P=PERSONAS[w.persona]||PERSONAS.chill, R2=sec==="books"?REACT_BOOK:sec==="club"?REACT_CLUB:REACT;
   srv.step=srv.lines.length-1; srv.typed=srv.lines[srv.step].text.length;
-  pushLines([{who:"n",text:`${w.name} ${sec==="books"?"hands over":sec==="club"?"takes the stage to":"serves"} ${res.made}.`+(saved?` ${savedBy} instincts save it at the last second.`:"")},{who:"c",text:pk(R2[g])},{who:"w",text:pk(P.after[g])}]);
+  pushLines([{who:"n",text:`${w.name} ${sec==="books"?"hands over":sec==="club"?"takes the stage to":"serves"} ${res.made}.`+(saved?` ${savedBy} instincts save it at the last second.`:"")+crewNote(sec)},{who:"c",text:pk(R2[g])},{who:"w",text:pk(P.after[g])}]);
   addLog(`${w.name} served ${srv.cust.name}${srv.cust.vip?" (VIP)":""} ${res.made}. ${g.toUpperCase()} · +${tip}₵`,"gain");
   pop(ev,"+"+tip+"₵",g==="perfect"?"var(--good)":"var(--ink)"); beep(g==="perfect"?1320:g==="close"?880:300);
   save(); renderTop(); renderServe();
@@ -3226,14 +3283,15 @@ function vShop(){
   const team=S.staff.filter(isHired), shifts=team.length>1?Object.keys(ROLES).filter(sec=>counterState(sec).built):[];
   return `
   <section class="panel duepanel">${dueRail()}</section>
+  ${edgePanel()}
   ${depositDue()?`<section class="panel jarbanner"><h2><span>DEPOSIT DAY</span><span>SAVINGS</span></h2><p style="margin:0 0 10px">You have <b class="good">${money(totalPending())}</b> waiting across your buckets. Move it into real savings, then log it.</p><button class="btn solid" data-act="tab" data-id="save">OPEN SAVINGS</button></section>`:""}
   <section class="panel">
     <h2><span>${shopView==="scene"?"INSIDE":shopView==="inside"?"FLOOR PLAN":"THE BLOCK"}</span><span>${esc(r.name)}</span></h2>
     <div class="povtabs" style="grid-template-columns:1fr 1fr 1fr" role="group" aria-label="Shop view">${[["scene","INSIDE"],["inside","FLOOR PLAN"],["outside","OUTSIDE"]].map(([v,l])=>`<button class="povtab ${shopView===v?"on":""}" data-act="shopView" data-id="${v}" aria-pressed="${shopView===v}">${l}</button>`).join("")}</div>
     ${shopView==="scene"?sceneBlock():shopView==="inside"?floorBlock():cityScene()}
-    ${shifts.length?`<details class="sub shifts"><summary>Who's working where</summary>${shifts.map(sec=>`<div class="shiftrow"><b>${SIDE_OF[sec]==="day"?"☀":"☾"} ${esc(SEC_NAME[sec])}</b>${shiftPicker(sec)}</div>`).join("")}</details>`:""}
+    ${shifts.length?`<details class="sub shifts"><summary>Who's working where</summary>${shifts.map(sec=>`<div class="shiftrow"><b>${SIDE_OF[sec]==="day"?"☀":"☾"} ${esc(SEC_NAME[sec])}</b>${shiftPicker(sec)}${crewSlotsHTML(sec)}</div>`).join("")}</details>`:""}
     <div class="blockfoot">${meter("RANK",(S.rep-r.lo)/Math.max(1,r.hi-r.lo),r.next?`${S.rep}/${r.hi}`:"MAX")}
-      <p class="hint" style="margin:6px 0 0">${(d.tips||0)}₵ tips today · ${d.n||0} served today${r.next?` · next rank: ${r.next}`:""}</p></div>
+      <p class="hint" style="margin:6px 0 0">${(d.tips||0)}₵ tips today · ${d.n||0} served today${r.next?` · next rank: ${r.next}`:""}</p>${rankRewardsHTML()}</div>
   </section>
   ${glPanel()}`;
 }
@@ -3724,11 +3782,11 @@ function areaPanel([key,sec,icon,label,when]){
   return `<details class="area" data-area="${key}" ${openAreas.has(key)?"open":""}>
     <summary><span class="aico" aria-hidden="true">${icon}</span><span class="atitle"><b>${label}</b><small>${when} · ${status}</small></span>${ready?`<span class="ready">CAN UPGRADE</span>`:""}<span class="chev" aria-hidden="true">▾</span></summary>
     <div class="abody">
-      ${isRole?`<p class="alabel">STAFF · ${staffAt(key).length}/${VENUE_CAP}</p>${rosterBlock(key)}`:""}
+      ${isRole?`<p class="alabel">STAFF · ${staffAt(key).length}/${hireCap()} · ${crewOn(key).length}/${shiftCap()} ON SHIFT</p>${rosterBlock(key)}`:""}
       <p class="alabel">ROOMS</p><div class="rooms">${ids.map(roomRow).join("")}</div>
       ${isRole?castBlock(key)+(S.hireRandom?`<details class="sub" ${w?"":"open"}><summary>Random applicants · ${cands.length}</summary>
         ${cands.length?cands.map(c=>candRow(c,key)).join(""):`<p class="hint">You've hired from today's board. New faces tomorrow.</p>`}
-        <p class="hint">Hiring adds to the team. Up to ${VENUE_CAP} per venue.</p></details>`
+        <p class="hint">Hiring adds to the team. Up to ${hireCap()} per floor at your rank.</p></details>`
         :""):""}
     </div></details>`;
 }
@@ -3967,7 +4025,7 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(!t.id||t.id.index
 
 let devSub="workers", devWorker=null;
 function vDev(){
-  const subs=[["workers","WORKERS"],["sprites","SPRITES"],["scene","SCENES"],["favors","FAVORS"],...(adultOn()?[["service","GAME"]]:[]),["tools","TOOLS"]]; if(devSub==="service"&&!adultOn()) devSub="workers";
+  const subs=[["workers","WORKERS"],["sprites","SPRITES"],["scene","SCENES"],["favors","FAVORS"],["edge","EDGE"],...(adultOn()?[["service","GAME"]]:[]),["tools","TOOLS"]]; if(devSub==="service"&&!adultOn()) devSub="workers";
   let body="";
   if(devSub==="workers"){
     if(!S.staff.length) body=empPanel()+`<section class="panel"><p class="empty">No staff yet. Hire someone in the Upgrade tab, or create one above.</p></section>`;
@@ -3976,6 +4034,7 @@ function vDev(){
   } else if(devSub==="sprites") body=S.staff.length?vSprites():`<section class="panel"><p class="empty">Hire someone first, then draw their sprites here.</p></section>`;
   else if(devSub==="scene") body=scnDevPanel();
   else if(devSub==="favors") body=vFavors();
+  else if(devSub==="edge") body=edgeDevPanel();
   else if(devSub==="service") body=vService();
   else body=devTools();
   const about={workers:"Create and edit employees: counter art, jobs and outfits.",sprites:"The sprites staff use in the tower, and how big they appear.",scene:"Patrons and venue backdrops.",favors:"Special requests clients can make at the counter.",service:"The energy-bar minigame.",tools:"Hiring, storage, cheats and reset."}[devSub]||"";
@@ -4962,7 +5021,7 @@ function scnDrawStaff(g,w,x,base,dir,moving,now,phase){
     scnSheet(g,{src:own.src,n:fr.c,rows:fr.r,count:fr.n},Math.floor((now+(phase||0))/(1000/fps)),x,base-F.dy,F.h,dir,0,!!own.a.flip,{trim:F.trim,crisp:F.crisp}); }
   else { const sh=moving?{src:STAFF_SPRITE.walk,n:6}:{src:STAFF_SPRITE.idle,n:4}; scnSheet(g,sh,Math.floor((now+(phase||0))/(moving?125:420)),x,base,144,dir,3/72,false); }
 }
-function scnStaffList(sec){ const a=workerFor(sec); const L=a?[a]:[]; staffAt(sec).forEach(w=>{ if(L.length<3&&!L.includes(w)) L.push(w); }); return L; }
+function scnStaffList(sec){ return crewOn(sec).slice(0,4); }
 const pxs=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"-");
 function drawFloorScene(g,sec,now){
   const M=scnMeta(sec), cs=scnCS(sec), K=SCN_K, sw=sec==="roof"?(M.w||320)*K:SCN_W;
@@ -5051,7 +5110,7 @@ function sceneTap(ev){
   const cs=counterState(sec);
   if(!cs.built){ toast(`Build a ${ROLES[sec].room} spot first.`, true); return; }
   if(!cs.open){ toast(`The ${SEC_NAME[sec]} opens ${SIDE_OF[sec]==="day"?"in the daytime":"at night"}.`, true); return; }
-  if(!cs.w){ toast(`Nobody's on shift at the ${SEC_NAME[sec]}.`, true); return; }
+  if(!cs.w){ toast(edgeAwayMsg(sec)||`Nobody's on shift at the ${SEC_NAME[sec]}.`, true); return; }
   serveOpen(sec); }
 
 /* ---------- Dev › Scenes: patrons + backdrops ---------- */
@@ -5401,6 +5460,469 @@ function taskFoldToggle(h){ const shut=!h.classList.contains("shut"); taskFoldSt
 document.addEventListener("click",ev=>{ const h=ev.target.closest("p.sh.tsh"); if(h) taskFoldToggle(h); });
 document.addEventListener("keydown",ev=>{ if((ev.key==="Enter"||ev.key===" ")&&ev.target.matches&&ev.target.matches("p.sh.tsh")){ ev.preventDefault(); taskFoldToggle(ev.target); } });
 { const _render2=render; render=function(){ _render2.apply(this,arguments); taskFold(); }; }
+
+/* ================= CREW: rank rewards = more hires and more staff on shift per floor ================= */
+/* index = rank level - 1 (Street Kid .. Legend of the District) */
+const CREW_HIRE =[1,2,2,3,3,4,4,5,6,7,8,9];
+const CREW_SHIFT=[1,1,2,2,3,3,4,4,4,4,4,4];
+const CREW_SECS=["cafe","books","bar","club"];
+
+function crewInit(){
+  if(!S.crew||typeof S.crew!=="object") S.crew={};
+  if(!(S.rankBest>=1)) S.rankBest=rankInfo().lv;   // first run: start from the rank you already hold
+  return S.rankBest;
+}
+/* unlocks are kept once earned, so losing rep never takes a slot away */
+const crewLv=()=>Math.max(1,Math.min(12,Math.max(crewInit(),rankInfo().lv)));
+const hireCap=()=>CREW_HIRE[crewLv()-1];
+const shiftCap=()=>CREW_SHIFT[crewLv()-1];
+const rankName=lv=>(RANK2[lv-1]||[0,""])[1];
+function nextHireRank(){ const c=hireCap(); const i=CREW_HIRE.findIndex(n=>n>c); return i<0?null:i+1; }
+function nextShiftRank(){ const c=shiftCap(); const i=CREW_SHIFT.findIndex(n=>n>c); return i<0?null:i+1; }
+function hireFullMsg(role){
+  const n=nextHireRank(), room=ROLES[role]?ROLES[role].room:"floor";
+  return n?`The ${room} is at your hiring limit (${hireCap()}). Reach ${rankName(n)} to hire more.`:`The ${room} is full (${hireCap()} staff).`;
+}
+
+/* helpers on a floor: valid, hired, not the lead, not working anywhere else */
+function crewHelpers(sec){
+  crewInit(); const lead=workerFor(sec), list=Array.isArray(S.crew[sec])?S.crew[sec]:[], out=[];
+  list.forEach(id=>{ const w=S.staff.find(x=>x.id===id&&isHired(x)&&x.id!==edgeOutId()); if(w&&w!==lead&&!out.includes(w)) out.push(w); });
+  return out.slice(0,Math.max(0,shiftCap()-1));
+}
+function crewOn(sec){ const lead=workerFor(sec); return lead?[lead,...crewHelpers(sec)]:[]; }
+function crewBusyIds(except){ const s=new Set(); Object.entries(S.crew||{}).forEach(([k,v])=>{ if(k!==except&&Array.isArray(v)) v.forEach(id=>s.add(id)); }); return s; }
+function crewDrop(id){ Object.keys(S.crew||{}).forEach(k=>{ if(Array.isArray(S.crew[k])) S.crew[k]=S.crew[k].filter(x=>x!==id); }); }
+function crewSet(sec,slot,id){
+  crewInit();
+  if(id){ crewDrop(id); Object.keys(S.shift||{}).forEach(k=>{ if(S.shift[k]===id) delete S.shift[k]; }); }
+  const now=(S.crew[sec]||[]).slice(); while(now.length<slot+1) now.push("");
+  now[slot]=id||""; S.crew[sec]=now;
+  const w=id&&S.staff.find(x=>x.id===id);
+  if(w) toast(`${w.name} is helping on the ${ROLES[sec].room} shift.`); else toast("Shift slot cleared.");
+}
+/* the lead picker must also pull that worker off any helper slot */
+const _assignShift=assignShift;
+assignShift=function(sec,id){ crewDrop(id); _assignShift(sec,id); };
+
+/* ---------- what helpers do ---------- */
+const HELP_TIP=.10;
+function crewTipMult(sec){ let m=1; crewHelpers(sec).forEach(h=>{ m+=HELP_TIP; if(perkOf(h)==="tips") m+=.10; }); return m; }
+function crewSaveChance(sec){ return crewHelpers(sec).filter(h=>perkOf(h)==="service").length*.12; }
+function crewFavorMult(sec){ return 1+.5*crewHelpers(sec).filter(h=>perkOf(h)==="entertain").length; }
+function crewServe(sec,g){ const hs=crewHelpers(sec); hs.forEach(h=>workerXP(h,g,.5)); return hs; }
+function crewNote(sec){ const hs=crewHelpers(sec); return hs.length?` ${hs.map(h=>h.name).join(" and ")} ${hs.length>1?"pitch":"pitches"} in.`:""; }
+function crewPerkLine(){ return `Each helper on shift adds +10% tips and earns half XP. Their job adds more: Money handler +10% tips, Counter specialist a 12% chance to save a Close, Entertainer favors 50% more often.`; }
+
+/* ---------- UI: shift slots in Shop › Who's working where ---------- */
+function crewSlotsHTML(sec){
+  const cap=shiftCap(), lead=workerFor(sec), team=S.staff.filter(w=>isHired(w)&&w.id!==edgeOutId()), hs=crewHelpers(sec), busy=crewBusyIds(sec);
+  const leadsElsewhere=new Set(Object.entries(S.shift||{}).filter(([k])=>k!==sec).map(([,v])=>v));
+  let h="";
+  for(let i=0;i<cap-1;i++){
+    const cur=hs[i];
+    const opts=team.filter(w=>w!==lead&&(w===cur||(!hs.includes(w)&&!busy.has(w.id)&&!leadsElsewhere.has(w.id))));
+    h+=`<label class="srt" for="crew-${sec}-${i}">Helper ${i+1}</label><select class="field shiftsel" id="crew-${sec}-${i}" data-crew="${sec}" data-slot="${i}">
+      <option value="">— empty —</option>${opts.map(w=>`<option value="${w.id}" ${w===cur?"selected":""}>${esc(w.name)} · ${esc(jobTitle(w))}${w.role!==sec?` (${esc(SEC_NAME[w.role])})`:""}</option>`).join("")}</select>`;
+  }
+  const n=nextShiftRank();
+  if(n) h+=`<p class="hint crewlock">🔒 ${cap===1?"A helper slot":"Helper slot "+cap} opens at <b>${esc(rankName(n))}</b>.</p>`;
+  return h;
+}
+document.addEventListener("change",ev=>{ const t=ev.target; if(t&&t.dataset&&t.dataset.crew){ crewSet(t.dataset.crew,+t.dataset.slot,t.value); commit(); } });
+
+/* ---------- rank rewards list + rank-up announcement ---------- */
+function rankPerk(lv){ const p=[], i=lv-1;
+  if(i>0&&CREW_HIRE[i]>CREW_HIRE[i-1]) p.push(`hire up to ${CREW_HIRE[i]} per floor`);
+  if(i>0&&CREW_SHIFT[i]>CREW_SHIFT[i-1]) p.push(`${CREW_SHIFT[i]} on shift per floor`);
+  return p; }
+function rankRewardsHTML(){
+  const best=crewLv(), cur=rankInfo().lv;
+  return `<details class="sub rankrw"><summary>Rank rewards · ${hireCap()} hires, ${shiftCap()} on shift per floor</summary>
+    <ul class="rrlist">${RANK2.map(([rep,name],i)=>{ const lv=i+1, p=lv===1?[`hire 1 per floor, 1 on shift`]:rankPerk(lv), got=lv<=best;
+      return `<li class="${got?"got":""} ${lv===cur?"cur":""}"><span class="rrn">${got?"✓":"🔒"} ${esc(name)}</span><span class="rrr">${rep} REP</span><small>${p.length?esc(p.join(" · ")):"—"}</small></li>`; }).join("")}</ul>
+    <p class="hint">Rewards stay unlocked even if your rep drops. ${esc(crewPerkLine())}</p></details>`;
+}
+function crewRankCheck(){
+  if(!S) return; if(!(S.rankBest>=1)){ crewInit(); return; } const before=S.rankBest, lv=rankInfo().lv;
+  if(lv>before){ S.rankBest=lv; const p=[], i0=before-1, i1=lv-1;
+    if(CREW_HIRE[i1]>CREW_HIRE[i0]) p.push(`hire up to ${CREW_HIRE[i1]} per floor`);
+    if(CREW_SHIFT[i1]>CREW_SHIFT[i0]) p.push(`${CREW_SHIFT[i1]} on shift per floor`);
+    const m=`Rank up: ${rankName(lv)}.${p.length?" Unlocked: "+p.join(", ")+".":""}`;
+    addLog(m,"build"); setTimeout(()=>{ toast(m); try{ beep(660); setTimeout(()=>beep(880),110); setTimeout(()=>beep(1180),220); }catch(e){} },350); }
+}
+const _crewCommit=commit;
+commit=function(){ crewRankCheck(); _crewCommit(); };
+
+/* ================= RUNNING THE EDGE: focus timer + supply runs ================= */
+/* Start a focus session and send one employee out. Their home floor decides the errand:
+   café/bar bring ingredients (tip boost for a few serves, spoils), bookshop brings real books
+   (shelf prestige), lounge brings outfits & décor (rack vibe). Runs never pay cash directly. */
+
+const EDGE_LENS=[15,25,45,50];
+const EDGE_ERR={
+  cafe: {label:"Ingredients",what:"beans, citrus, herbs and syrups",room:"café",stops:["Night market","Spice stall","Rooftop farm"]},
+  bar:  {label:"Bar stock",what:"spirits, bitters and fruit",room:"bar",stops:["Liquor depot","Citrus vendor","Ice house"]},
+  books:{label:"Books",what:"books for the shelf",room:"bookshop",stops:["Used-book stall","Estate sale","Collector's flat"]},
+  club: {label:"Lounge kit",what:"outfits, décor and vinyl",room:"lounge",stops:["Back-alley tailor","Record shop","Prop warehouse"]}
+};
+const EDGE_TIERS={books:[["common","Common copy",1],["rare","Rare copy",3],["signed","Signed edition",8]],
+                  club:[["common","Common",1],["rare","Rare",3],["signed","Designer",8]]};
+const EDGE_ODDS={norm:[70,25,5],deep:[50,35,15]};
+const SHELF_MAX=12, RACK_MAX=10, PANTRY_DAYS=3;
+
+const EDGE_BOOKS=[
+ ["Frankenstein","Mary Shelley"],["Dracula","Bram Stoker"],["The Time Machine","H. G. Wells"],["The War of the Worlds","H. G. Wells"],
+ ["The Invisible Man","H. G. Wells"],["The Island of Doctor Moreau","H. G. Wells"],["Metropolis","Thea von Harbou"],["R.U.R.","Karel Čapek"],
+ ["We","Yevgeny Zamyatin"],["The Machine Stops","E. M. Forster"],["Twenty Thousand Leagues Under the Seas","Jules Verne"],["From the Earth to the Moon","Jules Verne"],
+ ["A Princess of Mars","Edgar Rice Burroughs"],["Strange Case of Dr Jekyll and Mr Hyde","Robert Louis Stevenson"],["Treasure Island","Robert Louis Stevenson"],
+ ["The Picture of Dorian Gray","Oscar Wilde"],["The Hound of the Baskervilles","Arthur Conan Doyle"],["A Study in Scarlet","Arthur Conan Doyle"],
+ ["The Maltese Falcon","Dashiell Hammett"],["Red Harvest","Dashiell Hammett"],["The Great Gatsby","F. Scott Fitzgerald"],["The Sun Also Rises","Ernest Hemingway"],
+ ["Mrs Dalloway","Virginia Woolf"],["A Room of One's Own","Virginia Woolf"],["Moby-Dick","Herman Melville"],["Pride and Prejudice","Jane Austen"],
+ ["Jane Eyre","Charlotte Brontë"],["Wuthering Heights","Emily Brontë"],["The Count of Monte Cristo","Alexandre Dumas"],["The Three Musketeers","Alexandre Dumas"],
+ ["Crime and Punishment","Fyodor Dostoevsky"],["Notes from Underground","Fyodor Dostoevsky"],["The Metamorphosis","Franz Kafka"],["The Trial","Franz Kafka"],
+ ["Heart of Darkness","Joseph Conrad"],["The Call of Cthulhu","H. P. Lovecraft"],["The Yellow Wallpaper","Charlotte Perkins Gilman"],["Flatland","Edwin A. Abbott"],
+ ["The Turn of the Screw","Henry James"],["Carmilla","Sheridan Le Fanu"],["The Thirty-Nine Steps","John Buchan"],["Herland","Charlotte Perkins Gilman"]
+];
+const EDGE_RACK={
+  common:["Thrift-store blazer","Mesh crop jacket","City-pop vinyl","Pink neon tube","Velvet bar stools","Rain-slick trench","Disco ball (dented)","Synthwave tapes","Holo table lamp","Faux-fur stole"],
+  rare:["Chrome cocktail dress","Vintage ribbon mic","Hand-lettered neon sign","Sequin stage jacket","Jazz pressings box set","Brass stage lamps"],
+  signed:["Designer slip dress","Couture holo coat","Signed vinyl, first pressing","Custom neon mural","Tailored midnight suit"]
+};
+const EDGE_PANTRY={
+  cafe:{norm:["Ethiopian beans","Fresh citrus","Mint & basil","Vanilla syrup","Oat milk crate","Cardamom pods","Cold brew concentrate"],spec:["Single-origin geisha beans","Blood oranges","Hand-pressed syrups"]},
+  bar:{norm:["Citrus crate","Aromatic bitters","Clear ice blocks","Gin botanicals","Agave spirit","Cherry jar"],spec:["Smuggled orbital rum","Yuzu crate","Barrel-aged bitters"]}
+};
+/* events are rolled when the run starts (so the live log can tease them) and applied on return */
+const EDGE_EVENTS={
+  quiet:  {w:30,good:0, title:"Quiet run",          text:"{n} kept their head down. Clean in, clean out."},
+  market: {w:10,good:1, title:"Rooftop farmers market",text:"{n} stumbled onto a rooftop market. Double haul."},
+  regular:{w:14,good:1, title:"Someone followed them back",text:"A regular tagged along with {n}. +1 client."},
+  estate: {w:10,good:1, title:"Lucky find",          text:"{n} spotted something better than expected. One item upgraded."},
+  shortcut:{w:10,good:1,title:"Shortcut",            text:"{n} found a shortcut through the arcology and learned the streets. Bonus XP."},
+  favor:  {w:10,good:1, title:"Called in a favor",   text:"A vendor owed {n} one. +1 item."},
+  vip:    {w:4, good:1, title:"Ran into a VIP",      text:"{n} talked up the shop to someone important. +1 VIP client."},
+  drone:  {w:6, good:-1,title:"Corp drone tail",     text:"A corp drone tailed {n}. They ditched half the haul to lose it."},
+  rain:   {w:6, good:-1,title:"Acid-rain delay",     text:"{n} waited out the acid rain. Some of the haul didn't make it."}
+};
+const EDGE_LINES={
+  leave:["{n} pulls up a hood and heads out.","{n} slips out the back door.","{n} checks the map and hits the street."],
+  walk:["{n} cuts under a flickering overpass.","{n} dodges a delivery drone.","Neon rain on the sidewalk. {n} keeps moving.","{n} takes the long way past the noodle bars.","{n} rides the maglev two stops.","A street preacher yells at {n}. They keep walking."],
+  home:["{n} is heading home with the haul.","{n} is a few blocks out.","{n} turns onto your street."],
+  stop:{
+    cafe:["{n} is haggling over a crate of citrus.","{n} is sniffing every bag of beans at the stall.","{n} is picking herbs off a rooftop planter."],
+    bar:["{n} is checking bottle seals at the depot.","{n} is bargaining for a crate of limes.","{n} is loading clear ice into a cooler."],
+    books:["{n} is digging through a crate of paperbacks.","{n} is outbidding someone at the estate sale.","{n} is in a collector's flat, trying not to touch anything."],
+    club:["{n} is getting fitted at the tailor's.","{n} is flipping through crates of vinyl.","{n} is testing neon signs in a dusty warehouse."]
+  },
+  tease:{1:"{n} says they found something good.",0:"",[-1]:"Something's tailing {n}…"}
+};
+
+/* ---------- state ---------- */
+function edgeS(){ if(!S.edge||typeof S.edge!=="object") S.edge={}; const e=S.edge;
+  e.run=e.run||null; e.brk=e.brk||null; e.pantry=Array.isArray(e.pantry)?e.pantry:[]; e.shelf=Array.isArray(e.shelf)?e.shelf:[]; e.rack=Array.isArray(e.rack)?e.rack:[];
+  e.art=e.art||{}; e.bonus=e.bonus||{}; e.total=e.total||0; if(e.day!==today()){ e.day=today(); e.n=0; e.bonus={}; } e.n=e.n||0; e.len=e.len||25;
+  e.pantry=e.pantry.filter(p=>p.uses>0&&p.exp>=today()); return e; }
+const edgeRun=()=>edgeS().run;
+function edgeOutId(){ const r=S&&S.edge&&S.edge.run; return r?r.runner:null; }
+function edgeAwayMsg(sec){ const r=S&&S.edge&&S.edge.run; if(!r||r.left!==sec) return ""; const w=S.staff.find(x=>x.id===r.runner); return `${w?w.name:"Your runner"} is out on the Edge. The ${SEC_NAME[sec]} is unattended until they're back.`; }
+function edgeErrand(w){ return EDGE_ERR[w&&w.role]?w.role:"cafe"; }
+const edgeEnd=r=>r.start+r.mins*60000;
+const edgeFrac=r=>Math.max(0,Math.min(1,(Date.now()-r.start)/(r.mins*60000)));
+function edgeFmt(ms){ ms=Math.max(0,ms); const s=Math.ceil(ms/1000), m=Math.floor(s/60), ss=s%60; return `${m}:${String(ss).padStart(2,"0")}`; }
+function edgeRnd(seed){ let s=seed>>>0||1; return ()=>{ s^=s<<13; s>>>=0; s^=s>>17; s^=s<<5; s>>>=0; return (s%100000)/100000; }; }
+function edgePickW(obj,rnd,deep){ const ks=Object.keys(obj), ws=ks.map(k=>obj[k].w*(deep&&obj[k].good<0?.5:1)), t=ws.reduce((a,b)=>a+b,0); let r=rnd()*t; for(let i=0;i<ks.length;i++){ r-=ws[i]; if(r<=0) return ks[i]; } return ks[0]; }
+function edgeTier(rnd,deep){ const o=EDGE_ODDS[deep?"deep":"norm"], r=rnd()*100; return r<o[0]?0:r<o[0]+o[1]?1:2; }
+
+/* ---------- boosts ---------- */
+const shelfPrestige=()=>edgeS().shelf.reduce((a,b)=>a+(EDGE_TIERS.books[b.tier]||[0,0,1])[2],0);
+const rackVibe=()=>edgeS().rack.reduce((a,b)=>a+(EDGE_TIERS.club[b.tier]||[0,0,1])[2],0);
+const shelfTip=()=>Math.min(.20,shelfPrestige()*.002);
+const shelfClient=()=>Math.min(.25,shelfPrestige()*.0025);
+const vibeTip=()=>Math.min(.20,rackVibe()*.0025);
+function pantryFor(sec){ return edgeS().pantry.filter(p=>p.sec===sec).sort((a,b)=>a.exp<b.exp?-1:1)[0]||null; }
+function edgeTipMult(sec){ let b=0; const p=pantryFor(sec); if(p) b+=p.pct; if(sec==="books") b+=shelfTip(); if(sec==="bar"||sec==="club") b+=vibeTip(); return 1+Math.min(.5,b); }
+function edgeConsume(sec){ const p=pantryFor(sec); if(!p) return; p.uses--; if(p.uses<=0){ S.edge.pantry=S.edge.pantry.filter(x=>x!==p); addLog(`The ${p.name.toLowerCase()} ran out.`); } }
+/* finished tasks/habits: a prestige-based chance of a bonus client, once per item per day */
+const _edgeGive=giveReward;
+giveReward=function(o,vip,why){ const d=_edgeGive(o,vip,why); try{ const e=edgeS(), k=(o&&o.id||"")+":"+today(), c=shelfClient();
+  if(c>0&&o&&o.id&&!e.bonus[k]){ e.bonus[k]=1; if(Math.random()<c){ addClient(false,"",true); addLog("A book lover walked in, drawn by the shelf.","gain"); setTimeout(()=>toast("Bonus client: a book lover, drawn by your shelf."),900); } } }catch(err){} return d; };
+
+/* ---------- start ---------- */
+function edgeStartSheet(){
+  const e=edgeS(), team=S.staff.filter(isHired); if(!team.length){ toast("Hire someone first, in the Upgrade tab.", true); return; }
+  if(e.run){ edgeViewOpen(); return; }
+  const deep=(e.n+1)%4===0, sel=e.lastRunner&&team.some(w=>w.id===e.lastRunner)?e.lastRunner:team[0].id;
+  openSheet(`<h3>RUN THE EDGE</h3>
+    <p class="muted" style="margin:0 0 10px">Focus while someone goes out for supplies. Finish the timer for the full haul.${deep?` <b class="acc">This is a Deep run: better finds, long break after.</b>`:""}</p>
+    <p class="fl">How long</p><div class="edgelens" role="radiogroup" aria-label="Session length">${EDGE_LENS.map(m=>`<label class="edgelen"><input type="radio" name="edgeLen" value="${m}" ${m===e.len?"checked":""}><span>${m} min</span></label>`).join("")}</div>
+    <p class="fl" style="margin-top:12px">Who goes out</p>
+    <div class="edgewho">${team.map(w=>{ const er=EDGE_ERR[edgeErrand(w)], lead=Object.keys(ROLES).find(sec=>workerFor(sec)===w);
+      return `<label class="edgepick"><input type="radio" name="edgeWho" value="${w.id}" ${w.id===sel?"checked":""}><span><b>${esc(w.name)}</b> <small class="muted">${esc(SEC_NAME[w.role])} · LV ${w.lv||1}</small>
+        <small>Brings back ${esc(er.what)}.</small>${lead?`<small class="bad">The ${esc(SEC_NAME[lead])} will be unattended while they're out.</small>`:""}</span></label>`; }).join("")}</div>
+    <div class="actions" style="margin-top:12px"><button class="btn solid wide" data-act="edgeGo">SEND THEM OUT</button><button class="btn ghost" data-act="close">CANCEL</button></div>`);
+}
+function edgeStart(id,mins){
+  const e=edgeS(), w=S.staff.find(x=>x.id===id&&isHired(x)); if(!w) return;
+  const left=Object.keys(ROLES).find(sec=>workerFor(sec)===w)||null, deep=(e.n+1)%4===0, seed=(Math.random()*1e9)|0, rnd=edgeRnd(seed), ev=edgePickW(EDGE_EVENTS,rnd,deep);
+  if(typeof crewDrop==="function") crewDrop(w.id);
+  e.run={id:uid(),runner:w.id,errand:edgeErrand(w),left,start:Date.now(),mins,deep,seed,ev};
+  e.brk=null; e.len=mins; e.lastRunner=w.id; e.seen=0;
+  addLog(`${w.name} went out on the Edge for ${mins} minutes${left?`. The ${SEC_NAME[left]} is unattended`:""}.`,"build");
+  closeSheet(); commit(); toast(`${w.name} is out on the Edge. Focus up: ${mins}:00.`); beep(520); setTimeout(()=>beep(780),110);
+}
+
+/* ---------- return ---------- */
+function edgeHaul(r,full){
+  const rnd=edgeRnd(r.seed^0x5bd1e995), w=S.staff.find(x=>x.id===r.runner), name=w?w.name:"Your runner", kind=r.errand;
+  const h={kind,name,mins:r.mins,deep:r.deep,full,items:[],pantry:null,clients:0,vip:0,xp:0,ev:null,lost:[]};
+  const ev=full?r.ev:null, E=ev&&EDGE_EVENTS[ev];
+  if(kind==="cafe"||kind==="bar"){
+    const spec=rnd()<(r.deep?.45:.25)||ev==="estate", P=EDGE_PANTRY[kind], list=spec?P.spec:P.norm;
+    let uses=Math.max(2,Math.round(r.mins*4/25))+(r.deep?2:0);
+    if(!full) uses=Math.max(1,Math.floor(uses/2));
+    if(ev==="market") uses*=2; if(ev==="favor") uses+=2; if(ev==="drone") uses=Math.max(1,Math.ceil(uses/2)); if(ev==="rain") uses=Math.max(1,uses-2);
+    h.pantry={sec:kind,name:list[Math.floor(rnd()*list.length)],uses,pct:spec?.35:.20,spec};
+  } else {
+    let n=(r.mins>=45?2:1)+(r.deep?1:0);
+    if(ev==="market") n*=2; if(ev==="favor") n+=1;
+    const make=t=>{ if(kind==="books"){ const have=new Set(edgeS().shelf.map(b=>b.t)); let pool=EDGE_BOOKS.filter(b=>!have.has(b[0])); if(!pool.length) pool=EDGE_BOOKS; const b=pool[Math.floor(rnd()*pool.length)]; return {t:b[0],a:b[1],tier:t}; }
+      const pool=EDGE_RACK[["common","rare","signed"][t]]; return {t:pool[Math.floor(rnd()*pool.length)],tier:t}; };
+    if(!full){ n=Math.floor(n/2); for(let i=0;i<Math.max(1,n);i++) h.items.push(make(0)); }
+    else for(let i=0;i<n;i++) h.items.push(make(edgeTier(rnd,r.deep)));
+    if(ev==="estate"&&h.items.length){ const lo=h.items.reduce((a,b)=>b.tier<a.tier?b:a,h.items[0]); if(lo.tier<2) lo.tier++; }
+    if(ev==="drone"&&h.items.length>1){ h.lost=h.items.splice(Math.ceil(h.items.length/2)); }
+    if(ev==="rain"&&h.items.length>1){ h.lost=h.items.splice(h.items.length-1); }
+  }
+  if(ev==="regular") h.clients=1; if(ev==="vip") h.vip=1;
+  h.xp=full?r.mins/25*(ev==="shortcut"?2:1):0;
+  if(E) h.ev={title:E.title,text:E.text.replace(/\{n\}/g,name),good:E.good};
+  return h;
+}
+function edgeApply(h){
+  const e=edgeS(), msgs=[];
+  if(h.pantry){ const p=Object.assign({},h.pantry,{id:uid(),exp:addDays(today(),PANTRY_DAYS)}); e.pantry.push(p); msgs.push(`${p.name}: +${Math.round(p.pct*100)}% ${SEC_NAME[p.sec]} tips for ${p.uses} serves`); }
+  h.items.forEach(it=>{ const arr=h.kind==="books"?e.shelf:e.rack, max=h.kind==="books"?SHELF_MAX:RACK_MAX;
+    const dupe=arr.find(x=>x.t===it.t);
+    if(dupe){ if(it.tier>dupe.tier){ dupe.tier=it.tier; it.res="upgraded"; } else it.res="duplicate"; return; }
+    if(arr.length<max){ arr.push({t:it.t,a:it.a,tier:it.tier}); it.res="added"; return; }
+    let lo=0; arr.forEach((x,i)=>{ if(x.tier<arr[lo].tier) lo=i; }); if(it.tier>arr[lo].tier){ it.res="swapped for "+arr[lo].t; arr[lo]={t:it.t,a:it.a,tier:it.tier}; } else it.res="no room"; });
+  for(let i=0;i<h.clients;i++) addClient(false,"",true); if(h.vip) addClient(true,"",true);
+  const w=S.staff.find(x=>x.id===(e.run&&e.run.runner)); if(w&&h.xp>0){ const m=workerXP(w,"perfect",h.xp); if(m) h.lvl=m; }
+  return msgs;
+}
+function edgeFinish(full,manual){
+  const e=edgeS(), r=e.run; if(!r) return; const fr=edgeFrac(r);
+  const partial=!full&&fr>=.5, h=full||partial?edgeHaul(r,full):null;
+  if(h) edgeApply(h);
+  if(full){ e.n++; e.total++; const long=r.deep; e.brk={until:Date.now()+(long?15:5)*60000,long}; }
+  const w=S.staff.find(x=>x.id===r.runner), name=w?w.name:"Your runner";
+  addLog(full?`${name} is back from the Edge.`:partial?`Pulled ${name} out early. Half a haul.`:`Pulled ${name} out early. Empty-handed.`,full?"gain":"warn");
+  e.run=null; e.pend=h||{none:true,name,kind:r.errand}; e.pend.at=Date.now();
+  if(edgeViewIsOpen()) edgeViewClose();
+  commit(); edgeShowPend();
+  if(full){ beep(880); setTimeout(()=>beep(1180),130); setTimeout(()=>beep(1480),260); }
+}
+function edgeShowPend(){
+  const e=edgeS(), h=e.pend; if(!h) return; if(srv.open||!$("veil").hidden) return;
+  const tiers=EDGE_TIERS[h.kind]||EDGE_TIERS.books;
+  const itemRow=it=>`<li class="hitem t${it.tier}"><span class="htier">${esc(tiers[it.tier][1])}</span><b>${esc(it.t)}</b>${it.a?` <small class="muted">${esc(it.a)}</small>`:""}${it.res&&it.res!=="added"?` <small class="muted">· ${esc(it.res)}</small>`:""}</li>`;
+  let body="";
+  if(h.none) body=`<p>${esc(h.name)} came back empty-handed. Stay past the halfway point next time for at least half a haul.</p>`;
+  else {
+    if(h.ev) body+=`<div class="hev ${h.ev.good>0?"good":h.ev.good<0?"bad":""}"><b>${esc(h.ev.title)}</b><p>${esc(h.ev.text)}</p></div>`;
+    if(h.pantry) body+=`<ul class="hlist"><li class="hitem t${h.pantry.spec?1:0}"><span class="htier">${h.pantry.spec?"Specialty":"Fresh"}</span><b>${esc(h.pantry.name)}</b> <small class="muted">+${Math.round(h.pantry.pct*100)}% ${esc(SEC_NAME[h.pantry.sec])} tips · next ${h.pantry.uses} serves · spoils in ${PANTRY_DAYS} days</small></li></ul>`;
+    if(h.items.length) body+=`<ul class="hlist">${h.items.map(itemRow).join("")}</ul>`;
+    if(h.lost&&h.lost.length) body+=`<p class="muted" style="margin:6px 0 0">Lost on the way: ${h.lost.map(x=>esc(x.t)).join(", ")}.</p>`;
+    const extra=[h.clients?`+${h.clients} client`:"",h.vip?"+1 VIP client":"",h.xp?`${esc(h.name)} earned XP${h.lvl?". "+esc(h.lvl):""}`:""].filter(Boolean);
+    if(extra.length) body+=`<p class="good" style="margin:8px 0 0">${extra.join(" · ")}</p>`;
+    if(h.kind==="books") body+=`<p class="hint" style="margin:8px 0 0">Shelf prestige ${shelfPrestige()}: +${Math.round(shelfTip()*100)}% bookshop tips, ${Math.round(shelfClient()*100)}% bonus-client chance per finished task.</p>`;
+    if(h.kind==="club") body+=`<p class="hint" style="margin:8px 0 0">Lounge vibe ${rackVibe()}: +${Math.round(vibeTip()*100)}% tips at the bar and lounge.</p>`;
+  }
+  const b=e.brk&&h.full?`<p class="acc" style="margin:10px 0 0">${e.brk.long?"Long break":"Break"}: ${e.brk.long?15:5} minutes. Go serve your clients.</p>`:"";
+  e.pend=null; save();
+  openSheet(`<h3>${h.none?"PULLED OUT EARLY":h.full?"BACK FROM THE EDGE":"PULLED OUT EARLY"}</h3>
+    <p class="muted" style="margin:0 0 8px">${esc(h.name)}${h.none?"":` · ${h.mins} min${h.deep?" · Deep run":""}${h.full?"":" · half a haul"}`}</p>${body}${b}
+    <div class="actions" style="margin-top:12px"><button class="btn solid wide" data-act="close">${h.full?"START BREAK":"OK"}</button></div>`);
+}
+/* ticker: countdown text, finish when time's up (also catches up after the app was closed) */
+setInterval(()=>{ if(!S) return; const e=S.edge; if(!e) return;
+  if(e.run&&Date.now()>=edgeEnd(e.run)){ edgeFinish(true); return; }
+  if(e.brk&&Date.now()>=e.brk.until){ e.brk=null; save(); if(tab==="shop") render(); edgePill(); toast("Break's over. Ready to run the Edge again?"); return; }
+  if(e.pend&&$("veil").hidden&&!srv.open) edgeShowPend();
+  document.querySelectorAll("[data-edgecd]").forEach(el=>{ el.textContent=e.run?edgeFmt(edgeEnd(e.run)-Date.now()):e.brk?edgeFmt(e.brk.until-Date.now()):""; });
+  document.querySelectorAll("[data-edgebar]").forEach(el=>{ el.style.width=(e.run?edgeFrac(e.run)*100:0)+"%"; });
+  edgePill(); edgeLogRefresh();
+},1000);
+
+/* ---------- Shop panel ---------- */
+function edgeBoostLine(){ const e=edgeS(), out=[];
+  ["cafe","bar"].forEach(sec=>{ const p=pantryFor(sec); if(p) out.push(`${esc(SEC_NAME[sec])}: ${esc(p.name)} +${Math.round(p.pct*100)}% · ${p.uses} serves`); });
+  if(e.shelf.length) out.push(`Shelf prestige ${shelfPrestige()}`); if(e.rack.length) out.push(`Lounge vibe ${rackVibe()}`);
+  return out.length?`<p class="hint" style="margin:8px 0 0">${out.join(" · ")}</p>`:""; }
+function edgeShelfHTML(){ const e=edgeS(), T=EDGE_TIERS;
+  return `<details class="sub"><summary>Shelf · ${e.shelf.length}/${SHELF_MAX} · prestige ${shelfPrestige()}</summary>${e.shelf.length?`<ul class="hlist">${e.shelf.slice().sort((a,b)=>b.tier-a.tier).map(b=>`<li class="hitem t${b.tier}"><span class="htier">${esc(T.books[b.tier][1])}</span><b>${esc(b.t)}</b> <small class="muted">${esc(b.a||"")}</small></li>`).join("")}</ul>`:`<p class="hint">Send a bookshop worker out to start the shelf.</p>`}
+    <p class="hint">+${Math.round(shelfTip()*100)}% bookshop tips (max 20%) · ${Math.round(shelfClient()*100)}% chance a finished task brings a bonus client (max 25%).</p></details>
+  <details class="sub"><summary>Lounge rack · ${e.rack.length}/${RACK_MAX} · vibe ${rackVibe()}</summary>${e.rack.length?`<ul class="hlist">${e.rack.slice().sort((a,b)=>b.tier-a.tier).map(b=>`<li class="hitem t${b.tier}"><span class="htier">${esc(T.club[b.tier][1])}</span><b>${esc(b.t)}</b></li>`).join("")}</ul>`:`<p class="hint">Send a lounge worker out for outfits and décor.</p>`}
+    <p class="hint">+${Math.round(vibeTip()*100)}% tips at the bar and lounge (max 20%).</p></details>`; }
+function edgePanel(){
+  const e=edgeS(), r=e.run;
+  if(r){ const w=S.staff.find(x=>x.id===r.runner), er=EDGE_ERR[r.errand];
+    return `<section class="panel edgep on"><h2><span>RUNNING THE EDGE${r.deep?" · DEEP":""}</span><span>${esc(w?w.name:"")}</span></h2>
+      <button class="edgebig" data-act="edgeView" aria-label="Watch the run"><span class="edgecd" data-edgecd>${edgeFmt(edgeEnd(r)-Date.now())}</span><span class="muted">${esc(w?w.name:"")} is out for ${esc(er.label.toLowerCase())} · tap to watch</span></button>
+      <div class="edgebar"><i data-edgebar style="width:${edgeFrac(r)*100}%"></i></div>
+      ${r.left?`<p class="hint bad" style="margin:6px 0 0">The ${esc(SEC_NAME[r.left])} is unattended.</p>`:""}
+      <div class="actions" style="margin-top:8px"><button class="btn ghost" data-act="edgeView">WATCH THE RUN</button><button class="btn ghost" data-act="edgeQuit">PULL OUT</button></div></section>`; }
+  const brk=e.brk&&Date.now()<e.brk.until;
+  return `<section class="panel edgep"><h2><span>RUNNING THE EDGE</span><span>${e.n} RUN${e.n===1?"":"S"} TODAY</span></h2>
+    ${brk?`<p style="margin:0 0 8px"><b class="acc">${e.brk.long?"Long break":"Break"} · <span data-edgecd>${edgeFmt(e.brk.until-Date.now())}</span></b> <span class="muted">Serve your clients.</span></p>`:`<p class="muted" style="margin:0 0 8px">Focus while someone goes out for supplies.${(e.n+1)%4===0?" Next one is a Deep run.":""}</p>`}
+    <button class="btn solid wide" data-act="edgeStart">RUN THE EDGE</button>${edgeBoostLine()}${edgeShelfHTML()}</section>`;
+}
+/* floating pill on other tabs */
+function edgePill(){ let p=$("edgepill"); if(!p){ p=document.createElement("button"); p.id="edgepill"; p.className="edgepill"; p.dataset.act="edgeView"; document.body.appendChild(p); }
+  const e=S&&S.edge, r=e&&e.run, show=!!r&&tab!=="shop"&&!edgeViewIsOpen()&&!srv.open;
+  p.hidden=!show; if(show){ const w=S.staff.find(x=>x.id===r.runner); p.innerHTML=`<span class="dot"></span>${edgeFmt(edgeEnd(r)-Date.now())} · ${esc(w?w.name:"Runner")} on the Edge`; } }
+
+/* ---------- Edge view (live run) ---------- */
+let edgeRAF=0, edgeLogN=-1;
+const edgeViewIsOpen=()=>{ const v=$("edgeview"); return !!v&&!v.hidden; };
+function edgeViewOpen(){ const r=edgeRun(); if(!r){ toast("Nobody's out right now.", true); return; }
+  let v=$("edgeview"); if(!v){ v=document.createElement("div"); v.id="edgeview"; v.className="edgeview"; v.setAttribute("role","dialog"); v.setAttribute("aria-label","Running the Edge"); document.body.appendChild(v); }
+  const w=S.staff.find(x=>x.id===r.runner), er=EDGE_ERR[r.errand];
+  v.innerHTML=`<div class="evtop"><button class="btn ghost smallbtn" data-act="edgeViewClose">‹ SHOP</button><span class="px">RUNNING THE EDGE${r.deep?" · DEEP RUN":""}</span></div>
+    <div class="evstage"><canvas id="edgeCanvas" width="640" height="360"></canvas></div>
+    <div class="evinfo"><div><b>${esc(w?w.name:"Runner")}</b> <span class="muted">· ${esc(er.label)} run · ${r.mins} min</span></div><span class="edgecd" data-edgecd>${edgeFmt(edgeEnd(r)-Date.now())}</span></div>
+    <div class="edgebar route"><i data-edgebar style="width:${edgeFrac(r)*100}%"></i>${EDGE_STOPS.map((s,i)=>`<em style="left:${s.at*100}%" title="${esc(er.stops[i])}"></em>`).join("")}</div>
+    <div class="evstops">${er.stops.map((s,i)=>`<span>${i+1}. ${esc(s)}</span>`).join("")}</div>
+    ${r.left?`<p class="hint bad" style="margin:4px 0 0">The ${esc(SEC_NAME[r.left])} is unattended.</p>`:""}
+    <ol class="evlog" id="edgeLog" aria-live="polite"></ol>
+    <div class="actions"><button class="btn ghost" data-act="edgeQuit">PULL OUT EARLY</button></div>`;
+  v.hidden=false; document.body.classList.add("edgeopen"); edgeLogN=-1; edgeLogRefresh(); edgePill();
+  cancelAnimationFrame(edgeRAF); const loop=t=>{ if(!edgeViewIsOpen()) return; edgeDraw(t); edgeRAF=requestAnimationFrame(loop); }; edgeRAF=requestAnimationFrame(loop);
+}
+function edgeViewClose(){ const v=$("edgeview"); if(v){ v.hidden=true; v.innerHTML=""; } document.body.classList.remove("edgeopen"); cancelAnimationFrame(edgeRAF); edgePill(); }
+
+/* route: out to stop 1, on to stop 2 (the far point), back past stop 3, home. Stops are short pauses. */
+const EDGE_STOPS=[{at:.20,d:1500,dur:.06},{at:.50,d:4000,dur:.10},{at:.76,d:2300,dur:.06}];
+function edgePos(p){
+  const K=[[0,0],[.17,1500],[.23,1500],[.45,4000],[.55,4000],[.73,2300],[.79,2300],[1,0]];
+  for(let i=1;i<K.length;i++){ if(p<=K[i][0]){ const [p0,d0]=K[i-1], [p1,d1]=K[i], t=(p-p0)/Math.max(1e-6,p1-p0); return {d:d0+(d1-d0)*t,moving:d1!==d0,dir:d1>=d0?1:-1,seg:i}; } }
+  return {d:0,moving:false,dir:-1,seg:K.length};
+}
+function edgeLogLines(r){
+  const rnd=edgeRnd(r.seed^0x1234567), w=S.staff.find(x=>x.id===r.runner), n=w?w.name:"Your runner", pk2=a=>a[Math.floor(rnd()*a.length)], er=EDGE_ERR[r.errand];
+  const stopL=EDGE_LINES.stop[r.errand]||EDGE_LINES.stop.cafe, E=EDGE_EVENTS[r.ev]||EDGE_EVENTS.quiet, tease=EDGE_LINES.tease[E.good];
+  const L=[[.01,pk2(EDGE_LINES.leave)],[.09,pk2(EDGE_LINES.walk)],[.17,`${n} reaches the ${er.stops[0].toLowerCase()}.`],[.19,stopL[0]],[.32,pk2(EDGE_LINES.walk)],
+    [.45,`${n} makes it to the ${er.stops[1].toLowerCase()}.`],[.48,stopL[1]],[.57,tease||pk2(EDGE_LINES.walk)],[.64,pk2(EDGE_LINES.home)],[.73,`${n} stops by the ${er.stops[2].toLowerCase()} on the way back.`],[.75,stopL[2]],[.88,pk2(EDGE_LINES.home)],[.96,pk2(EDGE_LINES.home)]];
+  return L.filter(x=>x[1]).map(([at,t])=>[at,t.replace(/\{n\}/g,n)]);
+}
+function edgeLogRefresh(){ const box=$("edgeLog"), r=edgeRun(); if(!box||!r) return; const p=edgeFrac(r), L=edgeLogLines(r).filter(x=>x[0]<=p); if(L.length===edgeLogN) return; edgeLogN=L.length;
+  box.innerHTML=L.slice().reverse().map(([at,t],i)=>`<li class="${i===0?"new":""}"><span class="muted">${edgeFmt(at*r.mins*60000)}</span> ${esc(t)}</li>`).join(""); }
+
+/* placeholder art: procedural skyline, storefronts, street, puddles; any layer can be swapped in Dev › Edge */
+const EDGE_PAL={cafe:"#ffb347",bar:"#ff4fa3",books:"#3fd0c9",club:"#b26bff"};
+function edgeHash(i){ let x=Math.imul(i^0x9e3779b9,0x85ebca6b); x^=x>>>13; x=Math.imul(x,0xc2b2ae35); x^=x>>>16; return (x>>>0)/4294967296; }
+function edgeLayer(g,ref,cam,speed,W,H){ const src=resolveArt(ref); if(!src) return false; const im=imgFor(src); if(!(im.complete&&im.naturalWidth)) return true;
+  const h=H, w=im.naturalWidth*h/im.naturalHeight, off=((cam*speed)%w+w)%w; g.imageSmoothingEnabled=false; for(let x=-off;x<W;x+=w) g.drawImage(im,Math.round(x),0,Math.ceil(w)+1,h); return true; }
+function edgeDraw(now){
+  const cv=$("edgeCanvas"), r=edgeRun(); if(!cv||!r) return; const g=cv.getContext("2d"), W=640, H=360, art=edgeS().art, night=clockSide()==="night", col=EDGE_PAL[r.errand]||"#ff4fa3";
+  const p=edgeFrac(r), pos=edgePos(p), cam=pos.d-W*.5, GROUND=300;
+  g.imageSmoothingEnabled=false;
+  /* sky */
+  if(!edgeLayer(g,art.back,cam,.15,W,H)){
+    const sk=g.createLinearGradient(0,0,0,H); if(night){ sk.addColorStop(0,"#07051a"); sk.addColorStop(.6,"#2a0f3a"); sk.addColorStop(1,"#5a1d4a"); } else { sk.addColorStop(0,"#3a6fae"); sk.addColorStop(.7,"#9ab7d6"); sk.addColorStop(1,"#e8c9a8"); }
+    g.fillStyle=sk; g.fillRect(0,0,W,H);
+    if(night){ g.fillStyle="#cfd8ff"; for(let i=0;i<60;i++){ const x=edgeHash(i)*W, y=edgeHash(i+99)*150; if((now/600+i)%7>.4) g.fillRect(x|0,y|0,1,1); } }
+    /* far skyline */
+    const f=cam*.15; for(let i=Math.floor(f/48)-1;i<Math.floor((f+W)/48)+2;i++){ const bh=90+edgeHash(i*7)*150, bw=34+edgeHash(i*3)*22, x=Math.round(i*48-f);
+      g.fillStyle=night?"#120c26":"#5a6f92"; g.fillRect(x,GROUND-60-bh,bw,bh+60);
+      g.fillStyle=night?"rgba(255,220,140,.55)":"rgba(255,255,255,.25)"; for(let wy=GROUND-50-bh;wy<GROUND-70;wy+=9) for(let wx=x+4;wx<x+bw-4;wx+=7) if(edgeHash(i*131+wx*7+wy)>.62) g.fillRect(wx,wy,3,4); }
+  }
+  /* mid: storefronts */
+  if(!edgeLayer(g,art.mid,cam,.5,W,H)){
+    const m=cam*.5, SW=120; for(let i=Math.floor(m/SW)-1;i<Math.floor((m+W)/SW)+2;i++){ const x=Math.round(i*SW-m), h=120+edgeHash(i*11)*60, hue=edgeHash(i*5);
+      g.fillStyle=night?"#1b1330":"#7d6f86"; g.fillRect(x,GROUND-h,SW-6,h);
+      g.fillStyle=night?"#0d0a18":"#4a4258"; g.fillRect(x+10,GROUND-58,SW-26,58);
+      const nc=["#ff4fa3","#3fd0c9","#ffb347","#b26bff","#7cff6b"][Math.floor(hue*5)], on=!night||Math.sin(now/120+i*3)>-.95;
+      g.fillStyle=on?nc:"#3a2f4a"; g.fillRect(x+14,GROUND-h+14,SW-34,10);
+      if(night&&on){ g.fillStyle=nc+"33"; g.fillRect(x+6,GROUND-h+6,SW-18,26); }
+      g.fillStyle=night?"rgba(255,200,120,.35)":"rgba(255,255,255,.2)"; g.fillRect(x+16,GROUND-50,SW-38,30); }
+  }
+  /* stops (in the street layer) */
+  const er=EDGE_ERR[r.errand];
+  EDGE_STOPS.forEach((s,i)=>{ const x=Math.round(s.d-cam); if(x<-140||x>W+140) return; const ref=art.stops&&art.stops[r.errand+i], src=resolveArt(ref);
+    if(src){ const im=imgFor(src); if(im.complete&&im.naturalWidth){ const h=170, w=im.naturalWidth*h/im.naturalHeight; g.drawImage(im,Math.round(x-w/2),GROUND-h,Math.round(w),h); return; } }
+    g.fillStyle=night?"#2a1c40":"#8a7a90"; g.fillRect(x-70,GROUND-118,140,118);
+    g.fillStyle=col; g.fillRect(x-76,GROUND-124,152,8);
+    for(let k=0;k<6;k++){ g.fillStyle=k%2?col:(night?"#f2e6ff":"#fff7ea"); g.fillRect(x-76+k*26,GROUND-116,26,14); }
+    g.fillStyle=night?"#140d24":"#5d5266"; g.fillRect(x-60,GROUND-96,120,96);
+    g.fillStyle=col+"aa"; for(let k=0;k<5;k++) g.fillRect(x-52+k*22,GROUND-52+(k%2)*6,16,12);
+    const nm=pxs(er.stops[i]).toUpperCase(), sc=nm.length>12?1:2, tw=textW(nm,sc); g.fillStyle="#0a0812"; g.fillRect(x-tw/2-4,GROUND-150,tw+8,sc*5+8); pixText(g,nm,Math.round(x-tw/2),GROUND-146,col,sc); });
+  /* front: street */
+  if(!edgeLayer(g,art.fg,cam,1,W,H)){
+    g.fillStyle=night?"#0e0b18":"#3a3540"; g.fillRect(0,GROUND,W,H-GROUND);
+    g.fillStyle=night?"#221a34":"#5a5262"; g.fillRect(0,GROUND,W,4);
+    const c=cam; for(let i=Math.floor(c/64)-1;i<Math.floor((c+W)/64)+2;i++){ const x=Math.round(i*64-c); g.fillStyle=night?"#1a1428":"#4a4452"; g.fillRect(x,GROUND+22,34,3);
+      if(edgeHash(i*17)>.6){ g.fillStyle=night?"rgba(255,79,163,.22)":"rgba(160,200,255,.25)"; g.fillRect(x+8,GROUND+34,40+edgeHash(i)*30,5); } }
+    for(let i=Math.floor(c/200)-1;i<Math.floor((c+W)/200)+2;i++){ const x=Math.round(i*200-c+90); g.fillStyle=night?"#2a2238":"#6a6272"; g.fillRect(x,GROUND-100,4,100); g.fillStyle=night?"#ffe2a0":"#ddd"; g.fillRect(x-6,GROUND-104,16,5);
+      if(night){ g.fillStyle="rgba(255,226,160,.08)"; g.beginPath(); g.moveTo(x-6,GROUND-100); g.lineTo(x-40,GROUND); g.lineTo(x+44,GROUND); g.lineTo(x+10,GROUND-100); g.fill(); } }
+    if(night){ g.fillStyle="rgba(170,190,255,.18)"; for(let i=0;i<40;i++){ const x=(edgeHash(i*5)*W+now*.05*(1+edgeHash(i)))%W, y=(edgeHash(i*9)*H+now*.4*(1+edgeHash(i+3)))%H; g.fillRect(x|0,y|0,1,6); } }
+  }
+  /* runner */
+  const w=S.staff.find(x=>x.id===r.runner), moving=pos.moving, dir=pos.dir;
+  const custom=moving?art.walk:art.idle, csrc=custom&&resolveArt(custom.ref);
+  if(csrc){ const fps=+custom.fps||8; scnSheet(g,{src:csrc,n:custom.n||1},Math.floor(now/(1000/fps)),W*.5,GROUND+6,+art.h||150,dir,0,!!custom.flip,{trim:true}); }
+  else if(w&&typeof sheetFor==="function"&&sheetFor(w,moving?"fwalk":"fidle")){ scnDrawStaff(g,w,W*.5,GROUND+6,dir,moving,now,0); }
+  else { const sh=moving?{src:STAFF_SPRITE.walk,n:6}:{src:STAFF_SPRITE.idle,n:4}; scnSheet(g,sh,Math.floor(now/(moving?125:420)),W*.5,GROUND+6,150,dir,3/72,false); }
+  g.fillStyle="rgba(0,0,0,.35)"; g.fillRect(W*.5-22,GROUND+4,44,4);
+  /* labels */
+  const tag=pxs(`${w?w.name:"RUNNER"} - ${pos.moving?(pos.dir>0?"HEADING OUT":"HEADING HOME"):"AT A STOP"}`).toUpperCase(), tw=textW(tag,2);
+  g.fillStyle="rgba(10,8,18,.8)"; g.fillRect(8,8,tw+14,20); pixText(g,tag,15,13,col,2);
+}
+
+/* ---------- Dev › Edge: swap in your own art ---------- */
+function edgeDevPanel(){
+  const a=edgeS().art, slot=(k,label,hint)=>{ const v=k.indexOf("stop:")===0?(a.stops||{})[k.slice(5)]:a[k], ref=v&&(v.ref||v), src=resolveArt(ref);
+    return `<div class="edgeslot"><div class="esthumb">${src?`<img src="${src}" alt="">`:`<span class="muted">—</span>`}</div><div class="esinfo"><b>${esc(label)}</b><small class="muted">${esc(hint)}${v&&v.n?` · ${v.n} frames`:""}</small>
+      <div class="actions" style="margin-top:4px"><label class="btn ghost smallbtn">${src?"REPLACE":"UPLOAD"}<input type="file" accept="image/*" hidden data-edgeup="${k}"></label>${src?`<button class="btn ghost smallbtn" data-act="edgeArtClear" data-id="${k}">CLEAR</button>`:""}</div></div></div>`; };
+  return `<section class="panel fold"><h2><span>RUNNING THE EDGE · ART</span><span>PLACEHOLDERS</span></h2>
+    <p class="muted" style="margin:0 0 10px">Everything in the Edge view is drawn by code until you load your own. Sheets are one row of frames; the frame count is detected for you.</p>
+    <p class="alabel">RUNNER</p>${slot("walk","Walking sheet","Used while the runner moves")}${slot("idle","Standing sheet","Used at stops")}
+    <div class="rowflex"><div><label class="fl" for="edgeH">Runner height</label><input class="field" id="edgeH" type="number" min="60" max="300" value="${+a.h||150}"></div>
+      <div><label class="fl" for="edgeFps">Frames per second</label><input class="field" id="edgeFps" type="number" min="1" max="30" value="${+(a.walk&&a.walk.fps)||8}"></div></div>
+    <label class="checkrow" style="margin-top:6px"><input type="checkbox" id="edgeFlip" ${a.walk&&a.walk.flip?"checked":""}> Sheets face left</label>
+    <p class="hint">No sheet here? Each runner uses their own walk/standing sheet from Dev › Sprites, then the built-in barista.</p>
+    <p class="alabel" style="margin-top:10px">STREET (scrolls in layers)</p>${slot("back","Sky + far skyline","Slowest layer · wide images tile")}${slot("mid","Storefronts","Middle layer")}${slot("fg","Street","Front layer · use transparency above the ground")}
+    <p class="alabel" style="margin-top:10px">STOPS</p>${Object.keys(EDGE_ERR).map(k=>EDGE_ERR[k].stops.map((s,i)=>slot("stop:"+k+i,s,EDGE_ERR[k].label+" run · stop "+(i+1))).join("")).join("")}
+  </section>`;
+}
+document.addEventListener("change",ev=>{ const t=ev.target; if(!t) return;
+  if(t.dataset&&t.dataset.edgeup){ const k=t.dataset.edgeup, file=t.files&&t.files[0]; if(!file) return; const a=edgeS().art, sheet=k==="walk"||k==="idle";
+    readImage(file).then(img=>{ const W0=img.width||img.naturalWidth, H0=img.height||img.naturalHeight; let n=1; if(sheet){ const det=sheetDetect(img); if(det&&det.rows===1) n=det.cols; }
+      const sc=Math.min(1,(sheet?480:1080)/H0,Math.sqrt(16e6/(W0*H0))), cv=sc<1?hqResize(img,W0,H0,Math.round(W0*sc),Math.round(H0*sc)):(()=>{ const c=document.createElement("canvas"); c.width=W0; c.height=H0; c.getContext("2d").drawImage(img,0,0); return c; })();
+      let data=cv.toDataURL("image/png"); if(data.length>2.4e6) data=cv.toDataURL("image/webp",.92);
+      return storeArt(data).then(ref=>{ if(k.indexOf("stop:")===0){ a.stops=a.stops||{}; const s=k.slice(5); if(a.stops[s]) dropArt(a.stops[s]); a.stops[s]=ref; }
+        else if(sheet){ if(a[k]&&a[k].ref) dropArt(a[k].ref); a[k]={ref,n,fps:(a.walk&&a.walk.fps)||8,flip:!!(a.walk&&a.walk.flip)}; }
+        else { if(a[k]) dropArt(a[k]); a[k]=ref; }
+        commit(); toast(sheet?`${n} frame${n===1?"":"s"} loaded for the runner.`:"Edge art loaded."); }); }).catch(()=>toast(imgErr(file),true)); return; }
+  if(t.id==="edgeH"){ edgeS().art.h=Math.max(60,Math.min(300,+t.value||150)); save(); return; }
+  if(t.id==="edgeFps"||t.id==="edgeFlip"){ const a=edgeS().art; ["walk","idle"].forEach(k=>{ if(a[k]){ if(t.id==="edgeFps") a[k].fps=Math.max(1,Math.min(30,+t.value||8)); else a[k].flip=t.checked; } }); save(); return; }
+});
+
+/* ---------- actions ---------- */
+document.addEventListener("click",ev=>{ const el=ev.target.closest("[data-act]"); if(!el) return; const a=el.dataset.act;
+  switch(a){
+    case "edgeStart": edgeStartSheet(); break;
+    case "edgeGo": { const who=document.querySelector("input[name=edgeWho]:checked"), len=document.querySelector("input[name=edgeLen]:checked"); if(!who){ toast("Pick who goes out.", true); return; } edgeStart(who.value,+(len&&len.value)||25); break; }
+    case "edgeView": edgeViewOpen(); break;
+    case "edgeViewClose": edgeViewClose(); render(); break;
+    case "edgeQuit": { const r=edgeRun(); if(!r) return; if(el.dataset.arm!=="1"){ el.dataset.arm="1"; el.textContent=edgeFrac(r)>=.5?"TAP AGAIN · HALF A HAUL":"TAP AGAIN · COMES BACK EMPTY"; setTimeout(()=>{ if(el.isConnected){ el.dataset.arm=""; el.textContent="PULL OUT"+(el.closest(".edgeview")?" EARLY":""); } },4000); return; } edgeFinish(false,true); break; }
+    case "edgeArtClear": { const k=el.dataset.id, art=edgeS().art; if(k.indexOf("stop:")===0){ const s=k.slice(5); if(art.stops&&art.stops[s]){ dropArt(art.stops[s]); delete art.stops[s]; } } else if(art[k]){ dropArt(art[k].ref||art[k]); delete art[k]; } commit(); break; }
+  } });
+document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&edgeViewIsOpen()){ edgeViewClose(); render(); } });
+
+const _edgeRender=render;
+render=function(){ _edgeRender(); try{ edgePill(); }catch(e){} };
 
 /* ================= SKILLS, COVERING OTHER VENUES, AND HIRING YOUR OWN CHARACTERS ================= */
 const SKILL_SLOTS=3, SLOT_MULT=[1,2,4];
@@ -6077,7 +6599,7 @@ function candJob(c,i){ if(!c.job){ const js=venueJobs(c.role); if(js.length) c.j
 function rosterBlock(key){
   const team=staffAt(key), on=workerFor(key);
   if(!team.length) return `<p class="hint" style="margin:0 0 6px">Hire someone below to open this counter.</p>`;
-  return team.map(p=>`<div class="rosterhd"><span class="tag">${esc(jobTitle(p))}</span>${p===on?`<span class="onshift">● AT THE COUNTER</span>`:`<button class="btn ghost smallbtn" data-emp="shift" data-id="${p.id}">PUT AT THE COUNTER</button>`}</div>${workerMini(p)}`).join("");
+  return team.map(p=>`<div class="rosterhd"><span class="tag">${esc(jobTitle(p))}</span>${p===on?`<span class="onshift">● AT THE COUNTER</span>`:crewHelpers(key).includes(p)?`<span class="onshift">● HELPING ON SHIFT</span>`:`<button class="btn ghost smallbtn" data-emp="shift" data-id="${p.id}">PUT AT THE COUNTER</button>`}</div>${workerMini(p)}`).join("");
 }
 function shiftPicker(sec){
   const team=S.staff.filter(isHired); if(team.length<2) return ""; const on=workerFor(sec);
@@ -6092,7 +6614,7 @@ function candJobLine(c){ const j=venueJobs(c.role).find(x=>x.id===c.job); if(!j)
 function empPanel(){
   return `<section class="panel">
     <h2><span>YOUR CHARACTERS</span><span>${S.staff.length} ON STAFF</span></h2>
-    <p style="margin:0 0 10px">Make your own employees the way Mika is set up: name, venue and job, personality, stats and art. Then pick them below to add faces, outfits, animations and placement. New characters go on their venue's hiring board in Upgrade, where you pay to hire them. Up to ${VENUE_CAP} hired per venue.</p>
+    <p style="margin:0 0 10px">Make your own employees the way Mika is set up: name, venue and job, personality, stats and art. Then pick them below to add faces, outfits, animations and placement. New characters go on their venue's hiring board in Upgrade, where you pay to hire them. How many you can hire per floor grows with your rank (now ${hireCap()}).</p>
     <div class="actions" style="margin-top:0"><button class="btn solid" data-emp="new">+ CREATE CHARACTER</button>
       <label class="btn" for="empFile" style="text-align:center">IMPORT FILE</label><input type="file" id="empFile" class="srt" accept=".json,application/json,text/plain">
       ${S.staff.length?`${FRAMED?"":`<button class="btn ghost" data-emp="exportAll">DOWNLOAD ALL STAFF</button>`}<button class="btn ghost" data-emp="copyAll">COPY ALL AS TEXT</button>`:""}</div>
@@ -6149,7 +6671,7 @@ function empSubmit(ev){
   const f=ev.target; if(!f.dataset||f.dataset.form!=="emp") return; ev.preventDefault(); ev.stopImmediatePropagation();
   const v=id=>($(id)||{}).value, name=(v("empName")||"").trim().slice(0,16); if(!name) return;
   const [role,job]=(v("empJob")||"cafe:").split(":"), id=f.dataset.id, w=id&&S.staff.find(x=>x.id===id);
-  if(w&&isHired(w)&&w.role!==role&&staffAt(role).length>=VENUE_CAP){ toast(`${SEC_NAME[role]} is full (${VENUE_CAP} staff).`, true); return; }
+  if(w&&isHired(w)&&w.role!==role&&staffAt(role).length>=hireCap()){ toast(hireFullMsg(role), true); return; }
   const o={name,role,job,skill:+v("empSkill")||1,charm:+v("empCharm")||1,persona:v("empPersona"),trait:v("empTrait"),lw:Math.max(0,Math.round(+v("empLw")||0))};
   if($("empCost")) o.cost=Math.max(0,Math.round(+v("empCost")||0));
   o.base={skill:o.skill,charm:o.charm};
@@ -6191,7 +6713,7 @@ document.addEventListener("click",ev=>{
     case "shift": { const w=S.staff.find(x=>x.id===id); if(!w) return; assignShift(w.role,w.id); commit(); break; }
     case "hireCast": { const w=S.staff.find(x=>x.id===id); if(!w||isHired(w)) return; const c=hireCostFor(w);
       if(S.credits<c){ toast(`You need ${(c-S.credits).toLocaleString()}₵ more.`, true); return; }
-      if(staffAt(w.role).length>=VENUE_CAP){ toast(`The ${ROLES[w.role].room} is full (${VENUE_CAP} staff).`, true); return; }
+      if(staffAt(w.role).length>=hireCap()){ toast(hireFullMsg(w.role), true); return; }
       S.credits-=c; w.hired=true; addLog(`Hired ${w.name} as ${jobTitle(w).toLowerCase()}. -${c}₵`,"build"); pop(ev,"HIRED!","var(--good)"); beep(660); setTimeout(()=>beep(990),90); povReset(povSec()); commit(); break; }
     case "new": empSheet(null); break;
     case "newAt": tab="dev"; devSub="workers"; render(); window.scrollTo(0,0); empSheet(null,id); break;
