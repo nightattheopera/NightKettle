@@ -472,7 +472,7 @@ details.sub .actions{margin-top:8px}
 .xbtn:hover,.xbtn:focus-visible{border-color:var(--accent);color:var(--accent)}
 .tabs .in.tasktabs{-webkit-mask-image:linear-gradient(to right,#000 86%,transparent);mask-image:linear-gradient(to right,#000 86%,transparent)}
 
-.tabs .in{grid-template-columns:repeat(5,1fr)}
+.tabs .in{grid-template-columns:repeat(3,1fr)}
 .topright{display:flex;align-items:center;gap:8px;justify-self:end}
 .morebtn{background:none;border:1px solid var(--line);color:var(--ink);width:34px;height:30px;font-size:18px;line-height:1;cursor:pointer;padding:0}
 .morebtn[aria-current="page"]{border-color:var(--accent);color:var(--accent)}
@@ -880,6 +880,30 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .esthumb{width:64px;height:48px;flex:none;display:flex;align-items:center;justify-content:center;background:#0a0812;border:1px solid var(--line);overflow:hidden}
 .esthumb img{max-width:100%;max-height:100%;image-rendering:pixelated}
 .esinfo{display:flex;flex-direction:column;gap:1px;min-width:0}
+
+/* +/− habits */
+.pmrow .ttl{min-width:0}
+.pmrow{border-left:3px solid transparent}
+.pm-g1{border-left-color:rgba(62,242,224,.35)}.pm-g2{border-left-color:rgba(62,242,224,.65);background:rgba(62,242,224,.04)}.pm-g3{border-left-color:var(--good);background:rgba(62,242,224,.08)}
+.pm-r1{border-left-color:rgba(255,79,109,.35)}.pm-r2{border-left-color:rgba(255,79,109,.65);background:rgba(255,79,109,.04)}.pm-r3{border-left-color:#ff4f6d;background:rgba(255,79,109,.08)}
+.tbtn.ghostbtn{visibility:hidden}
+.pmstrip{display:flex;gap:3px;margin-top:4px}
+.pmstrip i{width:14px;height:5px;background:rgba(255,255,255,.08)}
+.pmstrip i.up{background:var(--good)}.pmstrip i.dn{background:#ff4f6d}.pmstrip i.ev{background:var(--dim)}
+.pmchip{display:inline-flex;align-items:stretch;border:1px solid var(--line);background:var(--panel)}
+.pmchip>button{border:0;background:none;color:var(--ink);font:inherit;font-size:18px;width:34px;cursor:pointer}
+.pmchip>button:first-child{border-right:1px solid var(--line)}.pmchip>button:last-child{border-left:1px solid var(--line)}
+.pmchip>button[data-act=winMinus]{color:#ff4f6d}.pmchip>button[data-act=win]{color:var(--good)}
+.pmchip .pmname{padding:7px 10px;font-size:15px;align-self:center}
+.pmchip.pm-g2,.pmchip.pm-g3{border-color:rgba(62,242,224,.6)}.pmchip.pm-r2,.pmchip.pm-r3{border-color:rgba(255,79,109,.6)}
+.pmseg{display:grid;grid-template-columns:repeat(3,1fr)}
+
+.savehead{padding:4px 0 6px}.savehead .jarbig{margin:2px 0 4px}
+.devmenu{display:flex;flex-direction:column;margin-top:8px}
+.devlink{display:grid;grid-template-columns:1fr auto;gap:0 8px;align-items:center;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:11px 2px;color:var(--ink);font:inherit;cursor:pointer}
+.devlink small{grid-column:1;color:var(--dim);font-size:13px}.devlink span{grid-column:2;grid-row:1/3;color:var(--accent);font-size:20px}
+.devback{margin:0 0 8px;display:inline-block}
+.tseg{grid-template-columns:repeat(4,1fr)}
 
 </style>
 </head>
@@ -2909,6 +2933,8 @@ function migrate(o){
   ["habits","tasks","buckets","log","staff","lists","wins"].forEach(k=>{ if(!Array.isArray(o[k])) o[k]=b[k]; });
   o.wins.forEach(w=>{ w.log=Array.isArray(w.log)?w.log:[]; });
   if(!Array.isArray(o.bads)) o.bads=[]; o.bads.forEach(x=>{ x.log=Array.isArray(x.log)?x.log:[]; });
+  o.wins.forEach(w=>{ if(w.up===undefined) w.up=true; if(w.down===undefined) w.down=false; if(w.rep===undefined) w.rep=2; });
+  o.bads.forEach(x=>{ o.wins.push({id:x.id,name:x.name,note:x.note||"",up:false,down:true,rep:x.rep|0,bucket:"",save:0,ask:false,diff:2,log:x.log.map(l=>({id:l.id||uid(),d:l.d,s:-1,rep:l.rep|0,c:0}))}); }); o.bads=[];
   if(!Array.isArray(o.missLog)) o.missLog=[];
   if(!o.miss||typeof o.miss!=="object") o.miss={on:true,rep:1,since:today(),last:addDays(today(),-1)};
   if(!Array.isArray(o.taskLog)){ o.taskLog=[]; o.tasks.forEach(t=>{ if(t.repeat&&t.repeat.type&&t.repeat.type!=="none") (t.doneLog||[]).forEach(d=>o.taskLog.push({id:uid(),d,tid:t.id,title:t.title})); else if(t.done&&t.doneOn) o.taskLog.push({id:uid(),d:t.doneOn,tid:t.id,title:t.title}); }); }
@@ -3263,7 +3289,7 @@ function renderTop(){
   const r=rankInfo(), side=clockSide();
   $("top").innerHTML=`
     <div class="px">${esc(S.shopName)} · ${side==="day"?"☀ CAFÉ + BOOKS HOURS":`☾ BAR + ${SEC_NAME.club.toUpperCase()} HOURS`}</div>
-    <div class="topright"><span class="px clock" id="clock">${clockText()}</span><button class="morebtn" data-act="tab" data-id="more" aria-label="More: settings, backup and art storage" ${tab==="more"?'aria-current="page"':""}>≡</button></div>
+    <div class="topright"><span class="px clock" id="clock">${clockText()}</span><button class="morebtn" data-act="tab" data-id="more" aria-label="Menu: settings, backup and dev tools" ${tab==="more"?'aria-current="page"':""}>≡</button></div>
     <div class="wallet"><b>₵</b>${S.credits.toLocaleString()}</div>
     <div class="rank">${esc(r.name)} · ${S.rep} REP</div>
     <div class="px" style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px">
@@ -3273,7 +3299,7 @@ function renderTop(){
 function renderTabs(){
   const box=$("tabs");
   box.className="in";
-  const T=[["save","$","SAVE",depositDue()?"!":0],["shop","⌂","SHOP",S.clients.waiting||0],["tasks","☐","TASKS",todayLeft()],["upgrade","▦","UPGRADE"],["dev","⚙","DEV"]];
+  const tl=todayLeft(), T=[["upgrade","▦","BUILD"],["shop","⌂","SHOP",S.clients.waiting||0],["tasks","☐","TASKS",depositDue()?(tl?tl+" · $":"$"):tl]];
   box.innerHTML=T.map(([id,g,l,b])=>`<button class="tab ${id==="shop"?"center":""}" data-act="tab" data-id="${id}" ${tab===id?'aria-current="page"':""}><span class="g" aria-hidden="true">${g}</span>${l}${b?`<span class="badge">${b}</span>`:""}</button>`).join("");
 }
 
@@ -3466,10 +3492,9 @@ function todayBody(){
     ${od.length?`<p class="sh bad">OVERDUE · ${od.length}</p><div class="tlist">${od.map(taskRowT).join("")}</div>`:""}
     <p class="sh acc">DUE TODAY${dt.length?" · "+dt.length:""}</p>
     ${dt.length?`<div class="tlist">${dt.map(taskRowT).join("")}</div>`:`<p class="tnone">Nothing due today. Tap + to add something.</p>`}
-    <p class="sh">HABITS · ${hDone.length}/${hDue.length}</p>
-    ${hDue.length?`<div class="hchips">${[...hOpen,...hDone].map(habitChip).join("")}</div>`:`<p class="tnone">No habits today.</p>`}
-    ${S.wins.length?`<p class="sh">ANYTIME</p><div class="hchips">${S.wins.map(w=>{ const t=winCount(w,k); return `<button class="hchip any" data-act="win" data-id="${w.id}">+ ${esc(w.name)}${t?` <b>×${t}</b>`:""}</button>`; }).join("")}</div>`:""}
-    ${S.bads.length?`<p class="sh">SLIP-UPS</p><div class="hchips">${S.bads.map(b=>{ const t=badCount(b,k); return `<button class="hchip bad" data-act="bad" data-id="${b.id}">− ${esc(b.name)}${t?` <b>×${t}</b>`:""}</button>`; }).join("")}</div>`:""}
+    <p class="sh">DAILIES · ${hDone.length}/${hDue.length}</p>
+    ${hDue.length?`<div class="hchips">${[...hOpen,...hDone].map(habitChip).join("")}</div>`:`<p class="tnone">No dailies today.</p>`}
+    ${S.wins.length?`<p class="sh">HABITS</p><div class="hchips">${S.wins.map(pmChip).join("")}</div>`:""}
     ${doneTail(D)}
     ${left===0&&(hDue.length||D.length)?`<p class="hint good">All clear for today. Nice work.</p>`:""}`;
 }
@@ -3477,10 +3502,12 @@ const todayLeft=()=>overdue().length+dueToday().length+habitsDueOpen().length;
 /* ---------- anytime actions: log whenever it happens ---------- */
 const WIN_CLIENT_CAP=3;
 const winById=id=>S.wins.find(w=>w.id===id);
-const winCount=(w,from,to)=>w.log.filter(l=>l.d>=from&&l.d<=(to||from)).length;
+const winCount=(w,from,to)=>w.log.filter(l=>l.s!==-1&&l.d>=from&&l.d<=(to||from)).length;
+const winMinus=(w,from,to)=>w.log.filter(l=>l.s===-1&&l.d>=from&&l.d<=(to||from)).length;
+const winNet=(w,from,to)=>w.log.filter(l=>l.d>=from&&l.d<=(to||from)).reduce((a,l)=>a+(l.c||0),0);
 function logWin(id,c,ev){
   const w=winById(id); if(!w) return; const k=today(), n=winCount(w,k);
-  const lg={id:uid(),d:k,c:c||0,client:n<WIN_CLIENT_CAP}; w.log.push(lg);
+  const lg={id:uid(),d:k,s:1,c:c||0,client:n<WIN_CLIENT_CAP}; w.log.push(lg);
   if(lg.client) giveReward(w,false,w.name); glGain(Math.round(S.xs.meter.win*dOf(w).e)); lg.diff=(w.diff||2);
   const b=bucketById(w.bucket); if(b&&lg.c>0) b.entries.push({id:uid(),d:k,c:lg.c,label:w.name,win:w.id,logId:lg.id});
   pop(ev,lg.client?rewardPop(w,false):"LOGGED","var(--good)");
@@ -3491,11 +3518,21 @@ function logWin(id,c,ev){
 }
 function undoWin(wid,lid){
   const w=winById(wid); if(!w) return; const i=w.log.findIndex(l=>l.id===lid); if(i<0) return; const lg=w.log[i]; w.log.splice(i,1);
-  if(lg.client&&lg.d===today()) takeReward({diff:lg.diff||2},false); if(lg.d===today()) glGain(-Math.round(S.xs.meter.win*dOf({diff:lg.diff||2}).e));
+  if(lg.s===-1) S.rep+=lg.rep||0;
+  else { if(lg.client&&lg.d===today()) takeReward({diff:lg.diff||2},false); if(lg.d===today()) glGain(-Math.round(S.xs.meter.win*dOf({diff:lg.diff||2}).e)); }
   S.buckets.forEach(b=>{ b.entries=b.entries.filter(e=>e.logId!==lid); });
   addLog(`Removed a ${w.name} entry.`); commit();
 }
 function tapWin(id,ev){ const w=winById(id); if(!w) return; if(w.ask) winAmountSheet(w); else logWin(id,w.save,ev); }
+function tapMinus(id,ev){ const w=winById(id); if(!w) return; if(w.ask&&bucketById(w.bucket)) winAmountSheet(w,true); else logMinus(id,w.save,ev); }
+function logMinus(id,c,ev){
+  const w=winById(id); if(!w) return; const k=today(), r=Math.max(0,w.rep|0), b=bucketById(w.bucket), amt=b?Math.max(0,c||0):0;
+  const lg={id:uid(),d:k,s:-1,rep:r,c:-amt}; w.log.push(lg);
+  S.rep=Math.max(0,S.rep-r);
+  if(amt) b.entries.push({id:uid(),d:k,c:-amt,label:w.name+" (−)",win:w.id,logId:lg.id});
+  pop(ev,[r?`−${r} REP`:"",amt?`−${money(amt)}`:""].filter(Boolean).join(" ")||"LOGGED","var(--bad)"); beep(220);
+  addLog(`− ${w.name}.${r?` −${r} rep.`:""}${amt?` −${money(amt)} from ${b.name}.`:""}`,"warn"); commit();
+}
 function winRow(w){
   const k=today(), t=winCount(w,k), wk=winCount(w,weekStart(k),k), b=bucketById(w.bucket);
   return `<div class="item winrow">
@@ -3503,6 +3540,19 @@ function winRow(w){
       <span class="meta"><span>${t?`<b class="acc">×${t} today</b>`:"not yet today"}</span><span>×${wk} this week</span>${b?`<span class="good">${w.ask?"asks amount":w.save?"+"+money(w.save):""} → ${esc(b.name)}</span>`:""}</span></button>
     <button class="winbtn" data-act="win" data-id="${w.id}" aria-label="Log ${esc(w.name)}">+</button></div>`;
 }
+/* +/− habits: weekly tally, 7-day strip, colour drifts with the trend (Habitica-style) */
+function pmTrend(w){ const k=today(); let sc=0; w.log.forEach(l=>{ if(l.d>addDays(k,-7)) sc+=l.s===-1?-1:1; }); return sc; }
+function pmTone(w){ const t=pmTrend(w); return t>=5?"pm-g3":t>=2?"pm-g2":t>=1?"pm-g1":t<=-5?"pm-r3":t<=-2?"pm-r2":t<=-1?"pm-r1":"pm-n"; }
+function pmStrip(w){ const k=today(); let h=""; for(let i=6;i>=0;i--){ const d=addDays(k,-i), p=winCount(w,d), m=winMinus(w,d), c=p>m?"up":m>p?"dn":p?"ev":""; h+=`<i class="${c}" title="${DOW3[dowOf(d)]}: +${p} −${m}"></i>`; } return `<span class="pmstrip" aria-hidden="true">${h}</span>`; }
+function pmTally(w){ const k=today(), ws=weekStart(k), p=winCount(w,ws,k), m=winMinus(w,ws,k), n=winNet(w,ws,k);
+  return `${w.up?`<b class="good">+${p}</b>`:""}${w.up&&w.down?" / ":""}${w.down?`<b class="bad">−${m}</b>`:""} this week${n?` · net ${n<0?"−"+money(-n):"+"+money(n)}`:""}`; }
+function pmRow(w){ const b=bucketById(w.bucket);
+  return `<div class="trow pmrow ${pmTone(w)}">${w.down?`<button class="tbtn minus" data-act="winMinus" data-id="${w.id}" aria-label="− ${esc(w.name)}">−</button>`:`<span class="tbtn ghostbtn" aria-hidden="true"></span>`}
+    <button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${pmTally(w)}</small>
+      <small class="muted">${b&&(w.save||w.ask)?`${w.ask?"amount varies":(w.up?"+":"")+(w.down?(w.up?"/−":"−"):"")+money(w.save)} · ${esc(b.name)}`:""}${w.down&&w.rep?`${b&&(w.save||w.ask)?" · ":""}−${w.rep} rep`:""} ${diffTag(w)}</small>${pmStrip(w)}${noteLine(w)}</button>
+    ${w.up?`<button class="tbtn plus" data-act="win" data-id="${w.id}" aria-label="+ ${esc(w.name)}">+</button>`:`<span class="tbtn ghostbtn" aria-hidden="true"></span>`}</div>`; }
+function pmChip(w){ const k=today(), p=winCount(w,k), m=winMinus(w,k);
+  return `<span class="pmchip ${pmTone(w)}">${w.down?`<button data-act="winMinus" data-id="${w.id}" aria-label="− ${esc(w.name)}">−</button>`:""}<span class="pmname">${esc(w.name)}${p||m?` <b>${p?"+"+p:""}${p&&m?" ":""}${m?"−"+m:""}</b>`:""}</span>${w.up?`<button data-act="win" data-id="${w.id}" aria-label="+ ${esc(w.name)}">+</button>`:""}</span>`; }
 function winChips(){ if(!S.wins.length) return "";
   return `<p class="alabel">ANYTIME</p><div class="winchips">${S.wins.map(w=>{ const t=winCount(w,today()); return `<button class="winchip" data-act="win" data-id="${w.id}">+ ${esc(w.name)}${t?` <b>×${t}</b>`:""}</button>`; }).join("")}</div>`; }
 function vAnytime(){
@@ -3513,25 +3563,27 @@ function vAnytime(){
     ${recent.length?`<details class="sub"><summary>Recent · ${recent.length}</summary><div class="log">${recent.slice(0,25).map(({w,l})=>`<div><time>${shortDate(l.d)}</time><span class="k-gain">${esc(w.name)}${l.c?" · "+money(l.c):""} <button class="linkbtn" data-act="undoWin" data-id="${w.id}:${l.id}">remove</button></span></div>`).join("")}</div></details>`:""}`;
 }
 function winSheet(w){
-  const isNew=!w; w=w||{name:"",bucket:"",save:0,ask:false};
-  openSheet(`<h3>${isNew?"NEW ANYTIME ACTION":"EDIT ANYTIME ACTION"}</h3>
+  const isNew=!w; w=w||{name:"",bucket:"",save:0,ask:false,up:true,down:true,rep:2};
+  const mode=w.up&&w.down?"both":w.down?"down":"up";
+  openSheet(`<h3>${isNew?"NEW HABIT":"EDIT HABIT"}</h3>
   <form data-form="win" data-id="${isNew?"":w.id}" class="stack">
-    <div><label class="fl" for="wnName">Action</label><input class="field" id="wnName" maxlength="60" value="${esc(w.name)}" placeholder="e.g. Split a meal when eating out" required autocomplete="off"></div>
+    <div><label class="fl" for="wnName">Habit</label><input class="field" id="wnName" maxlength="60" value="${esc(w.name)}" placeholder="e.g. Cook at home instead of takeout" required autocomplete="off"></div>
+    <div><p class="fl">Buttons</p><div class="seg pmseg" role="radiogroup" aria-label="Buttons">${[["both","+ and −"],["up","+ only"],["down","− only"]].map(([v,l])=>`<input type="radio" name="wnMode" id="wnm-${v}" value="${v}" ${mode===v?"checked":""}><label for="wnm-${v}">${l}</label>`).join("")}</div></div>
     <div class="formgrid"><div><label class="fl" for="wnBucket">Savings bucket</label><select class="field" id="wnBucket">${bucketOptions(w.bucket)}</select></div>
-      <div><label class="fl" for="wnSave">Usual amount ($)</label><input class="field num" id="wnSave" inputmode="decimal" value="${w.save?(w.save/100).toFixed(2):""}" placeholder="10.00"></div></div>
-    <div class="formgrid">${diffSelect("wnDiff",w)}</div>
+      <div><label class="fl" for="wnSave">Amount ($)</label><input class="field num" id="wnSave" inputmode="decimal" value="${w.save?(w.save/100).toFixed(2):""}" placeholder="10.00"></div></div>
+    <p class="hint" style="margin:0">+ puts this amount into the bucket. − takes the same amount back out.</p>
+    <div class="formgrid">${diffSelect("wnDiff",w)}<div><label class="fl" for="wnRep">Rep lost on −</label><input class="field num" id="wnRep" type="number" min="0" max="20" value="${w.rep??2}"></div></div>
     <label class="checkrow"><input type="checkbox" id="wnAsk" ${w.ask?"checked":""}> Ask me the amount each time</label>
-    <p class="hint" style="margin:0">Turn that on when it changes, like the price of half a meal. The usual amount gets filled in so you can just adjust it.</p>
     <div class="full"><label class="fl" for="wnNote">Notes</label><textarea class="field note" id="wnNote" rows="2" maxlength="600" placeholder="Anything to remember…">${esc(w.note||"")}</textarea></div>
     <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delWin" data-id="${w.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
   </form>`);
 }
-function winAmountSheet(w){
+function winAmountSheet(w,neg){
   const b=bucketById(w.bucket);
   openSheet(`<h3>${esc(w.name.toUpperCase())}</h3>
-  <form data-form="winLog" data-id="${w.id}" class="stack">
-    <div><label class="fl" for="wlAmt">How much did you save this time? ($)</label><input class="field num" id="wlAmt" inputmode="decimal" value="${w.save?(w.save/100).toFixed(2):""}" placeholder="0.00"></div>
-    <p class="hint" style="margin:0">${b?`Goes to ${esc(b.name)}.`:"No bucket set, so this only logs it."} Leave it at 0 to log without saving anything.</p>
+  <form data-form="winLog" data-id="${w.id}" data-neg="${neg?1:""}" class="stack">
+    <div><label class="fl" for="wlAmt">${neg?"How much did it cost you this time? ($)":"How much did you save this time? ($)"}</label><input class="field num" id="wlAmt" inputmode="decimal" value="${w.save?(w.save/100).toFixed(2):""}" placeholder="0.00"></div>
+    <p class="hint" style="margin:0">${neg?`Comes out of ${esc(b.name)}${w.rep?`, and costs ${w.rep} rep`:""}.`:b?`Goes to ${esc(b.name)}.`:"No bucket set, so this only logs it."} ${neg?"":"Leave it at 0 to log without saving anything."}</p>
     <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">LOG IT</button></div>
   </form>`);
   setTimeout(()=>{ const i=$("wlAmt"); if(i){ i.focus(); i.select(); } },50);
@@ -3558,9 +3610,8 @@ function badSheet(b){
 }
 function addSheetHabits(){
   openSheet(`<h3>ADD</h3><div class="stack">
-    <button class="btn solid wide" data-act="newHabit">HABIT · scheduled, keeps a streak</button>
-    <button class="btn wide" data-act="newWin">ANYTIME · log it whenever it happens</button>
-    <button class="btn wide" data-act="newBad">BAD HABIT · tap − when you slip</button>
+    <button class="btn solid wide" data-act="newWin">HABIT · tap + or − whenever it happens</button>
+    <button class="btn wide" data-act="newHabit">DAILY · scheduled, keeps a streak</button>
     <button class="btn ghost wide" data-act="close">CANCEL</button></div>`);
 }
 /* missed scheduled habits cost rep at the 4 AM rollover (only days after the feature was switched on) */
@@ -3613,21 +3664,21 @@ function vWeek(){
   return `
   <div class="weeknav"><button class="btn ghost" data-act="weekNav" data-id="-1" aria-label="Previous week">‹</button><div><b>${title}</b><span class="muted">${shortDate(start)} – ${shortDate(end)}</span></div><button class="btn ghost" data-act="weekNav" data-id="1" aria-label="Next week" ${weekOff>=0?"disabled":""}>›</button></div>
   <div class="wtiles">
-    ${tile("HABITS",pct(W.pct),W.pct!=null&&P.pct!=null?delta(Math.round(W.pct*100),Math.round(P.pct*100),v=>v+" pts"):"")}
+    ${tile("DAILIES",pct(W.pct),W.pct!=null&&P.pct!=null?delta(Math.round(W.pct*100),Math.round(P.pct*100),v=>v+" pts"):"")}
     ${tile("TASKS DONE",W.tasks,delta(W.tasks,P.tasks))}
     ${tile("CLIENTS SERVED",W.served,delta(W.served,P.served))}
     ${tile("CREDS EARNED",W.creds.toLocaleString()+"₵",delta(W.creds,P.creds,v=>v.toLocaleString()+"₵"))}
     ${tile("SAVED",money(W.saved),delta(W.saved,P.saved,money))}
     ${tile("DEPOSITED",money(W.dep),"")}
   </div>
-  ${best&&best.done?`<p class="whigh">Best day: <b>${DOW3[dowOf(best.k)]}</b>${best.done===best.due?" · every habit done":` · ${best.done}/${best.due} habits`}${best.tasks?` · ${best.tasks} task${best.tasks===1?"":"s"}`:""}.</p>`:""}
-  <p class="alabel">HABITS DONE EACH DAY</p>
+  ${best&&best.done?`<p class="whigh">Best day: <b>${DOW3[dowOf(best.k)]}</b>${best.done===best.due?" · every daily done":` · ${best.done}/${best.due} dailies`}${best.tasks?` · ${best.tasks} task${best.tasks===1?"":"s"}`:""}.</p>`:""}
+  <p class="alabel">DAILIES DONE EACH DAY</p>
   <div class="wchart">${bars}</div>
-  <p class="hint" style="margin-top:4px">Bar height is the share of that day's habits you finished. Green means all of them. ✓ is tasks finished.</p>
-  ${habits.length?`<p class="alabel">EACH HABIT</p><div class="hgrid"><div class="hrow hhead"><span></span><span class="hcells">${W.days.map(k=>`<span class="hc">${DOW3[dowOf(k)][0]}</span>`).join("")}</span><span></span></div>${hrows}</div>`:""}
-  ${S.wins.some(w=>winCount(w,start,end))?`<p class="alabel">ANYTIME</p><p class="wshop">${S.wins.filter(w=>winCount(w,start,end)).map(w=>`${esc(w.name)} <b class="acc">×${winCount(w,start,end)}</b>`).join(" · ")}</p>`:""}
-  ${(()=>{ const sl=S.bads.filter(b=>badCount(b,start,end)), mi=S.missLog.filter(m=>m.d>=start&&m.d<=end), mn=mi.reduce((s,m)=>s+m.n,0), mr=mi.reduce((s,m)=>s+m.rep,0), sr=S.bads.reduce((s,b)=>s+b.log.filter(l=>l.d>=start&&l.d<=end).reduce((x,l)=>x+(l.rep||0),0),0);
-    return (sl.length||mn)?`<p class="alabel">SETBACKS</p><p class="wshop">${sl.map(b=>`${esc(b.name)} <b class="bad">×${badCount(b,start,end)}</b>`).join(" · ")}${sl.length&&mn?" · ":""}${mn?`${mn} missed habit${mn===1?"":"s"}`:""} <span class="muted">(−${sr+mr} rep)</span></p>`:""; })()}
+  <p class="hint" style="margin-top:4px">Bar height is the share of that day's dailies you finished. Green means all of them. ✓ is tasks finished.</p>
+  ${habits.length?`<p class="alabel">EACH DAILY</p><div class="hgrid"><div class="hrow hhead"><span></span><span class="hcells">${W.days.map(k=>`<span class="hc">${DOW3[dowOf(k)][0]}</span>`).join("")}</span><span></span></div>${hrows}</div>`:""}
+  ${S.wins.some(w=>winCount(w,start,end)||winMinus(w,start,end))?`<p class="alabel">HABITS</p><p class="wshop">${S.wins.filter(w=>winCount(w,start,end)||winMinus(w,start,end)).map(w=>{ const p=winCount(w,start,end), m=winMinus(w,start,end), n=winNet(w,start,end); return `${esc(w.name)} ${p?`<b class="good">+${p}</b>`:""}${p&&m?" ":""}${m?`<b class="bad">−${m}</b>`:""}${n?` <span class="muted">${n<0?"−"+money(-n):"+"+money(n)}</span>`:""}`; }).join(" · ")}</p>`:""}
+  ${(()=>{ const sl=S.wins.filter(b=>winMinus(b,start,end)), mi=S.missLog.filter(m=>m.d>=start&&m.d<=end), mn=mi.reduce((s,m)=>s+m.n,0), mr=mi.reduce((s,m)=>s+m.rep,0), sr=S.wins.reduce((s,b)=>s+b.log.filter(l=>l.s===-1&&l.d>=start&&l.d<=end).reduce((x,l)=>x+(l.rep||0),0),0);
+    return (sl.length||mn)?`<p class="alabel">SETBACKS</p><p class="wshop">${sl.map(b=>`${esc(b.name)} <b class="bad">−${winMinus(b,start,end)}</b>`).join(" · ")}${sl.length&&mn?" · ":""}${mn?`${mn} missed dail${mn===1?"y":"ies"}`:""} <span class="muted">(−${sr+mr} rep)</span></p>`:""; })()}
   ${streaks.length?`<p class="hint">Streaks going now: ${streaks.map(([h,n])=>`${esc(h.name)} 🔥${stLabel(h,n)}`).join(" · ")}</p>`:""}
   <p class="alabel">THE SHOP</p>
   <p class="wshop">${W.served} client${W.served===1?"":"s"} served${W.served?` · ${Math.round(W.perfect/W.served*100)}% perfect`:""} · ${W.favors} favor${W.favors===1?"":"s"} done · ${W.creds.toLocaleString()}₵ earned</p>
@@ -3636,23 +3687,19 @@ function vWeek(){
 let taskFilter="all";
 function vHabitsTab(){
   const k=today(), due=S.habits.filter(h=>isDue(h,k)), off=S.habits.filter(h=>!isDue(h,k));
-  const recent=[]; S.wins.forEach(w=>w.log.forEach(l=>recent.push({kind:"win",o:w,l}))); S.bads.forEach(b=>b.log.forEach(l=>recent.push({kind:"bad",o:b,l}))); recent.sort((x,y)=>y.l.d.localeCompare(x.l.d));
+  const recent=[]; S.wins.forEach(w=>w.log.forEach(l=>recent.push({kind:l.s===-1?"bad":"win",o:w,l}))); recent.sort((x,y)=>y.l.d.localeCompare(x.l.d));
   return `${vacOn()?`<div class="vacbar"><span>⏸ Vacation mode since ${shortDate(S.vac.from)}. Habits are paused.</span><button class="btn smallbtn" data-act="vacToggle">END</button></div>`:""}
-    <p class="sh">HABITS · ${due.filter(h=>h.hist[k]).length}/${due.length} TODAY</p>
-    ${S.habits.length?`<div class="tlist">${[...due,...off].map(habitRowH).join("")}</div>`:`<p class="tnone">No habits yet. Tap + to add one.</p>`}
-    <p class="sh">ANYTIME</p>
-    ${S.wins.length?`<div class="tlist">${S.wins.map(w=>{ const t=winCount(w,k), wk=winCount(w,weekStart(k),k), b=bucketById(w.bucket);
-      return `<div class="trow"><button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week${b?` · ${w.ask?"asks amount":w.save?"+"+money(w.save):""}`:""} ${diffTag(w)}</small>${noteLine(w)}</button><button class="tbtn plus" data-act="win" data-id="${w.id}" aria-label="Log ${esc(w.name)}">+</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you log whenever they happen, like splitting a meal.</p>`}
-    <p class="sh">BAD HABITS</p>
-    ${S.bads.length?`<div class="tlist">${S.bads.map(b=>{ const t=badCount(b,k), wk=badCount(b,weekStart(k),k);
-      return `<div class="trow"><button class="ttl" data-act="editBad" data-id="${b.id}"><span>${esc(b.name)}</span><small>${t?`×${t} today · `:""}×${wk} this week · −${b.rep} rep each</small>${noteLine(b)}</button><button class="tbtn minus" data-act="bad" data-id="${b.id}" aria-label="Log a slip-up: ${esc(b.name)}">−</button></div>`; }).join("")}</div>`:`<p class="tnone">Things you're cutting back on. Tap − when you slip and lose a little rep.</p>`}
+    <p class="sh">HABITS</p>
+    ${S.wins.length?`<div class="tlist">${S.wins.map(pmRow).join("")}</div>`:`<p class="tnone">Tap + when you do it, − when you slip. Money goes in or out of savings.</p>`}
+    <p class="sh">DAILIES · ${due.filter(h=>h.hist[k]).length}/${due.length} TODAY</p>
+    ${S.habits.length?`<div class="tlist">${[...due,...off].map(habitRowH).join("")}</div>`:`<p class="tnone">No dailies yet. Tap + to add one.</p>`}
     <p class="sh">HABIT SETTINGS</p>
     <div class="penal"><label for="missRep">Missed habits cost</label>
       <select class="field" id="missRep">${[0,1,2,3,5].map(n=>`<option value="${n}" ${(S.miss.on?S.miss.rep:0)===n?"selected":""}>${n?n+" rep each":"nothing (off)"}</option>`).join("")}</select></div>
     <p class="hint" style="margin:4px 0 0">Checked at the 4 AM rollover for habits scheduled that day. Times-a-week habits are checked on Sunday night.</p>
     <div class="penal" style="margin-top:10px"><label>Vacation mode</label><button class="btn ${vacOn()?"solid":"ghost"}" data-act="vacToggle" aria-pressed="${vacOn()}">${vacOn()?"ON":"OFF"}</button></div>
     <p class="hint" style="margin:4px 0 0">Pauses every habit: nothing counts as missed and streaks freeze. To pause just one, open it and tap Pause.</p>
-    ${recent.length?`<details class="sub"><summary>Recent log · ${recent.length}</summary><div class="log">${recent.slice(0,30).map(({kind,o,l})=>`<div><time>${shortDate(l.d)}</time><span class="${kind==="bad"?"k-warn":"k-gain"}">${kind==="bad"?"−":"+"} ${esc(o.name)}${l.c?" · "+money(l.c):""}${kind==="bad"&&l.rep?` · −${l.rep} rep`:""} <button class="linkbtn" data-act="${kind==="bad"?"undoBad":"undoWin"}" data-id="${o.id}:${l.id}">remove</button></span></div>`).join("")}</div></details>`:""}`;
+    ${recent.length?`<details class="sub"><summary>Recent log · ${recent.length}</summary><div class="log">${recent.slice(0,30).map(({kind,o,l})=>`<div><time>${shortDate(l.d)}</time><span class="${kind==="bad"?"k-warn":"k-gain"}">${kind==="bad"?"−":"+"} ${esc(o.name)}${l.c?" · "+(l.c<0?"−"+money(-l.c):money(l.c)):""}${kind==="bad"&&l.rep?` · −${l.rep} rep`:""} <button class="linkbtn" data-act="undoWin" data-id="${o.id}:${l.id}">remove</button></span></div>`).join("")}</div></details>`:""}`;
 }
 function vTasksTab(){
   const o=openTasks(), D=doneNow();
@@ -3670,12 +3717,12 @@ function vTasks(){
   const MAP={todo:"tasks",scheduled:"tasks",someday:"tasks",repeat:"tasks",done:"tasks",dailies:"habits",anytime:"habits"};
   if(MAP[taskView]){ if(["scheduled","someday","repeat"].includes(taskView)) taskFilter={scheduled:"upcoming",someday:"someday",repeat:"repeat"}[taskView]; taskView=MAP[taskView]; }
   if(taskView.indexOf("list:")===0){ taskFilter=taskView; taskView="tasks"; }
-  if(!["today","tasks","habits","week"].includes(taskView)) taskView="today";
-  const seg=[["today","Today",todayLeft()],["tasks","Tasks",openTasks().length],["habits","Habits",habitsDueOpen().length]];
+  if(!["today","tasks","habits","week","savings"].includes(taskView)) taskView="today";
+  const seg=[["today","Today",todayLeft()],["tasks","Tasks",openTasks().length],["habits","Habits",habitsDueOpen().length],["savings","Savings",depositDue()?"$":0]];
   const head=taskView==="week"?`<div class="todayhd"><button class="linkbtn" data-act="taskView" data-id="today">‹ Back to today</button><span>Weekly review</span></div>`
     :`<div class="tseg" role="tablist">${seg.map(([id,l,n])=>`<button role="tab" class="${taskView===id?"on":""}" aria-selected="${taskView===id}" data-act="taskView" data-id="${id}">${l}${n?` <b>${n}</b>`:""}</button>`).join("")}</div>`;
-  const body=taskView==="today"?todayBody():taskView==="tasks"?vTasksTab():taskView==="habits"?vHabitsTab():vWeek();
-  return `<section class="panel tmain">${head}${body}</section>${taskView!=="week"?`<button class="fab" data-act="fab" aria-label="${taskView==="habits"?"Add a habit":"Add a task"}">+</button>`:""}`;
+  const body=taskView==="today"?todayBody():taskView==="tasks"?vTasksTab():taskView==="habits"?vHabitsTab():taskView==="savings"?vSavingsSeg():vWeek();
+  return `<section class="panel tmain">${head}${body}</section>${taskView!=="week"&&taskView!=="savings"?`<button class="fab" data-act="fab" aria-label="${taskView==="habits"?"Add a habit or daily":"Add a task"}">+</button>`:""}`;
 }
 function listSheet(l){
   const isNew=!l;
@@ -3683,6 +3730,16 @@ function listSheet(l){
     <div><label class="fl" for="lName">List name</label><input class="field" id="lName" maxlength="24" value="${isNew?"":esc(l.name)}" placeholder="e.g. Work, Home, Errands" required autocomplete="off"></div>
     ${isNew?"":`<p class="hint" style="margin:0">Deleting a list keeps its tasks. They just lose the list tag.</p>`}
     <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delList" data-id="${l.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"CREATE":"SAVE"}</button></div></form>`);
+}
+function vSavingsSeg(){
+  const pend=totalPending(), all=S.buckets.reduce((a,b)=>a+bDep(b),0);
+  const html=vSave(), tmp=document.createElement("div"); tmp.innerHTML=html; const secs=[...tmp.querySelectorAll("section.panel")];
+  const body=sec=>{ const h=sec.querySelector("h2"); if(h) h.remove(); return sec.innerHTML; };
+  const [sum,bk,rem,hist]=secs;
+  return `<div class="savehead"><span class="muted">Waiting to be deposited</span><p class="jarbig num">${money(pend)}</p><p class="hint" style="margin:0">All-time deposited: ${money(all)}. This only tracks what you tell it. It never touches a bank account.</p></div>
+    <p class="sh">BUCKETS · ${S.buckets.length}</p><div>${bk?body(bk):""}</div>
+    <p class="sh">DEPOSIT REMINDER</p><div>${rem?body(rem):""}</div>
+    ${hist?`<p class="sh">HISTORY · ${S.buckets.reduce((a,b)=>a+b.entries.length+b.deposits.length,0)}</p><div>${body(hist)}</div>`:""}`;
 }
 function vSave(){
   const pend=totalPending(), all=S.buckets.reduce((a,b)=>a+bDep(b),0);
@@ -4039,7 +4096,7 @@ function vDev(){
   else body=devTools();
   const about={workers:"Create and edit employees: counter art, jobs and outfits.",sprites:"The sprites staff use in the tower, and how big they appear.",scene:"Patrons and venue backdrops.",favors:"Special requests clients can make at the counter.",service:"The energy-bar minigame.",tools:"Hiring, storage, cheats and reset."}[devSub]||"";
   return `<section class="panel devhead"><h2><span>DEV TOOLS</span><span>TAP A HEADING TO OPEN OR CLOSE IT</span></h2>
-    <div class="povtabs" style="grid-template-columns:repeat(auto-fit,minmax(78px,1fr));margin:0" role="group" aria-label="Dev tools section">${subs.map(([v,l])=>`<button class="povtab ${devSub===v?"on":""}" data-act="devSub" data-id="${v}" aria-pressed="${devSub===v}">${l}</button>`).join("")}</div>
+    <button class="linkbtn devback" data-act="tab" data-id="more">‹ Menu</button><div class="povtabs" style="grid-template-columns:repeat(auto-fit,minmax(78px,1fr));margin:0" role="group" aria-label="Dev tools section">${subs.map(([v,l])=>`<button class="povtab ${devSub===v?"on":""}" data-act="devSub" data-id="${v}" aria-pressed="${devSub===v}">${l}</button>`).join("")}</div>
     <p class="hint" style="margin:8px 0 0">${about}</p></section>
   ${body}`;
 }
@@ -4073,6 +4130,10 @@ function devTools(){
     <div class="rowflex"><label class="srt" for="resetBox">Type RESET</label><input class="field" id="resetBox" autocomplete="off" style="flex:1;min-width:8em" placeholder="RESET"><button class="btn danger" data-act="reset">ERASE</button></div>
   </section>`;
 }
+function devMenuHTML(){ const subs=[["workers","Workers","Create and edit staff"],["sprites","Sprites","Draw and fit sprite sheets"],["scene","Scenes","Backdrops and patrons"],["favors","Favors","Favor deck"],["edge","Edge","Running the Edge art"],...(adultOn()?[["service","Game","Service minigame"]]:[]),["tools","Tools","Hiring, storage, test cheats"]];
+  return `<section class="panel"><h2><span>DEV TOOLS</span><span></span></h2>
+    <div class="spread" style="align-items:center"><span>Show dev tools</span><button class="btn ${S.devOn?"":"ghost"}" data-act="devOn" aria-pressed="${!!S.devOn}">${S.devOn?"ON":"OFF"}</button></div>
+    ${S.devOn?`<div class="devmenu">${subs.map(([v,l,d])=>`<button class="devlink" data-act="devGo" data-id="${v}"><b>${l}</b><small>${d}</small><span aria-hidden="true">›</span></button>`).join("")}</div>`:`<p class="hint" style="margin:6px 0 0">Editors for staff, sprites, scenes and test tools.</p>`}</section>`; }
 function vMore(){
   const fmt=ts=>{ const d=new Date(ts); return String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
   const kb=Math.round(artSize()/1024);
@@ -4085,6 +4146,7 @@ function vMore(){
     <div class="povtabs" style="grid-template-columns:repeat(3,1fr);margin:0">${[["auto","REAL TIME"],["day","☀ ALWAYS DAY"],["night","☾ ALWAYS NIGHT"]].map(([v,l])=>`<button class="povtab ${(S.clockMode||"auto")===v?"on":""}" data-act="clockMode" data-id="${v}">${l}</button>`).join("")}</div>
     <p class="hint">Real time: café and bookshop 6 AM to 5 PM, bar and ${ROLES.club.room} after 5 PM. The day rolls over at 4 AM.</p>
   </section>
+  ${devMenuHTML()}
   <section class="panel">
     <h2><span>BACKUP</span><span></span></h2>
     <p style="margin:0 0 10px">Your progress and art live in this browser${FRAMED?" and can be wiped if the browser clears site data":""}. Back up often, and use a backup to move between devices.</p>
@@ -4121,7 +4183,7 @@ function closeSheet(){ $("veil").hidden=true; $("sheet").innerHTML=""; favDraft=
 function bucketOptions(sel){ return `<option value="">No savings</option>`+S.buckets.map(b=>`<option value="${b.id}" ${sel===b.id?"selected":""}>${esc(b.name)}</option>`).join(""); }
 function habitSheet(h){
   const isNew=!h; h=h||{name:"",days:[],bucket:"",save:0};
-  openSheet(`<h3>${isNew?"NEW HABIT":"EDIT HABIT"}</h3>
+  openSheet(`<h3>${isNew?"NEW DAILY":"EDIT DAILY"}</h3>
   <form data-form="habit" data-id="${isNew?"":h.id}" class="stack">
     <div><label class="fl" for="hName">Habit</label><input class="field" id="hName" maxlength="80" value="${esc(h.name)}" placeholder="e.g. Skip buying coffee on work days" required autocomplete="off"></div>
     <div><span class="fl">Days · none checked = every day</span><div class="seg">${[1,2,3,4,5,6,0].map(d=>`<input type="checkbox" name="day" id="w-${d}" value="${d}" ${h.days.includes(d)?"checked":""}><label for="w-${d}">${DOW3[d].slice(0,2)}</label>`).join("")}</div></div>
@@ -4559,11 +4621,12 @@ document.addEventListener("click",ev=>{
   if(!["delCharmMove","delBad","undoBad","ssClear","ssDel","ssNew","zeroCreds","undoWin","delWin","delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
   const twoTap=(label)=>{ if(armed!==act+id){ armed=act+id; el.textContent=label||"TAP AGAIN"; return false; } armed=null; return true; };
   switch(act){
-    case "tab": if(id==="favors"){ devSub="favors"; tab="dev"; render(); window.scrollTo(0,0); break; } if(id==="today") taskView="today"; tab=id==="today"?"tasks":id==="build"?"upgrade":id; peek=null; render(); window.scrollTo(0,0); break;
+    case "tab": if(id==="favors"){ devSub="favors"; tab="dev"; render(); window.scrollTo(0,0); break; } if(id==="today") taskView="today"; if(id==="save") taskView="savings"; tab=id==="today"||id==="save"?"tasks":id==="build"?"upgrade":id; peek=null; render(); window.scrollTo(0,0); break;
     case "habit": toggleHabit(id,ev); break;
     case "task": toggleTask(id,ev); break;
     case "newHabit": habitSheet(null); break;
     case "win": tapWin(id,ev); break;
+    case "winMinus": tapMinus(id,ev); break;
     case "newWin": winSheet(null); break;
     case "editWin": winSheet(winById(id)); break;
     case "delWin": { if(!twoTap()) return; S.wins=S.wins.filter(w=>w.id!==id); closeSheet(); commit(); break; }
@@ -4585,6 +4648,8 @@ document.addEventListener("click",ev=>{
     case "undoBad": { if(!twoTap("tap again")) return; const [bid,lid]=id.split(":"); undoBad(bid,lid); break; }
     case "shopView": shopView=id; render(); break;
     case "devSub": devSub=id; render(); window.scrollTo(0,0); break;
+    case "devOn": S.devOn=!S.devOn; commit(); break;
+    case "devGo": devSub=id; tab="dev"; render(); window.scrollTo(0,0); break;
     case "devWorker": devWorker=id; devSub="workers"; tab="dev"; render(); window.scrollTo(0,0); break;
     case "weekNav": weekOff=Math.min(0,weekOff+(+id)); render(); break;
     case "floorTap": floorTap(ev); break;
@@ -4693,9 +4758,9 @@ document.addEventListener("submit",ev=>{
   if(k==="quick"){ if(addQuick()){ closeSheet(); commit(); toast("Task added."); } return; }
   if(k==="bad"){ const name=val("bdName"); if(!name) return; const o={name,rep:Math.max(0,Math.min(20,Math.round(+val("bdRep")||0))),note:($("bdNote")||{}).value||""}, id=f.dataset.id;
     if(id){ const b=badById(id); if(b) Object.assign(b,o); } else S.bads.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
-  if(k==="win"){ const name=val("wnName"); if(!name) return; const o={name,bucket:val("wnBucket"),save:toCents(val("wnSave")),ask:$("wnAsk").checked,note:($("wnNote")||{}).value||"",diff:+val("wnDiff")||2}, id=f.dataset.id;
+  if(k==="win"){ const name=val("wnName"); if(!name) return; const md=(document.querySelector("input[name=wnMode]:checked")||{}).value||"both"; const o={name,bucket:val("wnBucket"),save:toCents(val("wnSave")),ask:$("wnAsk").checked,note:($("wnNote")||{}).value||"",diff:+val("wnDiff")||2,up:md!=="down",down:md!=="up",rep:Math.max(0,Math.min(20,Math.round(+val("wnRep")||0)))}, id=f.dataset.id;
     if(id){ const w=winById(id); if(w) Object.assign(w,o); } else S.wins.push(Object.assign({id:uid(),log:[]},o)); closeSheet(); commit(); }
-  if(k==="winLog"){ const id=f.dataset.id, v=val("wlAmt"), c=v?Math.round((parseFloat(v.replace(/[^0-9.]/g,""))||0)*100):0; closeSheet(); logWin(id,c,null); }
+  if(k==="winLog"){ const id=f.dataset.id, v=val("wlAmt"), c=v?Math.round((parseFloat(v.replace(/[^0-9.]/g,""))||0)*100):0; closeSheet(); if(f.dataset.neg) logMinus(id,c,null); else logWin(id,c,null); }
   if(k==="addSave"){ const b=bucketById(f.dataset.id), c=toCents(val("svAmt")), label=val("svLabel"); if(!b||!c||!label){ toast("Add what it was and how much.", true); return; } b.entries.push({id:uid(),d:today(),c,label}); addLog(`Saved ${money(c)} to ${b.name}: ${label}.`,"gain"); closeSheet(); commit(); toast("+"+money(c)+" to "+b.name+"."); }
   if(k==="deposit"){ const b=bucketById(f.dataset.id), c=toCents(val("depAmt")); if(!b||!c){ toast("Enter the amount you deposited.", true); return; } b.deposits.push({id:uid(),d:today(),c,note:val("depNote")}); addLog(`Deposited ${money(c)} into ${b.name}.`,"build"); closeSheet(); commit(); pop(null,"BANKED "+money(c),"var(--good)"); beep(660); setTimeout(()=>beep(1320),120); }
   if(k==="list"){ const name=val("lName").slice(0,24); if(!name) return; const id=f.dataset.id; if(id){ const l=listById(id); if(l) l.name=name; } else { const l={id:uid(),name}; S.lists.push(l); taskView="tasks"; taskFilter="list:"+l.id; } closeSheet(); commit(); }
@@ -5464,7 +5529,7 @@ document.addEventListener("submit",ev=>{ const f=ev.target; if(!f.dataset) retur
   else if(f.dataset.form==="taskEdit"){ const t=S.tasks.find(x=>x.id===f.dataset.id); if(t) ckReadEdit(t); } },true);
 
 /* fold any section heading on the Tasks tab; remembered on this device */
-const TASK_SHUT=["DONE","HABIT SETTINGS"];
+const TASK_SHUT=["DONE","HABIT SETTINGS","DEPOSIT REMINDER","HISTORY"];
 let taskFoldState={}; try{ taskFoldState=JSON.parse(localStorage.getItem("nightkettle.taskfold")||"{}")||{}; }catch(e){ taskFoldState={}; }
 function taskFoldApply(h,shut){ h.classList.toggle("shut",shut); h.setAttribute("aria-expanded",String(!shut)); let n=h.nextElementSibling; while(n&&!(n.matches&&n.matches("p.sh"))){ n.classList.toggle("tfold-hide",shut); n=n.nextElementSibling; } }
 function taskFold(){ if(tab!=="tasks") return;
