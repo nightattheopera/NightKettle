@@ -913,6 +913,8 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .diffseg input:checked+label small{color:var(--accent)}
 .diffseg input:focus-visible+label{outline:2px solid var(--accent)}
 
+.portrow{display:flex;gap:12px;align-items:flex-start}.portrow>div:last-child{display:flex;flex-direction:column;gap:2px;min-width:0}.portrow small{font-size:13px}
+
 </style>
 </head>
 <body class="night">
@@ -2501,7 +2503,7 @@ function crewPanel(){
   const tabs=Object.entries(ROLES).map(([k,v])=>`<button class="povtab ${k===role?"on":""}" data-act="crewRole" data-id="${k}" aria-pressed="${k===role}">${v.title.toUpperCase()}${workerFor(k)?"":" · NONE"}</button>`).join("");
   const card=(p,isCand)=>{ const t=TRAITS[p.trait]||{name:"",desc:""};
     return `<div class="crew">
-      <div class="cport">${p.art?`<img src="${artSrc(p)}" alt="${esc(p.name)}">`:`<canvas width="72" height="72" data-port="${isCand?"c":"w"}:${p.id}" aria-hidden="true"></canvas>`}</div>
+      <div class="cport">${!isCand&&typeof portSrc==="function"&&portSrc(p)?`<img src="${portSrc(p)}" alt="${esc(p.name)}">`:p.art?`<img src="${artSrc(p)}" alt="${esc(p.name)}">`:`<canvas width="72" height="72" data-port="${isCand?"c":"w"}:${p.id}" aria-hidden="true"></canvas>`}</div>
       <div>
         <p class="big" style="font-size:20px">${esc(p.name)}${isCand?"":` <button class="linkbtn" data-act="renameWorker" data-id="${p.id}">rename</button>`}</p>
         <p class="muted" style="margin:2px 0 6px">${R.title} · ${PERSONAS[p.persona].label}${isCand?"":` · LV ${p.lv}`}</p>
@@ -3822,10 +3824,19 @@ function roomRow(id){
       <small>+${m.amb} amb · +${m.seats} seat${m.seats===1?"":"s"}${UNLOCKS[id]?` · <span class="acc">${UNLOCKS[id]}</span>`:""}</small></div>
     ${L>=MAX_LVL?`<span class="px muted">MAX</span>`:`<button class="btn ${can?"solid":""} rbtn" data-act="build" data-id="${id}" ${can?"":"disabled"}>${L?"UP":"BUILD"}<br>${cost}₵</button>`}</div>`;
 }
+function portSrc(w){ if(!w) return null; return resolveArt(w.port)||(w.faces&&resolveArt(w.faces.neutral))||artSrc(w); }
+function portHTML(w,alt){ const src=portSrc(w); return src?`<img src="${src}" alt="${alt||""}">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`; }
+function portraitUpload(file,id){ const w=S.staff.find(x=>x.id===id); if(!w||!file) return;
+  readImage(file).then(img=>{ const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, sq=Math.min(W,H), sx=(W-sq)/2, sy=H>W?0:0, T=Math.min(320,sq);
+    const src=document.createElement("canvas"); src.width=sq; src.height=sq; src.getContext("2d").drawImage(img,sx,sy,sq,sq,0,0,sq,sq);
+    const cv=T<sq?hqResize(src,sq,sq,T,T):src; return storeArt(cv.toDataURL("image/png")).then(ref=>{ dropArt(w.port); w.port=ref; commit(); toast(`Portrait set for ${w.name}.`); }); }).catch(()=>toast(imgErr(file),true)); }
+function portraitRow(p){ const own=resolveArt(p.port);
+  return `<div class="portrow"><div class="cport">${portHTML(p,"")}</div><div><b>Portrait</b><small class="muted">${own?"Your own portrait":p.faces&&p.faces.neutral?"Using the Neutral dialogue face":"Using the counter art"}. Shown in Build, hiring and staff cards. Square works best; taller images are cropped from the top.</small>
+    <div class="actions" style="margin-top:6px"><label class="btn ghost smallbtn" for="portUp-${p.id}">${own?"REPLACE":"UPLOAD PORTRAIT"}</label><input type="file" id="portUp-${p.id}" data-up="port" class="srt" accept="image/*" data-id="${p.id}">${own?`<button class="btn ghost smallbtn" data-act="clearPort" data-id="${p.id}">REMOVE</button>`:""}</div></div></div>`; }
 function workerMini(p){
   const t=TRAITS[p.trait]||{name:"",desc:""}, cost=90*p.skill;
   return `<div class="wmini">
-    <div class="cport sm">${p.art?`<img src="${artSrc(p)}" alt="">`:`<canvas width="72" height="72" data-port="w:${p.role}:${p.id}" aria-hidden="true"></canvas>`}</div>
+    <div class="cport sm">${portHTML(p,"")}</div>
     <div class="rinfo"><b>${esc(p.name)}</b> <span class="muted">LV ${p.lv} · ${PERSONAS[p.persona].label}</span>
       <small>Skill <span class="pip">${pips(p.skill)}</span> Charm <span class="pip">${pips(p.charm)}</span> ${esc(PL())} <span class="pip">${pips(progLevel(p))}</span></small>
       <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc)}</small><small class="muted">${esc(jobTitle(p))}: ${esc((PERKS[perkOf(p)]||{}).desc||"")}</small></div>
@@ -3840,7 +3851,8 @@ function workerMini(p){
   </details>`;
 }
 function workerStudio(p){
-  return `<section class="panel"><h2><span>COUNTER ART &amp; POSITION</span><span>${esc(p.name.toUpperCase())}</span></h2>
+  return `<section class="panel"><h2><span>PORTRAIT</span><span>${esc(p.name.toUpperCase())}</span></h2>${portraitRow(p)}</section>
+  <section class="panel"><h2><span>COUNTER ART &amp; POSITION</span><span>${esc(p.name.toUpperCase())}</span></h2>
     ${p.art||sheetFor(p,"idle")||outfitArt(p)?framerHTML(p):`<p class="hint" style="margin:0 0 8px">${esc(p.name)} uses code-drawn art. Load an image to replace it, then position it here.</p>`}
     <div class="actions">
       <label class="btn ghost" for="workerArt-${p.id}" style="text-align:center">${p.art?"NEW ART":"LOAD ART"}</label><input type="file" id="workerArt-${p.id}" data-up="worker" class="srt" accept="image/*" data-id="${p.id}">
@@ -4124,7 +4136,7 @@ function vDev(){
   if(devSub==="workers"){
     if(!S.staff.length) body=empPanel()+`<section class="panel"><p class="empty">No staff yet. Hire someone in the Upgrade tab, or create one above.</p></section>`;
     else { if(!S.staff.some(w=>w.id===devWorker)) devWorker=S.staff[0].id; const p=S.staff.find(w=>w.id===devWorker);
-      body=`${empPanel()}<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${artSrc(w)?`<img src="${artSrc(w)}" alt="">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}${isHired(w)?"":" · not hired"}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${wardDevPanel(p)}${FEATURES.charm?charmGallery(p)+charmMovesPanel():""}`; }
+      body=`${empPanel()}<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${portHTML(w,"")}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}${isHired(w)?"":" · not hired"}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${wardDevPanel(p)}${FEATURES.charm?charmGallery(p)+charmMovesPanel():""}`; }
   } else if(devSub==="sprites") body=S.staff.length?vSprites():`<section class="panel"><p class="empty">Hire someone first, then draw their sprites here.</p></section>`;
   else if(devSub==="scene") body=scnDevPanel();
   else if(devSub==="favors") body=vFavors();
@@ -4714,6 +4726,7 @@ document.addEventListener("click",ev=>{
     case "equipOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&progLevel(w)>=+t){ w.outfit=+t; manageOpen=wid; outfitOpen=wid; commit(); } break; }
     case "clearOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.outfits&&w.outfits[t]){ dropArt(w.outfits[t].art); delete w.outfits[t]; if(w.outfit===+t) w.outfit=1; manageOpen=wid; outfitOpen=wid; commit(); } break; }
     case "testProg": S.staff.forEach(w=>gainProg(w,5)); addLog("Test: +5 "+PL()+" for all staff."); commit(); break;
+    case "clearPort": { const w=S.staff.find(x=>x.id===id); if(w&&w.port){ dropArt(w.port); delete w.port; commit(); } break; }
     case "clearFace": { const [wid,k]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.faces){ dropArt(w.faces[k]); delete w.faces[k]; faceOpen=wid; manageOpen=wid; commit(); } break; }
     case "clearSheet": { const [wid,k,slot]=id.split(":"), w=S.staff.find(x=>x.id===wid), bag=w&&animBag(w,slot||""); if(bag&&bag[k]){ dropArt(bag[k].ref); delete bag[k].ref; commit(); } break; }
     case "hideFavArt": srv.showFavorArt=false; renderServe(); break;
@@ -4828,6 +4841,7 @@ document.addEventListener("change",ev=>{ if(ev.target.id==="artMax"){ S.artMax=+
 function routeUpload(t){
   const file=t.files&&t.files[0];
   if(t.id==="workerArt"||t.dataset.up==="worker") return workerArtUpload(file,t.dataset.id);
+  if(t.dataset.up==="port") return portraitUpload(file,t.dataset.id);
   if(t.id==="charmArt"||t.dataset.up==="charm") return charmArtUpload(file,t.dataset.id);
   if(t.dataset&&t.dataset.up==="charmslot") return charmSlotUpload(file,t.dataset.id,t.dataset.kind);
   if(t.id==="favArt") return favArtUpload(file);
@@ -6085,7 +6099,7 @@ const castAt=v=>S.staff.filter(w=>w.hired===false&&w.role===v);
 function hireCostFor(w){ return w.cost>0?w.cost:80+40*((w.skill||1)+(w.charm||1)); }
 function castBlock(key){
   const cast=castAt(key);
-  return `${cast.length?`<p class="alabel" style="margin-top:10px">YOUR CHARACTERS · READY TO HIRE</p>${cast.map(w=>{ const t=TRAITS[w.trait]||{name:"",desc:""}, c=hireCostFor(w), can=S.credits>=c, a=w.art?artSrc(w):null;
+  return `${cast.length?`<p class="alabel" style="margin-top:10px">YOUR CHARACTERS · READY TO HIRE</p>${cast.map(w=>{ const t=TRAITS[w.trait]||{name:"",desc:""}, c=hireCostFor(w), can=S.credits>=c, a=portSrc(w);
       return `<div class="wmini cand"><div class="cport sm">${a?`<img src="${a}" alt="">`:`<span class="ci" aria-hidden="true">👤</span>`}</div>
         <div class="rinfo"><b>${esc(w.name)}</b> <span class="muted">${esc(jobTitle(w))} · ${PERSONAS[w.persona]?PERSONAS[w.persona].label:""}</span>
           <small>Skill <span class="pip">${pips(w.skill)}</span> Charm <span class="pip">${pips(w.charm)}</span></small>
