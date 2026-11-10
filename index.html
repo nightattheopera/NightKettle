@@ -915,6 +915,11 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 
 .portrow{display:flex;gap:12px;align-items:flex-start}.portrow>div:last-child{display:flex;flex-direction:column;gap:2px;min-width:0}.portrow small{font-size:13px}
 
+.cropbox{width:100%;max-width:340px;margin:0 auto;aspect-ratio:1;border:1px solid var(--accent);box-shadow:0 0 12px var(--glow);background:#0a0812;touch-action:none}
+.cropbox canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.croprow{display:flex;align-items:center;gap:10px;margin-top:10px}.croprow input[type=range]{flex:1;accent-color:var(--accent)}
+.croprow.small{gap:8px}
+
 </style>
 </head>
 <body class="night">
@@ -3826,13 +3831,53 @@ function roomRow(id){
 }
 function portSrc(w){ if(!w) return null; return resolveArt(w.port)||(w.faces&&resolveArt(w.faces.neutral))||artSrc(w); }
 function portHTML(w,alt){ const src=portSrc(w); return src?`<img src="${src}" alt="${alt||""}">`:`<canvas width="72" height="72" data-port="w:${w.role}:${w.id}" aria-hidden="true"></canvas>`; }
+/* portrait cropper: drag to move, pinch / slider to zoom, saves a 320px square */
+let PCROP=null;
 function portraitUpload(file,id){ const w=S.staff.find(x=>x.id===id); if(!w||!file) return;
-  readImage(file).then(img=>{ const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, sq=Math.min(W,H), sx=(W-sq)/2, sy=H>W?0:0, T=Math.min(320,sq);
-    const src=document.createElement("canvas"); src.width=sq; src.height=sq; src.getContext("2d").drawImage(img,sx,sy,sq,sq,0,0,sq,sq);
-    const cv=T<sq?hqResize(src,sq,sq,T,T):src; return storeArt(cv.toDataURL("image/png")).then(ref=>{ dropArt(w.port); w.port=ref; commit(); toast(`Portrait set for ${w.name}.`); }); }).catch(()=>toast(imgErr(file),true)); }
+  readImage(file).then(img=>{ const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, sc=Math.min(1,1600/Math.max(W,H));
+    const cv=sc<1?hqResize(img,W,H,Math.round(W*sc),Math.round(H*sc)):(()=>{ const c=document.createElement("canvas"); c.width=W; c.height=H; c.getContext("2d").drawImage(img,0,0); return c; })();
+    let data=cv.toDataURL("image/png"); if(data.length>3e6) data=cv.toDataURL("image/webp",.92);
+    return storeArt(data).then(ref=>{ if(w.portOrig) dropArt(w.portOrig); w.portOrig=ref; w.portCrop=null; save(); portraitCropOpen(w); }); }).catch(()=>toast(imgErr(file),true)); }
+function portraitCropOpen(w){
+  const src=resolveArt(w.portOrig); if(!src){ toast("Upload a portrait first.", true); return; }
+  const im=new Image(); im.onload=()=>{ const W=im.naturalWidth, H=im.naturalHeight, c=w.portCrop;
+    PCROP={w,im,W,H,zoom:c?c.zoom:1,cx:c?c.cx:W/2,cy:c?c.cy:Math.min(H,W)/2,ptr:new Map(),pinch:0};
+    openSheet(`<h3>CROP PORTRAIT</h3>
+      <p class="muted" style="margin:0 0 8px">Drag to move. Pinch or use the slider to zoom. The square is exactly what shows in Build.</p>
+      <div class="cropbox"><canvas id="pcCanvas" width="320" height="320" aria-label="Portrait crop preview"></canvas></div>
+      <div class="croprow"><span aria-hidden="true">−</span><input type="range" id="pcZoom" min="1" max="6" step="0.01" value="${PCROP.zoom}" aria-label="Zoom"><span aria-hidden="true">+</span></div>
+      <div class="croprow small"><span class="muted">Preview</span><div class="cport sm"><canvas id="pcMini" width="96" height="96"></canvas></div><div class="cport xs"><canvas id="pcMini2" width="72" height="72"></canvas></div>
+        <button type="button" class="btn ghost smallbtn" data-act="pcReset" style="margin-left:auto">RESET</button></div>
+      <div class="actions" style="margin-top:10px"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="button" class="btn solid" data-act="pcSave">SAVE PORTRAIT</button></div>`);
+    pcBind(); pcDraw(); };
+  im.src=src;
+}
+function pcScale(){ const P=PCROP; return Math.max(320/P.W,320/P.H)*P.zoom; }
+function pcClamp(){ const P=PCROP, sc=pcScale(), hw=160/sc, hh=160/sc; P.cx=Math.max(hw,Math.min(P.W-hw,P.cx)); P.cy=Math.max(hh,Math.min(P.H-hh,P.cy)); }
+function pcRender(g,size){ const P=PCROP, sc=pcScale(), half=160/sc; g.imageSmoothingEnabled=sc*size/320<1; g.imageSmoothingQuality="high"; g.clearRect(0,0,size,size); g.drawImage(P.im,P.cx-half,P.cy-half,half*2,half*2,0,0,size,size); }
+function pcDraw(){ if(!PCROP) return; pcClamp(); const cv=$("pcCanvas"); if(!cv) return; const g=cv.getContext("2d"); pcRender(g,320);
+  g.strokeStyle="rgba(255,255,255,.18)"; g.lineWidth=1; for(const t of [320/3,640/3]){ g.beginPath(); g.moveTo(t,0); g.lineTo(t,320); g.moveTo(0,t); g.lineTo(320,t); g.stroke(); }
+  ["pcMini","pcMini2"].forEach(id=>{ const c=$(id); if(c) pcRender(c.getContext("2d"),c.width); }); const z=$("pcZoom"); if(z&&+z.value!==PCROP.zoom) z.value=PCROP.zoom; }
+function pcBind(){ const cv=$("pcCanvas"); if(!cv) return; const P=PCROP, toImg=d=>d*(cv.width/cv.getBoundingClientRect().width)/pcScale();
+  cv.addEventListener("pointerdown",e=>{ cv.setPointerCapture(e.pointerId); P.ptr.set(e.pointerId,{x:e.clientX,y:e.clientY}); if(P.ptr.size===2){ const [a,b]=[...P.ptr.values()]; P.pinch=Math.hypot(a.x-b.x,a.y-b.y); P.pz=P.zoom; } });
+  cv.addEventListener("pointermove",e=>{ const o=P.ptr.get(e.pointerId); if(!o) return; const nx=e.clientX, ny=e.clientY;
+    if(P.ptr.size===1){ P.cx-=toImg(nx-o.x); P.cy-=toImg(ny-o.y); }
+    P.ptr.set(e.pointerId,{x:nx,y:ny});
+    if(P.ptr.size===2&&P.pinch){ const [a,b]=[...P.ptr.values()], d=Math.hypot(a.x-b.x,a.y-b.y); P.zoom=Math.max(1,Math.min(6,P.pz*d/P.pinch)); }
+    pcDraw(); });
+  const up=e=>{ P.ptr.delete(e.pointerId); if(P.ptr.size<2) P.pinch=0; }; cv.addEventListener("pointerup",up); cv.addEventListener("pointercancel",up);
+  cv.addEventListener("wheel",e=>{ e.preventDefault(); P.zoom=Math.max(1,Math.min(6,P.zoom*(e.deltaY<0?1.08:1/1.08))); pcDraw(); },{passive:false});
+  const z=$("pcZoom"); if(z) z.addEventListener("input",()=>{ P.zoom=+z.value; pcDraw(); });
+}
+function pcSave(){ const P=PCROP; if(!P) return; const w=P.w, c=document.createElement("canvas"); c.width=320; c.height=320; pcRender(c.getContext("2d"),320);
+  storeArt(c.toDataURL("image/png")).then(ref=>{ if(w.port) dropArt(w.port); w.port=ref; w.portCrop={zoom:P.zoom,cx:P.cx,cy:P.cy}; PCROP=null; closeSheet(); commit(); toast(`Portrait saved for ${w.name}.`); }); }
+document.addEventListener("click",ev=>{ const el=ev.target.closest("[data-act]"); if(!el) return; const a=el.dataset.act;
+  if(a==="pcSave") pcSave();
+  else if(a==="pcReset"&&PCROP){ PCROP.zoom=1; PCROP.cx=PCROP.W/2; PCROP.cy=Math.min(PCROP.H,PCROP.W)/2; pcDraw(); }
+  else if(a==="pcRecrop"){ const w=S.staff.find(x=>x.id===el.dataset.id); if(w) portraitCropOpen(w); } });
 function portraitRow(p){ const own=resolveArt(p.port);
-  return `<div class="portrow"><div class="cport">${portHTML(p,"")}</div><div><b>Portrait</b><small class="muted">${own?"Your own portrait":p.faces&&p.faces.neutral?"Using the Neutral dialogue face":"Using the counter art"}. Shown in Build, hiring and staff cards. Square works best; taller images are cropped from the top.</small>
-    <div class="actions" style="margin-top:6px"><label class="btn ghost smallbtn" for="portUp-${p.id}">${own?"REPLACE":"UPLOAD PORTRAIT"}</label><input type="file" id="portUp-${p.id}" data-up="port" class="srt" accept="image/*" data-id="${p.id}">${own?`<button class="btn ghost smallbtn" data-act="clearPort" data-id="${p.id}">REMOVE</button>`:""}</div></div></div>`; }
+  return `<div class="portrow"><div class="cport">${portHTML(p,"")}</div><div><b>Portrait</b><small class="muted">${own?"Your own portrait":p.faces&&p.faces.neutral?"Using the Neutral dialogue face":"Using the counter art"}. Shown in Build, hiring and staff cards. After uploading, drag and zoom to frame it.</small>
+    <div class="actions" style="margin-top:6px"><label class="btn ghost smallbtn" for="portUp-${p.id}">${own?"REPLACE":"UPLOAD PORTRAIT"}</label><input type="file" id="portUp-${p.id}" data-up="port" class="srt" accept="image/*" data-id="${p.id}">${p.portOrig&&resolveArt(p.portOrig)?`<button class="btn ghost smallbtn" data-act="pcRecrop" data-id="${p.id}">CROP</button>`:""}${own?`<button class="btn ghost smallbtn" data-act="clearPort" data-id="${p.id}">REMOVE</button>`:""}</div></div></div>`; }
 function workerMini(p){
   const t=TRAITS[p.trait]||{name:"",desc:""}, cost=90*p.skill;
   return `<div class="wmini">
@@ -4726,7 +4771,7 @@ document.addEventListener("click",ev=>{
     case "equipOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&progLevel(w)>=+t){ w.outfit=+t; manageOpen=wid; outfitOpen=wid; commit(); } break; }
     case "clearOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.outfits&&w.outfits[t]){ dropArt(w.outfits[t].art); delete w.outfits[t]; if(w.outfit===+t) w.outfit=1; manageOpen=wid; outfitOpen=wid; commit(); } break; }
     case "testProg": S.staff.forEach(w=>gainProg(w,5)); addLog("Test: +5 "+PL()+" for all staff."); commit(); break;
-    case "clearPort": { const w=S.staff.find(x=>x.id===id); if(w&&w.port){ dropArt(w.port); delete w.port; commit(); } break; }
+    case "clearPort": { const w=S.staff.find(x=>x.id===id); if(w){ dropArt(w.port); dropArt(w.portOrig); delete w.port; delete w.portOrig; delete w.portCrop; commit(); } break; }
     case "clearFace": { const [wid,k]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.faces){ dropArt(w.faces[k]); delete w.faces[k]; faceOpen=wid; manageOpen=wid; commit(); } break; }
     case "clearSheet": { const [wid,k,slot]=id.split(":"), w=S.staff.find(x=>x.id===wid), bag=w&&animBag(w,slot||""); if(bag&&bag[k]){ dropArt(bag[k].ref); delete bag[k].ref; commit(); } break; }
     case "hideFavArt": srv.showFavorArt=false; renderServe(); break;
