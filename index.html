@@ -905,6 +905,14 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .devback{margin:0 0 8px;display:inline-block}
 .tseg{grid-template-columns:repeat(4,1fr)}
 
+.diffseg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.diffseg input{position:absolute;opacity:0;pointer-events:none}
+.diffseg label{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px;border:1px solid var(--line);cursor:pointer;text-align:center}
+.diffseg label b{font-size:15px;font-weight:600}.diffseg label small{font-size:11px;color:var(--dim)}
+.diffseg input:checked+label{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+.diffseg input:checked+label small{color:var(--accent)}
+.diffseg input:focus-visible+label{outline:2px solid var(--accent)}
+
 </style>
 </head>
 <body class="night">
@@ -3016,8 +3024,10 @@ function giveReward(o,vip,why){ const d=dOf(o); for(let i=0;i<d.c;i++) addClient
   toast(`${d.c>1?`${d.c} clients`:vip?"A VIP client":"A client"} walked in${why?": "+why:""}.${d.b?` +${d.b}₵`:""}`); beep(vip?1180:980,.06); return d; }
 function takeReward(o,vip){ const d=dOf(o); for(let i=0;i<d.c;i++) removeClient(vip&&i===0); if(d.b) S.credits=Math.max(0,S.credits-d.b); return d; }
 const rewardPop=(o,vip)=>{ const d=dOf(o); return `+${d.c} ${vip?"VIP":d.c>1?"CLIENTS":"CLIENT"}${d.b?` +${d.b}₵`:""}`; };
-function diffSelect(id,o){ const cur=(o&&o.diff)||2; return `<div><label class="fl" for="${id}">Difficulty</label><select class="field" id="${id}">${[1,2,3,4].map(k=>{ const d=DIFF[k]; return `<option value="${k}" ${cur===k?"selected":""}>${d.n} · ${d.c} client${d.c>1?"s":""}${d.b?` +${d.b}₵`:""}</option>`; }).join("")}</select></div>`; }
-const diffTag=o=>{ const k=(o&&o.diff)||2; return k===2?"":`<span class="dtag d${k}">${DIFF[k].n.toUpperCase()}</span>`; };
+function diffSelect(id,o,def){ const cur=(o&&o.diff)||def||2;
+  return `<div class="full"><span class="fl" id="${id}L">Difficulty</span><input type="hidden" id="${id}" value="${cur}"><div class="diffseg" role="radiogroup" aria-labelledby="${id}L">${[1,2,3,4].map(k=>{ const d=DIFF[k]; return `<input type="radio" name="${id}R" id="${id}-${k}" value="${k}" ${cur===k?"checked":""}><label for="${id}-${k}"><b>${d.n}</b><small>${d.c} client${d.c>1?"s":""}${d.b?` +${d.b}₵`:""}</small></label>`; }).join("")}</div></div>`; }
+document.addEventListener("change",ev=>{ const t=ev.target; if(t&&t.type==="radio"&&/R$/.test(t.name)){ const h=$(t.name.slice(0,-1)); if(h&&h.type==="hidden"){ h.value=t.value; h.dataset.dirty="1"; if(h.id==="qDiff") quickPreview(); } } });
+const diffTag=(o,min)=>{ const k=(o&&o.diff)||2; return (min?k<min:k===2)?"":`<span class="dtag d${k}">${DIFF[k].n.toUpperCase()}</span>`; };
 function removeClient(vip){ if(S.clients.waiting>0){ S.clients.waiting--; if(vip&&S.clients.vip>0) S.clients.vip--; if(S.clients.vip>S.clients.waiting) S.clients.vip=S.clients.waiting; } }
 function dailyWalkIn(){ if(S.lastWalk!==today()){ S.lastWalk=today(); const n=1+Math.floor((S.modules.loyalty||0)/2); S.clients.waiting+=n; addLog(n>1?`${n} walk-in clients are waiting. Loyalty cards bring regulars back.`:"A walk-in client is waiting. One shows up every day.","gain"); save(); } }
 function totals(secs){ let amb=0,seats=2,lv=0; for(const id in S.modules){ const L=S.modules[id], m=MODULES[id]; if(!m||!L) continue; if(secs&&!secs.includes(m.sec)) continue; amb+=m.amb*L; seats+=m.seats*L; lv+=L; } return {amb,seats,lv}; }
@@ -3356,7 +3366,7 @@ function taskRowT(t){
   return `<div class="trow ${on?"done":""} ${t.pri===3?"hi":t.pri===1?"lo":""}">
     <button class="tchk" data-act="task" data-id="${t.id}" aria-pressed="${!!on}" aria-label="${on?"Undo":"Complete"} ${esc(t.title)}">${on?"✓":""}</button>
     <button class="ttl" data-act="editTask" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><span>${esc(t.title)}</span>${noteLine(t)}</button>
-    ${ckButton(t)}<span class="tmeta">${diffTag(t)}${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
+    ${ckButton(t)}<span class="tmeta">${diffTag(t,3)}${t.bucket&&t.save&&bucketById(t.bucket)?`<span class="good">+${money(t.save)}</span>`:""}${shortDue(t)}${isRec(t)?` <span class="acc" title="${esc(repeatText(t.repeat))}">↻</span>`:""}${l?` <span class="ltag">${esc(l.name)}</span>`:""}</span>
   </div>${ckList(t)}`;
 }
 const listById=id=>S.lists.find(l=>l.id===id);
@@ -3460,7 +3470,7 @@ function quickPreview(){
   const chips=[]; if(f.due) chips.push(`<span>${f.due===today()?"Due today":"Due "+shortDate(f.due)}</span>`); if(f.repeat) chips.push(`<span>↻ ${esc(repeatText(f.repeat))}</span>`);
   if(f.pri===3) chips.push(`<span class="hi">High · VIP</span>`); else if(f.pri===1) chips.push(`<span>Low</span>`);
   if(f.listName) chips.push(`<span>${esc(f.listName)}${f.newList?" (new list)":""}</span>`);
-  { const qd=$("qDiff"), dk=(qd&&qd.dataset.dirty)?+qd.value:p.diff; if(dk&&dk!==2) chips.push(`<span>${DIFF[dk].n}</span>`); }
+  { const qd=$("qDiff"); if(qd&&!qd.dataset.dirty){ const dk=p.diff||1; if(+qd.value!==dk){ qd.value=dk; const r=$("qDiff-"+dk); if(r) r.checked=true; } } }
   el.innerHTML=v.trim()?`<b>${esc(f.title||"…")}</b>${chips.join("")}`:`<span class="muted">Type naturally: "tomorrow", "before December", "this weekend", "by the 15th", repeats, !high and #list are all picked up.</span>`;
 }
 function quickFinal(p){
@@ -3481,10 +3491,10 @@ function quickSheet(ctx){
   <form data-form="quick" class="stack">
     <div><label class="srt" for="qText">Task</label><input class="field" id="qText" maxlength="160" placeholder="Pay rent every month on the 1st !high #home" autocomplete="off" required></div>
     <div class="qprev" id="qPrev" aria-live="polite"></div>
+    ${diffSelect("qDiff",null,1)}
     <details class="sub"><summary>Checklist</summary><label class="srt" for="qItems">Checklist items, one per line</label><textarea class="field note" id="qItems" rows="4" placeholder="One item per line: milk, eggs, coffee…"></textarea></details>
     <details class="sub"><summary>More options</summary>
       <div class="formgrid">
-        ${diffSelect("qDiff",null)}
         <div><label class="fl" for="qPri">Priority</label><select class="field" id="qPri" data-qdirty><option value="1">LOW</option><option value="2" selected>MED</option><option value="3">HIGH · VIP</option></select></div>
         <div><label class="fl" for="qDue">Due</label><input class="field" id="qDue" type="date"></div>
         <div class="full">${repeatUI("q",null,null)}</div>
@@ -3497,11 +3507,11 @@ function quickSheet(ctx){
   $("qRep").dataset.qdirty="1"; quickPreview();
 }
 document.addEventListener("input",ev=>{ if(ev.target.id==="qText") quickPreview(); });
-document.addEventListener("change",ev=>{ const t=ev.target; if(t.id==="qPri"||t.id==="qRep"||t.id==="qDiff") t.dataset.dirty="1"; if(["qPri","qDue","qRep","qList","qRepN","qRepDom"].includes(t.id)||t.name==="qRepDay") quickPreview(); });
+document.addEventListener("change",ev=>{ const t=ev.target; if(t.id==="qPri"||t.id==="qRep") t.dataset.dirty="1"; if(["qPri","qDue","qRep","qList","qRepN","qRepDom"].includes(t.id)||t.name==="qRepDay") quickPreview(); });
 function addQuick(){
-  const p=parseQuick(($("qText")||{}).value||""), f=quickFinal(p); const qd=$("qDiff"); if(qd&&qd.dataset.dirty) p.diff=+qd.value; if(!f.title){ toast("Give the task a name.", true); return false; }
+  const p=parseQuick(($("qText")||{}).value||""), f=quickFinal(p); const qd=$("qDiff"); p.diff=+(qd&&qd.value)||p.diff||1; if(!f.title){ toast("Give the task a name.", true); return false; }
   if(f.newList){ const l={id:uid(),name:f.listName.slice(0,24)}; S.lists.push(l); f.list=l.id; }
-  S.tasks.push(Object.assign({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined,note:($("qNote")||{}).value||"",items:ckParse(($("qItems")||{}).value),diff:p.diff||+(($("qDiff")||{}).value)||2},readSave("q")));
+  S.tasks.push(Object.assign({id:uid(),title:f.title.slice(0,120),pri:f.pri,due:f.due||"",list:f.list,done:false,repeat:f.repeat||undefined,note:($("qNote")||{}).value||"",items:ckParse(($("qItems")||{}).value),diff:p.diff||1},readSave("q")));
   return true;
 }
 function groupedByDue(list){
