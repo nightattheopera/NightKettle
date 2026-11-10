@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0a18">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Night Kettle">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon.png">
 <meta name="robots" content="noindex,nofollow">
 <title>Night Kettle</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6220,6 +6228,20 @@ async function boot(){
 }
 boot();
 
+</script>
+<script>
+/* installable app: offline cache. Only on a real https site that has sw.js beside this file. */
+(function(){
+  try{
+    if(!("serviceWorker" in navigator)) return;
+    var local=location.hostname==="localhost"||location.hostname==="127.0.0.1";
+    if(location.protocol!=="https:"&&!local) return;
+    if(location.hostname.indexOf("claude")>=0||location.hostname.indexOf("anthropic")>=0) return;
+    fetch("sw.js",{method:"HEAD",cache:"no-store"}).then(function(r){
+      if(r.ok&&/javascript/.test(r.headers.get("content-type")||"")) navigator.serviceWorker.register("sw.js").catch(function(){});
+    }).catch(function(){});
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
