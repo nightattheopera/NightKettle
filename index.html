@@ -924,6 +924,19 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .againc{font-family:var(--pixel);font-size:10px;letter-spacing:.06em;color:var(--accent);border:1px solid var(--line);padding:1px 5px}
 .againc.good{color:var(--good);border-color:var(--good)}
 
+/* cards */
+.ccard{border:1px solid var(--line);padding:10px 12px;margin-bottom:10px;border-left:3px solid var(--line)}
+.ccard.soon{border-left-color:var(--accent)}.ccard.over{border-left-color:var(--bad);background:rgba(255,79,109,.05)}
+.ccname{font-weight:600;font-size:17px;padding:0}
+.cctot{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 6px}.cctot .num{font-size:26px;font-weight:600}
+.ccdue{font-size:14px;color:var(--dim)}.ccard.soon .ccdue{color:var(--accent)}.ccard.over .ccdue{color:var(--bad)}
+.cclist{list-style:none;margin:0;padding:0}
+.ccrow,.cchist{display:grid;grid-template-columns:52px 1fr auto;gap:8px;align-items:center;width:100%;background:none;border:0;border-top:1px solid var(--line);padding:7px 0;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.cchist{cursor:default}
+.ccd{font-size:13px;color:var(--dim)}.ccx{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccmore summary{cursor:pointer;color:var(--dim);font-size:13px;padding:6px 0}
+.ccdue-row .tbtn{color:var(--bad)}
+
 </style>
 </head>
 <body class="night">
@@ -3802,6 +3815,7 @@ function vSavingsSeg(){
   const body=sec=>{ const h=sec.querySelector("h2"); if(h) h.remove(); return sec.innerHTML; };
   const [sum,bk,rem,hist]=secs;
   return `<div class="savehead"><span class="muted">Waiting to be deposited</span><p class="jarbig num">${money(pend)}</p><p class="hint" style="margin:0">All-time deposited: ${money(all)}. This only tracks what you tell it. It never touches a bank account.</p></div>
+    <p class="sh">CARDS · ${cardsS().length}</p><div>${cardsHTML()}</div>
     <p class="sh">BUCKETS · ${S.buckets.length}</p><div>${bk?body(bk):""}</div>
     <p class="sh">DEPOSIT REMINDER</p><div>${rem?body(rem):""}</div>
     ${hist?`<p class="sh">HISTORY · ${S.buckets.reduce((a,b)=>a+b.entries.length+b.deposits.length,0)}</p><div>${body(hist)}</div>`:""}`;
@@ -6138,6 +6152,100 @@ document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&edgeViewIsOpen()
 
 const _edgeRender=render;
 render=function(){ _edgeRender(); try{ edgePill(); }catch(e){} };
+
+/* ================= CARDS: purchases on a card, running total, due date ================= */
+/* Lives in Tasks › Savings. Separate from savings buckets. Paying on or before the due date
+   gives a little rep; paying late costs rep, like a missed daily. */
+const CARD_ON_TIME_REP=2, CARD_LATE_REP=3;
+function cardsS(){ if(!Array.isArray(S.cards)) S.cards=[]; S.cards.forEach(c=>{ c.items=Array.isArray(c.items)?c.items:[]; c.hist=Array.isArray(c.hist)?c.hist:[]; }); return S.cards; }
+const cardById=id=>cardsS().find(c=>c.id===id);
+const cardTotal=c=>c.items.reduce((a,i)=>a+(i.c||0),0);
+function cardDays(c){ return c.due?daysBetween(today(),c.due):null; }
+function cardTone(c){ const d=cardDays(c); if(d==null) return ""; if(d<0) return "over"; if(d<=7) return "soon"; return ""; }
+function cardDueText(c){ const d=cardDays(c); if(d==null) return "no due date"; if(d<0) return `${-d} day${d===-1?"":"s"} overdue`; if(d===0) return "due today"; return `due ${shortDate(c.due)} · ${d} day${d===1?"":"s"}`; }
+/* due today or overdue, with something on it */
+const cardsDue=()=>cardsS().filter(c=>c.due&&cardDays(c)<=0&&cardTotal(c)>0);
+function addMonth(k){ const y=+k.slice(0,4), m=+k.slice(5,7), d=+k.slice(8,10), ny=m===12?y+1:y, nm=m===12?1:m+1; return ymd(ny,nm,Math.min(d,new Date(ny,nm,0).getDate())); }
+
+/* ---------- UI: Tasks › Savings › Cards ---------- */
+function cardBlock(c){ const tot=cardTotal(c), tone=cardTone(c), items=c.items.slice().sort((a,b)=>b.d.localeCompare(a.d)), show=items.slice(0,5), more=items.length-show.length, last=c.hist[c.hist.length-1];
+  return `<div class="ccard ${tone}">
+    <div class="spread"><button class="linkbtn ccname" data-act="cardEdit" data-id="${c.id}">${esc(c.name)}</button><button class="tbtn plus" data-act="cardAdd" data-id="${c.id}" aria-label="Add a purchase to ${esc(c.name)}">+</button></div>
+    <div class="cctot"><span class="num">${money(tot)}</span><span class="ccdue">${esc(cardDueText(c))}${c.repeat?" · monthly":""}</span></div>
+    ${items.length?`<ul class="cclist">${show.map(i=>`<li><button class="ccrow" data-act="cardItem" data-id="${c.id}" data-item="${i.id}"><span class="ccd">${shortDate(i.d)}</span><span class="ccx">${esc(i.desc||"Purchase")}</span><span class="num">${money(i.c)}</span></button></li>`).join("")}</ul>
+      ${more>0?`<details class="ccmore"><summary>${more} more</summary><ul class="cclist">${items.slice(5).map(i=>`<li><button class="ccrow" data-act="cardItem" data-id="${c.id}" data-item="${i.id}"><span class="ccd">${shortDate(i.d)}</span><span class="ccx">${esc(i.desc||"Purchase")}</span><span class="num">${money(i.c)}</span></button></li>`).join("")}</ul></details>`:""}`:`<p class="hint" style="margin:4px 0">No purchases yet. Tap + to add one.</p>`}
+    <div class="actions" style="margin-top:8px">${tot>0?`<button class="btn ${tone?"solid":"ghost"} smallbtn" data-act="cardPaid" data-id="${c.id}">MARK PAID</button>`:""}
+      ${last&&last.paidOn===today()?`<button class="btn ghost smallbtn" data-act="cardUndoPaid" data-id="${c.id}">UNDO PAID</button>`:""}</div>
+    ${c.hist.length?`<details class="ccmore"><summary>Past statements · ${c.hist.length}</summary><ul class="cclist">${c.hist.slice().reverse().map(h=>`<li class="cchist"><span class="ccd">${shortDate(h.paidOn)}</span><span class="ccx">${h.items.length} purchase${h.items.length===1?"":"s"}${h.late?` · <span class="bad">late</span>`:""}</span><span class="num">${money(h.total)}</span></li>`).join("")}</ul></details>`:""}
+  </div>`; }
+function cardsHTML(){ const cs=cardsS();
+  return `${cs.map(cardBlock).join("")}<div class="actions" style="margin-top:8px"><button class="btn ghost" data-act="cardNew">+ ADD A CARD</button></div>
+    ${cs.length?"":`<p class="hint">Track what goes on a card: each purchase adds to a running total with a payment due date. Paying on time earns ${CARD_ON_TIME_REP} rep.</p>`}`; }
+
+/* ---------- sheets ---------- */
+function cardSheet(c){ const isNew=!c; c=c||{name:"",due:addDays(today(),30),repeat:true};
+  openSheet(`<h3>${isNew?"NEW CARD":"EDIT CARD"}</h3>
+  <form data-form="card" data-id="${isNew?"":c.id}" class="stack">
+    <div><label class="fl" for="cdName">Card name</label><input class="field" id="cdName" maxlength="40" value="${esc(c.name)}" placeholder="e.g. Amex, Visa ending 4417" required autocomplete="off"></div>
+    <div><label class="fl" for="cdDue">Payment due</label><input class="field" id="cdDue" type="date" value="${c.due||""}"></div>
+    <label class="checkrow"><input type="checkbox" id="cdRep" ${c.repeat?"checked":""}> Repeats every month</label>
+    <p class="hint" style="margin:0">Only a name for the card, please. Never enter card numbers.</p>
+    <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="cardDel" data-id="${c.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
+  </form>`); setTimeout(()=>{ const f=$("cdName"); if(f&&isNew) f.focus(); },60); }
+function cardItemSheet(c,it){ const isNew=!it; it=it||{d:today(),desc:"",c:0};
+  openSheet(`<h3>${isNew?"ADD PURCHASE":"EDIT PURCHASE"} · ${esc(c.name.toUpperCase())}</h3>
+  <form data-form="cardItem" data-id="${c.id}" data-item="${isNew?"":it.id}" class="stack">
+    <div><label class="fl" for="ciDesc">What was it?</label><input class="field" id="ciDesc" maxlength="80" value="${esc(it.desc)}" placeholder="Groceries 54.20" autocomplete="off"></div>
+    <div class="formgrid"><div><label class="fl" for="ciCost">Cost ($)</label><input class="field num" id="ciCost" inputmode="decimal" value="${it.c?(it.c/100).toFixed(2):""}" placeholder="0.00"></div>
+      <div><label class="fl" for="ciDate">Date</label><input class="field" id="ciDate" type="date" value="${it.d}"></div></div>
+    <p class="hint" style="margin:0">Tip: type the amount at the end of the description, like "Gas 41.30", and the cost fills itself in.</p>
+    <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="cardItemDel" data-id="${c.id}" data-item="${it.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
+  </form>`); setTimeout(()=>{ const f=$("ciDesc"); if(f&&isNew) f.focus(); },60); }
+/* "Groceries 54.20" -> cost 54.20, description "Groceries" */
+document.addEventListener("input",ev=>{ const t=ev.target; if(t.id!=="ciDesc") return; const m=t.value.match(/^(.*?)\s*\$?(\d+(?:[.,]\d{1,2})?)\s*$/), cost=$("ciCost");
+  if(m&&m[1].trim()&&cost&&!cost.dataset.typed){ cost.value=(+m[2].replace(",",".")).toFixed(2); cost.dataset.auto="1"; } });
+document.addEventListener("input",ev=>{ if(ev.target.id==="ciCost") ev.target.dataset.typed="1"; });
+
+/* ---------- actions ---------- */
+function cardPaid(id,ev){ const c=cardById(id); if(!c) return; const tot=cardTotal(c); if(tot<=0) return; const k=today(), late=c.due&&k>c.due, r=late?-CARD_LATE_REP:CARD_ON_TIME_REP;
+  c.hist.push({paidOn:k,due:c.due,total:tot,items:c.items,late:!!late,rep:r,repeat:c.repeat}); c.items=[];
+  if(c.repeat&&c.due){ let d=c.due; do{ d=addMonth(d); } while(d<=k); c.due=d; }
+  S.rep=Math.max(0,S.rep+r); pop(ev,late?`−${CARD_LATE_REP} REP`:`+${CARD_ON_TIME_REP} REP`,late?"var(--bad)":"var(--good)");
+  addLog(`Paid ${c.name}: ${money(tot)}${late?` (late, −${CARD_LATE_REP} rep)`:` on time (+${CARD_ON_TIME_REP} rep)`}.${c.repeat?` Next due ${shortDate(c.due)}.`:""}`,late?"warn":"gain"); commit(); }
+function cardUndoPaid(id){ const c=cardById(id); if(!c) return; const h=c.hist[c.hist.length-1]; if(!h||h.paidOn!==today()) return;
+  c.hist.pop(); c.items=h.items.concat(c.items); c.due=h.due; S.rep=Math.max(0,S.rep-(h.rep||0)); addLog(`Undid payment on ${c.name}.`); commit(); }
+document.addEventListener("click",ev=>{ const el=ev.target.closest("[data-act]"); if(!el) return; const a=el.dataset.act, id=el.dataset.id, c=id&&cardById(id);
+  if(a==="cardNew") cardSheet(null);
+  else if(a==="cardEdit"&&c) cardSheet(c);
+  else if(a==="cardAdd"&&c) cardItemSheet(c,null);
+  else if(a==="cardItem"&&c) cardItemSheet(c,c.items.find(i=>i.id===el.dataset.item));
+  else if(a==="cardPaid") cardPaid(id,ev);
+  else if(a==="cardUndoPaid") cardUndoPaid(id);
+  else if(a==="cardItemDel"&&c){ c.items=c.items.filter(i=>i.id!==el.dataset.item); closeSheet(); commit(); }
+  else if(a==="cardDel"&&c){ if(el.dataset.arm!=="1"){ el.dataset.arm="1"; el.textContent="TAP AGAIN TO DELETE"; return; } S.cards=S.cards.filter(x=>x!==c); closeSheet(); commit(); toast(`${c.name} deleted.`); }
+});
+document.addEventListener("submit",ev=>{ const f=ev.target; if(!f||!f.dataset) return; const k=f.dataset.form;
+  if(k==="card"){ ev.preventDefault(); ev.stopImmediatePropagation(); const name=($("cdName").value||"").trim(); if(!name) return;
+    if(/\d{12,}/.test(name.replace(/[\s-]/g,""))){ toast("Use a nickname, not the card number.", true); return; }
+    const o={name,due:$("cdDue").value||"",repeat:$("cdRep").checked}, id=f.dataset.id;
+    if(id){ Object.assign(cardById(id),o); } else cardsS().push(Object.assign({id:uid(),items:[],hist:[]},o)); closeSheet(); commit(); }
+  if(k==="cardItem"){ ev.preventDefault(); ev.stopImmediatePropagation(); const c=cardById(f.dataset.id); if(!c) return;
+    let desc=($("ciDesc").value||"").trim(); const cost=toCents($("ciCost").value), d=$("ciDate").value||today();
+    if($("ciCost").dataset.auto&&!$("ciCost").dataset.typed) desc=desc.replace(/\s*\$?\d+(?:[.,]\d{1,2})?\s*$/,"").trim();
+    if(!cost){ toast("Add a cost.", true); return; }
+    const iid=f.dataset.item; if(iid){ Object.assign(c.items.find(i=>i.id===iid),{desc,c:cost,d}); } else c.items.push({id:uid(),d,desc,c:cost});
+    closeSheet(); commit(); if(!iid) toast(`${money(cost)} added. ${c.name}: ${money(cardTotal(c))}.`); }
+},true);
+
+/* ---------- Today list + icon badge ---------- */
+function cardsTodayHTML(){ const due=cardsDue(); if(!due.length) return "";
+  return `<p class="sh bad">CARDS DUE · ${due.length}</p><div class="tlist">${due.map(c=>`<div class="trow ccdue-row"><span class="tbtn" aria-hidden="true">$</span>
+    <button class="ttl" data-act="taskView" data-id="savings"><span>Pay ${esc(c.name)} · ${money(cardTotal(c))}</span><small class="${cardDays(c)<0?"bad":"acc"}">${esc(cardDueText(c))}</small></button>
+    <button class="btn solid smallbtn" data-act="cardPaid" data-id="${c.id}">PAID</button></div>`).join("")}</div>`; }
+const _cardsTodayBody=todayBody;
+todayBody=function(){ const h=_cardsTodayBody(); const c=cardsTodayHTML(); if(!c) return h; const i=h.indexOf('<p class="sh acc">DUE TODAY'); return i<0?c+h:h.slice(0,i)+c+h.slice(i); };
+const _cardsBadge=badgeCount;
+badgeCount=function(){ return _cardsBadge()+cardsDue().length; };
 
 /* ================= SKILLS, COVERING OTHER VENUES, AND HIRING YOUR OWN CHARACTERS ================= */
 const SKILL_SLOTS=3, SLOT_MULT=[1,2,4];
