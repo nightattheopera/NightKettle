@@ -1,6 +1,6 @@
 /* Night Kettle offline cache. Network first, so a new upload shows up on the next open;
    the cached copy is only used when there is no connection. */
-const CACHE = "night-kettle-v1";
+const CACHE = "habtiks-v1";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", ev => {

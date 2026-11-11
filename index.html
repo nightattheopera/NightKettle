@@ -7,12 +7,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Night Kettle">
+<meta name="apple-mobile-web-app-title" content="Habtiks">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon.png">
 <meta name="robots" content="noindex,nofollow">
-<title>Night Kettle</title>
+<title>Habtiks</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Silkscreen&display=swap" rel="stylesheet">
@@ -4245,6 +4245,19 @@ function devTools(){
     <div class="rowflex"><label class="srt" for="resetBox">Type RESET</label><input class="field" id="resetBox" autocomplete="off" style="flex:1;min-width:8em" placeholder="RESET"><button class="btn danger" data-act="reset">ERASE</button></div>
   </section>`;
 }
+/* home-screen icon badge: number of things still due today (iOS needs notification permission for badges) */
+const badgeOK=()=>"setAppBadge" in navigator;
+function badgeCount(){ try{ return todayLeft()+(depositDue()?1:0); }catch(e){ return 0; } }
+function updateBadge(){ if(!badgeOK()||!S||!S.badgeOn) return; try{ const n=badgeCount(); (n?navigator.setAppBadge(n):navigator.clearAppBadge()).catch(()=>{}); }catch(e){} }
+async function badgeToggle(){
+  if(S.badgeOn){ S.badgeOn=false; try{ await navigator.clearAppBadge(); }catch(e){} commit(); toast("Icon badge off."); return; }
+  if(!badgeOK()){ toast("Badges need the home-screen app (iOS 16.4 or later).", true); return; }
+  try{ if("Notification" in window&&Notification.permission!=="granted"){ const p=await Notification.requestPermission(); if(p!=="granted"){ toast("iOS needs notification permission to show the badge.", true); return; } } }catch(e){}
+  S.badgeOn=true; commit(); updateBadge(); toast("Icon badge on: it shows what's still due today."); }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") updateBadge(); });
+function badgeMenuHTML(){ return `<section class="panel"><h2><span>HOME SCREEN BADGE</span><span>${S.badgeOn?"ON":"OFF"}</span></h2>
+  <div class="spread" style="align-items:center"><span>Show what's due today on the app icon${S.badgeOn?` <b class="acc">(${badgeCount()} now)</b>`:""}</span><button class="btn ${S.badgeOn?"":"ghost"}" data-act="badgeToggle" aria-pressed="${!!S.badgeOn}">${S.badgeOn?"ON":"OFF"}</button></div>
+  <p class="hint" style="margin:6px 0 0">Counts open tasks and dailies due today, plus 1 on deposit day. It updates whenever you open or leave the app. Only works in the installed home-screen app; iOS asks for notification permission the first time.</p></section>`; }
 function devMenuHTML(){ const subs=[["workers","Workers","Create and edit staff"],["sprites","Sprites","Draw and fit sprite sheets"],["scene","Scenes","Backdrops and patrons"],["favors","Favors","Favor deck"],["edge","Edge","Running the Edge art"],...(adultOn()?[["service","Game","Service minigame"]]:[]),["tools","Tools","Hiring, storage, test cheats"]];
   return `<section class="panel"><h2><span>DEV TOOLS</span><span></span></h2>
     <div class="spread" style="align-items:center"><span>Show dev tools</span><button class="btn ${S.devOn?"":"ghost"}" data-act="devOn" aria-pressed="${!!S.devOn}">${S.devOn?"ON":"OFF"}</button></div>
@@ -4261,6 +4274,7 @@ function vMore(){
     <div class="povtabs" style="grid-template-columns:repeat(3,1fr);margin:0">${[["auto","REAL TIME"],["day","☀ ALWAYS DAY"],["night","☾ ALWAYS NIGHT"]].map(([v,l])=>`<button class="povtab ${(S.clockMode||"auto")===v?"on":""}" data-act="clockMode" data-id="${v}">${l}</button>`).join("")}</div>
     <p class="hint">Real time: café and bookshop 6 AM to 5 PM, bar and ${ROLES.club.room} after 5 PM. The day rolls over at 4 AM.</p>
   </section>
+  ${badgeMenuHTML()}
   ${devMenuHTML()}
   <section class="panel">
     <h2><span>BACKUP</span><span></span></h2>
@@ -4765,6 +4779,7 @@ document.addEventListener("click",ev=>{
     case "shopView": shopView=id; render(); break;
     case "devSub": devSub=id; render(); window.scrollTo(0,0); break;
     case "devOn": S.devOn=!S.devOn; commit(); break;
+    case "badgeToggle": badgeToggle(); break;
     case "devGo": devSub=id; tab="dev"; render(); window.scrollTo(0,0); break;
     case "devWorker": devWorker=id; devSub="workers"; tab="dev"; render(); window.scrollTo(0,0); break;
     case "weekNav": weekOff=Math.min(0,weekOff+(+id)); render(); break;
@@ -5658,6 +5673,8 @@ function taskFoldToggle(h){ const shut=!h.classList.contains("shut"); taskFoldSt
 document.addEventListener("click",ev=>{ const h=ev.target.closest("p.sh.tsh"); if(h) taskFoldToggle(h); });
 document.addEventListener("keydown",ev=>{ if((ev.key==="Enter"||ev.key===" ")&&ev.target.matches&&ev.target.matches("p.sh.tsh")){ ev.preventDefault(); taskFoldToggle(ev.target); } });
 { const _render2=render; render=function(){ _render2.apply(this,arguments); taskFold(); }; }
+
+;(function(){ const _r=render; render=function(){ _r(); try{ updateBadge(); }catch(e){} }; })();
 
 /* ================= CREW: rank rewards = more hires and more staff on shift per floor ================= */
 /* index = rank level - 1 (Street Kid .. Legend of the District) */
