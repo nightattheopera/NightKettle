@@ -3176,7 +3176,9 @@ function favPickLine(s){ if(!s) return ""; const o=String(s).split("\n").map(x=>
 function favVarMatches(f,w){ const lvl=adultOn()?progLevel(w):1;
   return (f.vars||[]).filter(v=>(v.who==="any"||v.who===w.id)&&lvl>=(v.lo||1)&&lvl<=(v.hi||5)&&(adultOn()||(v.lo||1)<=1))
     .sort((a,b)=>((b.who!=="any")-(a.who!=="any"))||(((a.hi||5)-(a.lo||1))-((b.hi||5)-(b.lo||1)))); }
-function favResolve(f,w){ const m=favVarMatches(f,w), o={}; FAV_KEYS.forEach(k=>{ const v=m.find(x=>x[k]&&x[k].trim()); o[k]=favPickLine(v?v[k]:f[k]); }); return o; }
+const favHasMedia=x=>!!(x&&(x.art||(x.anim&&x.anim.ref)));
+function favResolve(f,w){ const m=favVarMatches(f,w), o={}; FAV_KEYS.forEach(k=>{ const v=m.find(x=>x[k]&&x[k].trim()); o[k]=favPickLine(v?v[k]:f[k]); });
+  const mv=adultOn()?m.find(favHasMedia):null, src=mv||f; o.art=src.art||null; o.anim=src.anim&&src.anim.ref?src.anim:null; return o; }
 function serveOpen(sec){
   const st=counterState(sec);
   if(!st.w){ const am=edgeAwayMsg(sec); toast(am||`Hire someone for the ${ROLES[sec].room} first, in the Upgrade tab.`, true); return; }
@@ -3193,7 +3195,7 @@ function srvTick(){
     if(srv.typed<L.text.length){ srv.typed=Math.min(L.text.length,srv.typed+2); const el=$("curLine"); if(el) el.textContent=L.text.slice(0,srv.typed); if(srv.typed>=L.text.length) srv.wait=performance.now(); }
     else if(srv.step<srv.lines.length-1&&srv.wait&&performance.now()-srv.wait>450){ srv.step++; srv.typed=0; srv.wait=0; renderChat(); }
   }
-  const fa=$("favAnim"); if(fa&&srv.favor) drawSheetFit(fa,srv.favor.anim,srv.favAnimT,performance.now());
+  const fa=$("favAnim"); if(fa&&srv.favor) drawSheetFit(fa,(srv.favLines||srv.favor).anim,srv.favAnimT,performance.now());
   const cc=$("cgCharm"); if(cc) cc.style.display=performance.now()-(srv.charmFlash||-1e9)<4200?"block":"none";
   drawScene();
 }
@@ -3226,7 +3228,7 @@ function handleFavor(act,ev){
   const f=srv.favor, w=srv.worker;
   if(act==="favAccept"){
     if((w.charm||0)<(f.minCharm||0)){ toast(`${w.name} needs Charm ${f.minCharm} for this one.`, true); return true; }
-    srv.favorState="done"; srv.favorMult=Math.max(.1,f.tipMult||1); srv.showFavorArt=!!(f.art||(f.anim&&f.anim.ref)); srv.favAnimT=performance.now();
+    srv.favorState="done"; srv.favorMult=Math.max(.1,f.tipMult||1); srv.showFavorArt=favHasMedia(srv.favLines||f); srv.favAnimT=performance.now();
     if(f.reward){ S.credits+=f.reward; S.xp+=f.reward; pop(ev,"+"+f.reward+"₵","#ffd23f"); }
     { const dd=serveDay(); dd.favors=(dd.favors||0)+1; dd.favorCreds=(dd.favorCreds||0)+(f.reward||0); }
     S.rep+=f.rep||0; S.stats.favors++; { const lg=(f.lwGain||0)+(perkOf(w)==="entertain"?1:0); if(lg) gainProg(w,lg); }
@@ -3266,8 +3268,8 @@ function renderServe(){
       <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":sec==="club"?(adultOn()?"danced to":"performed"):"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>
       <div class="actions">${left>0?`<button class="btn solid" data-act="srvNext">NEXT CLIENT · ${left}</button>`:`<p class="hint" style="margin:0;flex-basis:100%">That's everyone. Finish a task or habit to bring in the next client.</p>`}<button class="btn ghost" data-act="srvClose">BACK TO THE SHOP</button></div></div>`;
   } else station=sec==="bar"?stationBar():sec==="cafe"?stationCafe():stationBooks();
-  const favAnim=srv.showFavorArt&&srv.favor&&srv.favor.anim&&srv.favor.anim.ref&&resolveArt(srv.favor.anim.ref);
-  const favArt=!favAnim&&srv.showFavorArt&&srv.favor&&resolveArt(srv.favor.art);
+  const FM=srv.favor?(srv.favLines||srv.favor):null, favAnim=srv.showFavorArt&&FM&&FM.anim&&FM.anim.ref&&resolveArt(FM.anim.ref);
+  const favArt=!favAnim&&srv.showFavorArt&&FM&&resolveArt(FM.art);
   const charmArt=w.charmArt&&resolveArt(w.charmArt);
   el.innerHTML=`<div class="srv-in wide">
     <div class="srv-top"><span class="px">${title} · ${esc(w.name.toUpperCase())} ON SHIFT</span><span class="px acc">${left} WAITING · ₵ ${S.credits.toLocaleString()}</span><button class="modechip" data-act="srvClose" aria-label="Close the counter">✕</button></div>
@@ -3315,12 +3317,21 @@ function drawSheetFit(cv,a,t0,now){
   const fw=im.naturalWidth/c, fh=im.naturalHeight/r, g=cv.getContext("2d"), s=Math.min(cv.width/fw,cv.height/fh), dw=fw*s, dh=fh*s;
   g.clearRect(0,0,cv.width,cv.height); g.imageSmoothingEnabled=s<1; g.drawImage(im,(k%c)*fw,Math.floor(k/c)*fh,fw,fh,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);
 }
+setInterval(()=>{ if(!favDraft) return; document.querySelectorAll("canvas[data-fvprev]").forEach(cv=>{ const v=(favDraft.vars||[]).find(x=>x.id===cv.dataset.fvprev); if(v&&v.anim&&v.anim.ref){ const i=cv.dataset.i, n=id=>+($("fv"+i+id)||{}).value; drawSheetFit(cv,Object.assign({},v.anim,{cols:n("cols")||v.anim.cols,rows:n("rows")||v.anim.rows,fps:n("fps")||v.anim.fps,loop:true}),0,performance.now()); } }); },70);
 setInterval(()=>{ const pv=$("favAnimPrev"); if(pv&&favDraft&&favDraft.anim){ favDraft.anim.cols=+($("faCols")||{}).value||favDraft.anim.cols; favDraft.anim.rows=+($("faRows")||{}).value||favDraft.anim.rows; favDraft.anim.fps=+($("faFps")||{}).value||favDraft.anim.fps; favDraft.anim.loop=!!($("faLoop")||{}).checked; drawSheetFit(pv,Object.assign({},favDraft.anim,{loop:true}),0,performance.now()); } },70);
+function favVarArtUpload(file,vid){ if(!favDraft||!file) return; favDraft.vars=favVarsRead(); bigArt(file,900,async data=>{ const v=favDraft.vars.find(x=>x.id===vid); if(!v) return; v.art=await storeArt(data); v.open=true; favVarsRefresh(); toast("Variant art loaded. Save the favor to keep it."); }); }
+function favVarAnimUpload(file,vid){ if(!favDraft||!file) return; favDraft.vars=favVarsRead(); const v0=favDraft.vars.find(x=>x.id===vid); if(!v0) return;
+  const i=favDraft.vars.indexOf(v0), n=(id,d,lo,hi)=>Math.max(lo,Math.min(hi,+($("fv"+i+id)||{}).value||d)), cols=n("cols",4,1,16), rows=n("rows",1,1,8), fps=n("fps",8,1,30), loop=!!(($("fv"+i+"loop")||{checked:true}).checked);
+  readImage(file).then(img=>{ const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/cols, fh=H/rows, sc=Math.min(1,640/fw,640/fh,Math.sqrt(16e6/(W*H)));
+    const cv=document.createElement("canvas"); cv.width=Math.max(1,Math.round(W*sc)); cv.height=Math.max(1,Math.round(H*sc)); const g=cv.getContext("2d"); g.imageSmoothingEnabled=sc<1; g.imageSmoothingQuality="high"; g.drawImage(img,0,0,cv.width,cv.height);
+    let data=cv.toDataURL("image/png"); if(data.length>2.5e6) data=cv.toDataURL("image/webp",.9);
+    return storeArt(data).then(ref=>{ const v=favDraft.vars.find(x=>x.id===vid); if(!v) return; v.anim={ref,cols,rows,fps,loop}; v.open=true; favVarsRefresh(); toast(`${cols*rows} frames loaded. Save the favor to keep them.`); });
+  }).catch(()=>toast(imgErr(file), true)); }
 function favArtUpload(file){ if(!favDraft) return; bigArt(file,900,async data=>{ if(favDraft.art&&favDraft.art!==favDraft._origArt) dropArt(favDraft.art); favDraft.art=await storeArt(data); refreshFavArtPreview(); toast("Favor art loaded. Save the favor to keep it."); }); }
 
 /* ---------- favor packs ---------- */
 function exportPack(){
-  const favors=S.favors.deck.map(f=>{ const o=Object.assign({},f); delete o._origArt; if(o.art) o.art=resolveArt(o.art); if(o.anim&&o.anim.ref) o.anim=Object.assign({},o.anim,{ref:resolveArt(o.anim.ref)}); return o; });
+  const favors=S.favors.deck.map(f=>{ const o=Object.assign({},f); delete o._origArt; if(o.art) o.art=resolveArt(o.art); if(o.anim&&o.anim.ref) o.anim=Object.assign({},o.anim,{ref:resolveArt(o.anim.ref)}); if(o.vars) o.vars=o.vars.map(v=>{ const x=Object.assign({},v); if(x.art) x.art=resolveArt(x.art); if(x.anim&&x.anim.ref) x.anim=Object.assign({},x.anim,{ref:resolveArt(x.anim.ref)}); return x; }); return o; });
   return JSON.stringify({type:"nightkettle-favors",v:1,exported:new Date().toISOString(),favors,lines:S.lines||null});
 }
 async function importPack(text){
@@ -3328,7 +3339,9 @@ async function importPack(text){
   const list=Array.isArray(o)?o:o&&o.favors; if(!Array.isArray(list)){ toast("No favors found in that file.", true); return; }
   let n=0;
   for(const raw of list){ const f=Object.assign(blankFavor(),raw,{id:uid()});
-    if(f.anim&&typeof f.anim.ref==="string"&&f.anim.ref.indexOf("data:image")===0) f.anim=Object.assign({},f.anim,{ref:await storeArt(f.anim.ref)}); else if(f.anim&&!(typeof f.anim.ref==="string"&&f.anim.ref.indexOf("idb:")===0)) f.anim=null; if(typeof f.art==="string"&&f.art.indexOf("data:image")===0) f.art=await storeArt(f.art); else if(f.art&&f.art.indexOf("idb:")!==0) f.art=null; if(!Array.isArray(f.where)) f.where=["cafe","bar","books"]; S.favors.deck.push(f); n++; }
+    if(f.anim&&typeof f.anim.ref==="string"&&f.anim.ref.indexOf("data:image")===0) f.anim=Object.assign({},f.anim,{ref:await storeArt(f.anim.ref)}); else if(f.anim&&!(typeof f.anim.ref==="string"&&f.anim.ref.indexOf("idb:")===0)) f.anim=null; if(typeof f.art==="string"&&f.art.indexOf("data:image")===0) f.art=await storeArt(f.art); else if(f.art&&f.art.indexOf("idb:")!==0) f.art=null; if(!Array.isArray(f.where)) f.where=["cafe","bar","books"];
+    if(Array.isArray(f.vars)) for(const v of f.vars){ v.id=uid(); if(typeof v.art==="string"&&v.art.indexOf("data:image")===0) v.art=await storeArt(v.art); else if(v.art&&String(v.art).indexOf("idb:")!==0) delete v.art; if(v.anim&&typeof v.anim.ref==="string"&&v.anim.ref.indexOf("data:image")===0) v.anim=Object.assign({},v.anim,{ref:await storeArt(v.anim.ref)}); else if(v.anim&&!(typeof v.anim.ref==="string"&&v.anim.ref.indexOf("idb:")===0)) delete v.anim; } else f.vars=[];
+    S.favors.deck.push(f); n++; }
   if(o.lines&&typeof o.lines==="object"){ S.lines=o.lines; applyLines(); }
   addLog(`Imported ${n} favor${n===1?"":"s"}.`,"build"); commit(); toast(`Imported ${n} favor${n===1?"":"s"}.`);
 }
@@ -4441,7 +4454,7 @@ function favorSheet(f){
     <div class="actions">${d._isNew?"":`<button type="button" class="btn danger" data-act="delFavor" data-id="${d.id}">DELETE</button><button type="button" class="btn ghost" data-act="dupFavor" data-id="${d.id}">DUPLICATE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">SAVE FAVOR</button></div>
   </form>`);
 }
-function favVarLabel(v){ const w=v.who==="any"?null:S.staff.find(x=>x.id===v.who); const lv=(v.lo||1)===1&&(v.hi||5)===5?"any level":(v.lo===v.hi?"level "+v.lo:"levels "+v.lo+"–"+v.hi); const n=FAV_KEYS.filter(k=>v[k]&&v[k].trim()).length; return `${w?esc(w.name):"Any worker"} · ${lv} · ${n} line${n===1?"":"s"}`; }
+function favVarLabel(v){ const w=v.who==="any"?null:S.staff.find(x=>x.id===v.who); const lv=(v.lo||1)===1&&(v.hi||5)===5?"any level":(v.lo===v.hi?"level "+v.lo:"levels "+v.lo+"–"+v.hi); const n=FAV_KEYS.filter(k=>v[k]&&v[k].trim()).length; return `${w?esc(w.name):"Any worker"} · ${lv} · ${n} line${n===1?"":"s"}${favHasMedia(v)?` <span class="tag acc">ART</span>`:""}`; }
 function favVarsHTML(d){ const vs=d.vars||[], adult=adultOn(), LAB={ask:"Client asks",accept:"Worker accepts",outcome:"What happens",thanks:"Client after",decline:"Worker declines",declined:"Client after decline"};
   if(!vs.length) return `<p class="empty" style="margin:0 0 6px">No variants. Everyone uses the lines above.</p>`;
   return vs.map((v,i)=>`<details class="sub favvar" data-vid="${v.id}" ${v.open?"open":""}><summary>${favVarLabel(v)}</summary><div class="stack" style="margin-top:6px">
@@ -4449,11 +4462,27 @@ function favVarsHTML(d){ const vs=d.vars||[], adult=adultOn(), LAB={ask:"Client 
       <div ${adult?"":"hidden"}><label class="fl" for="fv${i}lo">From level</label><input class="field num" id="fv${i}lo" type="number" min="1" max="5" value="${v.lo||1}"></div>
       <div ${adult?"":"hidden"}><label class="fl" for="fv${i}hi">To level</label><input class="field num" id="fv${i}hi" type="number" min="1" max="5" value="${v.hi||5}"></div></div>
     ${FAV_KEYS.map(k=>`<div><label class="fl" for="fv${i}${k}">${LAB[k]}</label><textarea class="field" id="fv${i}${k}" placeholder="Blank = use the base line" style="min-height:52px">${esc(v[k]||"")}</textarea></div>`).join("")}
+    <div ${adult?"":"hidden"}><span class="fl">Scene art for this variant</span>
+      <div class="rowflex"><div class="favthumb big">${resolveArt(v.art)?`<img src="${resolveArt(v.art)}" alt="">`:`<span>✦</span>`}</div>
+        <label class="btn ghost" for="fv${i}artf" style="text-align:center">${v.art?"REPLACE ART":"LOAD ART"}</label><input type="file" id="fv${i}artf" class="srt" accept="image/*" data-up="fvart" data-id="${v.id}">
+        ${v.art?`<button type="button" class="btn ghost" data-act="favVarArtClear" data-id="${v.id}">NO ART</button>`:""}</div>
+      <span class="fl" style="margin-top:8px;display:block">Scene animation (plays instead of the art)</span>
+      <div class="sheetnums"><label>Across<input class="field num" type="number" min="1" max="16" id="fv${i}cols" value="${(v.anim&&v.anim.cols)||4}"></label>
+        <label>Down<input class="field num" type="number" min="1" max="8" id="fv${i}rows" value="${(v.anim&&v.anim.rows)||1}"></label>
+        <label>Speed (fps)<input class="field num" type="number" min="1" max="30" id="fv${i}fps" value="${(v.anim&&v.anim.fps)||8}"></label></div>
+      <label class="checkrow" style="margin-top:6px"><input type="checkbox" id="fv${i}loop" ${!v.anim||v.anim.loop!==false?"checked":""}> Loop</label>
+      <div class="rowflex" style="margin-top:6px">${v.anim&&v.anim.ref?`<canvas class="favthumb big" width="160" height="90" data-fvprev="${v.id}" data-i="${i}" aria-label="Animation preview"></canvas>`:""}
+        <label class="btn ghost" for="fv${i}animf" style="text-align:center">${v.anim&&v.anim.ref?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="fv${i}animf" class="srt" accept="image/*" data-up="fvanim" data-id="${v.id}">
+        ${v.anim&&v.anim.ref?`<button type="button" class="btn ghost" data-act="favVarAnimClear" data-id="${v.id}">NO ANIMATION</button>`:""}</div>
+      <p class="hint" style="margin:4px 0 0">Leave empty to use the art from a broader variant, then the favor's own art. Set Across and Down before loading a sheet.</p></div>
     <div class="actions" style="margin-top:0"><button type="button" class="btn danger smallbtn" data-act="favVarDel" data-id="${v.id}">REMOVE</button><button type="button" class="btn ghost smallbtn" data-act="favVarDup" data-id="${v.id}">DUPLICATE</button></div></div></details>`).join(""); }
 function favVarsRead(){ const box=$("favVars"); if(!box||!favDraft) return (favDraft&&favDraft.vars)||[];
   return [...box.querySelectorAll(".favvar")].map((el,i)=>{ const old=(favDraft.vars||[]).find(v=>v.id===el.dataset.vid)||{}, g=s=>{ const e=$("fv"+i+s); return e?e.value:""; };
     let lo=Math.max(1,Math.min(5,Math.round(+g("lo")||old.lo||1))), hi=Math.max(1,Math.min(5,Math.round(+g("hi")||old.hi||5))); if(lo>hi){ const t=lo; lo=hi; hi=t; }
-    const v={id:el.dataset.vid,who:g("who")||"any",lo,hi,open:el.open}; FAV_KEYS.forEach(k=>v[k]=g(k).trim()); return v; }); }
+    const v={id:el.dataset.vid,who:g("who")||"any",lo,hi,open:el.open}; FAV_KEYS.forEach(k=>v[k]=g(k).trim());
+    if(old.art) v.art=old.art; if(old.anim&&old.anim.ref){ const n=(s,d,a,b)=>Math.max(a,Math.min(b,Math.round(+g(s)||d))); const lp=$("fv"+i+"loop"); v.anim={ref:old.anim.ref,cols:n("cols",old.anim.cols,1,16),rows:n("rows",old.anim.rows,1,8),fps:n("fps",old.anim.fps,1,30),loop:lp?lp.checked:old.anim.loop!==false}; }
+    return v; }); }
+function favVarRefs(f){ const r=[]; (f&&f.vars||[]).forEach(v=>{ if(v.art) r.push(v.art); if(v.anim&&v.anim.ref) r.push(v.anim.ref); }); return r; }
 function favVarsRefresh(){ const box=$("favVars"); if(box) box.innerHTML=favVarsHTML(favDraft); const lab=box&&box.parentElement.querySelector(".fl"); if(lab) lab.textContent="Dialogue variants · "+favDraft.vars.length; }
 function refreshFavArtPreview(){ const el=$("favArtPrev"); if(!el||!favDraft) return; const a=resolveArt(favDraft.art); el.innerHTML=a?`<img src="${a}" alt="">`:`<span>✦</span>`; }
 
@@ -4864,10 +4893,12 @@ document.addEventListener("click",ev=>{
     case "newFavor": favorSheet(null); break;
     case "editFavor": favorSheet(S.favors.deck.find(x=>x.id===id)); break;
     case "dupFavor": { const f=S.favors.deck.find(x=>x.id===id); if(f){ const c=Object.assign({},f,{id:uid(),title:f.title+" (copy)",where:[...f.where]}); S.favors.deck.push(c); closeSheet(); commit(); toast("Duplicated. The copy shares the same art."); } break; }
-    case "delFavor": { if(!twoTap()) return; const f=S.favors.deck.find(x=>x.id===id); S.favors.deck=S.favors.deck.filter(x=>x.id!==id); if(f&&f.art&&!S.favors.deck.some(x=>x.art===f.art)) dropArt(f.art); closeSheet(); commit(); break; }
+    case "delFavor": { if(!twoTap()) return; const f=S.favors.deck.find(x=>x.id===id); S.favors.deck=S.favors.deck.filter(x=>x.id!==id); if(f&&f.art&&!S.favors.deck.some(x=>x.art===f.art)) dropArt(f.art); if(f){ const all=JSON.stringify(S); favVarRefs(f).forEach(r=>{ if(all.indexOf('"'+r+'"')<0) dropArt(r); }); } closeSheet(); commit(); break; }
     case "favAnimClear": if(favDraft){ favDraft.anim=null; const pv=$("favAnimPrev"); if(pv) pv.getContext("2d").clearRect(0,0,pv.width,pv.height); el.remove(); } break;
     case "favArtClear": if(favDraft){ favDraft.art=null; refreshFavArtPreview(); } break;
     case "favVarAdd": if(favDraft){ favDraft.vars=favVarsRead(); const v={id:uid(),who:"any",lo:1,hi:5,open:true}; FAV_KEYS.forEach(k=>v[k]=""); favDraft.vars.forEach(x=>x.open=false); favDraft.vars.push(v); favVarsRefresh(); } break;
+    case "favVarArtClear": if(favDraft){ favDraft.vars=favVarsRead(); const v=favDraft.vars.find(x=>x.id===id); if(v){ delete v.art; v.open=true; } favVarsRefresh(); } break;
+    case "favVarAnimClear": if(favDraft){ favDraft.vars=favVarsRead(); const v=favDraft.vars.find(x=>x.id===id); if(v){ delete v.anim; v.open=true; } favVarsRefresh(); } break;
     case "favVarDel": if(favDraft){ favDraft.vars=favVarsRead().filter(v=>v.id!==id); favVarsRefresh(); } break;
     case "favVarDup": if(favDraft){ favDraft.vars=favVarsRead(); const i=favDraft.vars.findIndex(v=>v.id===id); if(i>=0){ favDraft.vars.forEach(x=>x.open=false); favDraft.vars.splice(i+1,0,Object.assign({},favDraft.vars[i],{id:uid(),open:true})); favVarsRefresh(); } } break;
     case "exportPack": if(!downloadText("nightkettle-favors.json",exportPack())) toast("Downloads are blocked here. Use Copy as text.", true); break;
@@ -4952,12 +4983,13 @@ document.addEventListener("submit",ev=>{
     const num=(id,min,max,def)=>{ const n=parseFloat(val(id)); return isFinite(n)?Math.max(min,Math.min(max,n)):def; };
     Object.assign(d,{title:val("fTitle")||"Untitled favor",where,when:val("fWhen"),weight:Math.round(num("fWeight",1,5,2)),worker:val("fWorker")||"any",minCharm:Math.round(num("fMinCharm",0,5,0)),
       ask:val("fAsk"),accept:val("fAccept"),outcome:val("fOutcome"),thanks:val("fThanks"),decline:val("fDecline"),declined:val("fDeclined"),
-      vars:favVarsRead().map(v=>{ const o=Object.assign({},v); delete o.open; return o; }).filter(v=>FAV_KEYS.some(k=>v[k])),needLw:Math.round(num("fNeedLw",0,5,0)),lwGain:Math.round(num("fLwGain",0,20,0)),reward:Math.round(num("fReward",0,5000,0)),tipMult:num("fTip",.1,10,1),rep:Math.round(num("fRep",0,50,0)),repDecline:Math.round(num("fRepD",0,50,0))});
+      vars:favVarsRead().map(v=>{ const o=Object.assign({},v); delete o.open; return o; }).filter(v=>FAV_KEYS.some(k=>v[k])||favHasMedia(v)),needLw:Math.round(num("fNeedLw",0,5,0)),lwGain:Math.round(num("fLwGain",0,20,0)),reward:Math.round(num("fReward",0,5000,0)),tipMult:num("fTip",.1,10,1),rep:Math.round(num("fRep",0,50,0)),repDecline:Math.round(num("fRepD",0,50,0))});
     if(d._origArt&&d._origArt!==d.art&&!S.favors.deck.some(x=>x.id!==d.id&&x.art===d._origArt)) dropArt(d._origArt);
     const oa=d._origAnim&&d._origAnim.ref; if(oa&&oa!==(d.anim&&d.anim.ref)&&!S.favors.deck.some(x=>x.id!==d.id&&x.anim&&x.anim.ref===oa)) dropArt(oa);
     if(d.anim){ d.anim.cols=Math.max(1,Math.min(16,+val("faCols")||d.anim.cols)); d.anim.rows=Math.max(1,Math.min(8,+val("faRows")||d.anim.rows)); d.anim.fps=Math.max(1,Math.min(30,+val("faFps")||d.anim.fps)); d.anim.loop=$("faLoop").checked; }
     const clean=Object.assign({},d); delete clean._origArt; delete clean._origAnim; delete clean._isNew;
-    const i=S.favors.deck.findIndex(x=>x.id===d.id); if(i>=0) S.favors.deck[i]=clean; else S.favors.deck.push(clean);
+    const i=S.favors.deck.findIndex(x=>x.id===d.id), prevRefs=i>=0?favVarRefs(S.favors.deck[i]):[]; if(i>=0) S.favors.deck[i]=clean; else S.favors.deck.push(clean);
+    if(prevRefs.length){ const all=JSON.stringify(S); prevRefs.forEach(r=>{ if(all.indexOf('"'+r+'"')<0) dropArt(r); }); }
     favDraft=null; closeSheet(); commit(); toast("Favor saved.");
   }
 });
@@ -4970,6 +5002,8 @@ function routeUpload(t){
   if(t.id==="charmArt"||t.dataset.up==="charm") return charmArtUpload(file,t.dataset.id);
   if(t.dataset&&t.dataset.up==="charmslot") return charmSlotUpload(file,t.dataset.id,t.dataset.kind);
   if(t.id==="favArt") return favArtUpload(file);
+  if(t.dataset&&t.dataset.up==="fvart") return favVarArtUpload(file,t.dataset.id);
+  if(t.dataset&&t.dataset.up==="fvanim") return favVarAnimUpload(file,t.dataset.id);
   if(t.id==="favAnimFile") return favAnimUpload(file);
   if(t.dataset&&t.dataset.up==="sheet") return sheetUpload(file,t.dataset.id,t.dataset.kind,t.dataset.slot||"");
   if(t.dataset&&t.dataset.up==="outfit") return outfitUpload(file,t.dataset.id,t.dataset.kind);
