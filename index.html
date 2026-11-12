@@ -3098,13 +3098,17 @@ function repeatText(r){
   if(r.type==="weekly"){ const ds=(r.days||[]).slice().sort((x,y)=>((x+6)%7)-((y+6)%7)); return ds.length===7?"every day":ds.length===5&&!ds.includes(0)&&!ds.includes(6)?"weekdays":"every "+ds.map(d=>DOWL[d]).join(", "); }
   if(r.type==="monthly") return r.dom==="last"?"last day of each month":`monthly on the ${ordinal(+r.dom)}`;
   if(r.type==="yearly") return `yearly on ${MON3[r.m-1]} ${r.d}`;
-  if(r.type==="again") return `comes back when done · counted per ${r.per==="month"?"month":"week"}${r.goal?`, goal ${r.goal}`:""}`;
+  if(r.type==="again"){ const per=r.per==="month"?"month":"week"; if(r.hide&&r.goal) return `${r.goal===1?"once":r.goal===2?"twice":r.goal+" times"} a ${per}, any day`; return `comes back when done · counted per ${per}${r.goal?`, goal ${r.goal}`:""}`; }
   return "";
 }
 const isRec=t=>!!(t&&t.repeat&&t.repeat.type&&t.repeat.type!=="none");
 /* "again" tasks: come straight back when done and count completions per week or month */
 const isAgain=t=>!!(t&&t.repeat&&t.repeat.type==="again");
-const doneFlag=t=>t.done||(isRec(t)&&!isAgain(t)&&t.lastDone===today());
+/* "hide once goal reached": an again task with a goal steps out of the list for the rest of its week or month */
+const againShut=t=>!!(isAgain(t)&&t.repeat.hide&&t.repeat.goal&&againCount(t)>=t.repeat.goal);
+function againEnd(t,k){ k=k||today(); return t.repeat&&t.repeat.per==="month"?k.slice(0,8)+String(new Date(+k.slice(0,4),+k.slice(5,7),0).getDate()).padStart(2,"0"):addDays(weekStart(k),6); }
+const againLastDay=t=>isAgain(t)&&t.repeat.hide&&t.repeat.goal&&!againShut(t)&&againEnd(t)===today();
+const doneFlag=t=>t.done||(isRec(t)&&!isAgain(t)&&t.lastDone===today())||againShut(t);
 function againCount(t,k){ k=k||today(); const r=t.repeat||{}, from=r.per==="month"?k.slice(0,8)+"01":weekStart(k); return (t.doneLog||[]).filter(d=>d>=from&&d<=k).length; }
 function againLabel(t){ const r=t.repeat||{}, n=againCount(t), per=r.per==="month"?"this month":"this week"; return r.goal?`${n}/${r.goal} ${per}`:`×${n} ${per}`; }
 const doneToday=t=>isRec(t)?(!isAgain(t)&&t.lastDone===today()):(t.done&&t.doneOn===today());
@@ -3118,10 +3122,11 @@ function againUndo(id){ const t=S.tasks.find(x=>x.id===id); if(!t||!isAgain(t)) 
   t.doneLog.splice(i,1); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; const vip=t.pri===3; takeReward(t,vip); if(S.xs) glGain(-Math.round((vip?S.xs.meter.vip:S.xs.meter.task)*dOf(t).e)); taskSaveOut(t,k); unlogTask(t); addLog("Undid one "+t.title+"."); commit(); }
 function toggleTask(id,ev){
   const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3, eg=()=>S.xs?Math.round((vip?S.xs.meter.vip:S.xs.meter.task)*dOf(t).e):0;
+  if(againShut(t)){ if(t.lastDone===today()) againUndo(id); return; }
   if(isAgain(t)){ const k=today(); t.doneLog=(t.doneLog||[]).concat(k).slice(-400); t.lastDone=k; ckReset(t);
     logTask(t); giveReward(t,vip,t.title); glGain(eg()); const sv=taskSaveIn(t,k,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)");
     const n=againCount(t), g=t.repeat.goal; addLog(`Done: ${t.title} (${againLabel(t)}). ${vip?"A VIP":"A client"} walked in.${sv}`,"gain");
-    if(g&&n===g) setTimeout(()=>toast(`Goal reached: ${t.title} ${n}/${g} ${t.repeat.per==="month"?"this month":"this week"}.`),500);
+    if(g&&n===g) setTimeout(()=>toast(t.repeat.hide?`${t.title}: done for the ${t.repeat.per==="month"?"month":"week"}. It comes back ${t.repeat.per==="month"?"on the 1st":"Monday"}.`:`Goal reached: ${t.title} ${n}/${g} ${t.repeat.per==="month"?"this month":"this week"}.`),500);
     commit(); return; }
   if(isRec(t)){ const k=today();
     if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; takeReward(t,vip); glGain(-eg()); taskSaveOut(t,k); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
@@ -3414,6 +3419,7 @@ function habitRowH(h){
 function shortDue(t){
   if(isRec(t)&&!isAgain(t)&&t.lastDone===today()) return `<span class="good">next ${shortDate(t.due)}</span>`;
   if(t.done) return `<span class="good">done</span>`;
+  if(isAgain(t)&&t.repeat.hide&&t.repeat.goal){ if(againShut(t)) return `<span class="good">done for the ${t.repeat.per==="month"?"month":"week"}</span>`; const e=againEnd(t), n=daysBetween(today(),e); return n===0?`<span class="acc">by today</span>`:`by ${n<7?DOWL[dowOf(e)]:shortDate(e)}`; }
   if(!t.due) return "";
   const n=daysBetween(today(),t.due);
   return n<0?`<span class="bad">${-n}d late</span>`:n===0?`<span class="acc">today</span>`:n===1?"tmrw":shortDate(t.due);
@@ -3429,10 +3435,10 @@ function taskRowT(t){
 const listById=id=>S.lists.find(l=>l.id===id);
 const dueSort=(x,y)=>((x.due||"9999")<(y.due||"9999")?-1:(x.due||"9999")>(y.due||"9999")?1:y.pri-x.pri);
 const openTasks=()=>S.tasks.filter(t=>!doneFlag(t));
-const doneNow=()=>S.tasks.filter(t=>doneFlag(t));
+const doneNow=()=>S.tasks.filter(t=>doneFlag(t)&&(!againShut(t)||t.lastDone===today()));
 const doneTail=xs=>xs.length?`<p class="sh donelabel">DONE TODAY · ${xs.length}</p><div class="tlist donelist">${xs.map(taskRowT).join("")}</div>`:"";
 const overdue=()=>openTasks().filter(t=>t.due&&t.due<today());
-const dueToday=()=>openTasks().filter(t=>t.due===today());
+const dueToday=()=>openTasks().filter(t=>t.due===today()||againLastDay(t));
 const habitsDueOpen=()=>S.habits.filter(h=>isDue(h,today())&&!h.hist[today()]);
 function repeatUI(pfx,r,due){
   r=r||{type:"none"}; const dd=due?new Date(due+"T12:00:00"):new Date(), dow=dd.getDay();
@@ -3445,7 +3451,8 @@ function repeatUI(pfx,r,due){
     <div class="rep-monthly"><label class="fl" for="${pfx}RepDom" style="margin-top:6px">On day</label><select class="field" id="${pfx}RepDom">${[...Array(31)].map((_,i)=>`<option value="${i+1}" ${String(r.dom||dd.getDate())===String(i+1)?"selected":""}>${ordinal(i+1)}</option>`).join("")}<option value="last" ${r.dom==="last"?"selected":""}>Last day</option></select></div>
     <div class="rep-again"><div class="formgrid" style="margin-top:6px"><div><label class="fl" for="${pfx}RepPer">Count per</label><select class="field" id="${pfx}RepPer"><option value="week" ${r.per!=="month"?"selected":""}>Week</option><option value="month" ${r.per==="month"?"selected":""}>Month</option></select></div>
       <div><label class="fl" for="${pfx}RepGoal">Goal <small class="muted">optional</small></label><input class="field num" id="${pfx}RepGoal" type="number" min="0" max="99" value="${r.goal||""}" placeholder="—"></div></div>
-      <p class="hint" style="margin:4px 0 0">No due date. Each time you finish it, it goes straight back on the list and the counter goes up. It sends a client every time.</p></div>
+      <label class="checkrow" style="margin-top:6px"><input type="checkbox" id="${pfx}RepHide" ${r.hide?"checked":""}> Hide once goal reached, until it resets</label>
+      <p class="hint" style="margin:4px 0 0">No due date. Each time you finish it, the counter goes up and it sends a client. With hide on and a goal of 1, it's a once-a-week (or month) task you can do any day.</p></div>
     <p class="hint rep-hint" style="margin:4px 0 0">Finishing it moves it to the next date and sends a client every time.</p>
   </div>`;
 }
@@ -3457,7 +3464,7 @@ function readRepeat(pfx,due){
   if(v==="every") return {type:"every",n:Math.max(2,Math.min(365,+($(pfx+"RepN")||{}).value||3)),anchor:due||today()};
   if(v==="monthly"){ const x=($(pfx+"RepDom")||{}).value||String(d0.getDate()); return {type:"monthly",dom:x==="last"?"last":+x}; }
   if(v==="yearly") return {type:"yearly",m:d0.getMonth()+1,d:d0.getDate()};
-  if(v==="again"){ const g=Math.max(0,Math.min(99,+($(pfx+"RepGoal")||{}).value||0)); return {type:"again",per:($(pfx+"RepPer")||{}).value==="month"?"month":"week",goal:g||0}; }
+  if(v==="again"){ const g=Math.max(0,Math.min(99,+($(pfx+"RepGoal")||{}).value||0)); const hide=!!(($(pfx+"RepHide")||{}).checked)&&g>0; return Object.assign({type:"again",per:($(pfx+"RepPer")||{}).value==="month"?"month":"week",goal:g||0},hide?{hide:true}:{}); }
   return null;
 }
 /* first due date for a new repeating task: the given date if it fits, otherwise the next occurrence from today */
@@ -3476,7 +3483,8 @@ function parseQuick(text){
   take(/\s#([\w-]{1,24})(?=\s)/,m=>out.list=m[1]);
   take(/\s~(easy|medium|med|hard|epic)(?=\s)/i,m=>out.diff={easy:1,medium:2,med:2,hard:3,epic:4}[m[1].toLowerCase()]);
   const k=today(), dk=k;
-  take(/\severy\s+weekdays?(?=\s)/i,()=>out.repeat={type:"weekly",days:[1,2,3,4,5]})
+  take(/\s(once|twice|thrice|\d{1,2}\s*(?:x|times))\s+(?:a|per|each|every)\s+(week|month)(?=\s)/i,m=>{ const w=m[1].toLowerCase(), g=w==="once"?1:w==="twice"?2:w==="thrice"?3:Math.max(1,Math.min(99,parseInt(w,10)||1)); out.repeat={type:"again",per:m[2].toLowerCase(),goal:g,hide:true}; })
+  || take(/\severy\s+weekdays?(?=\s)/i,()=>out.repeat={type:"weekly",days:[1,2,3,4,5]})
   || take(/\s(?:every\s+day|daily)(?=\s)/i,()=>out.repeat={type:"daily"})
   || take(/\severy\s+(\d{1,3})\s+days?(?=\s)/i,m=>out.repeat={type:"every",n:Math.max(2,+m[1])})
   || take(new RegExp("\\severy\\s+("+WDRE+"(?:\\s*(?:,|and|&)\\s*"+WDRE+")*)(?=\\s)","i"),m=>out.repeat={type:"weekly",days:[...new Set(m[1].split(/\s*(?:,|and|&)\s*/i).map(wdIndex).filter(i=>i>=0))]})
@@ -4318,6 +4326,7 @@ function vMore(){
     <p class="hint" style="margin:6px 0 12px">${FRAMED?"Downloads are blocked inside Claude, so this copies the backup as text. Paste it into a note or a file. It can be long.":"One file with everything: habits, tasks, creds, staff, sprites and backdrops."}</p>
     <p class="alabel" style="margin:0 0 6px">PROGRESS ONLY · ${fmtSize(JSON.stringify(S).length)} · NO ART</p>
     <div class="actions" style="margin-top:0">${FRAMED?"":`<button class="btn" data-act="exportSave">DOWNLOAD SAVE</button>`}<button class="btn ghost" data-act="copySave">COPY AS TEXT</button></div>
+    ${typeof artPackHTML==="function"?artPackHTML():""}
     <p class="alabel" style="margin:14px 0 6px">RESTORE · EITHER KIND</p>
     <div class="actions" style="margin-top:0"><label class="btn" for="saveFile" style="text-align:center">RESTORE FROM FILE</label><input type="file" id="saveFile" class="srt" accept=".json,application/json,text/plain"></div>
     <label class="fl" for="saveText" style="margin-top:12px">Or paste backup text</label>
@@ -4935,6 +4944,7 @@ function fullBackupSize(){ let n=JSON.stringify(S).length; artRefsInUse().forEac
 const fmtSize=n=>n>1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB";
 function restoreSave(text){
   try{ let o=JSON.parse(text), nArt=0;
+    if(o&&o.nk==="art"&&typeof importArtPack==="function"){ importArtPack(o); return; }
     if(o&&o.nk==="full"&&o.save){ Object.entries(o.art||{}).forEach(([k,v])=>{ if(typeof v==="string"&&v.indexOf("data:image/")===0){ ART[k]=v; ArtDB.put(k,v).catch(()=>{}); nArt++; } }); o=o.save; }
     if(!o||!Array.isArray(o.habits)) throw 0; S=migrate(o); applyLines(); if(typeof applyAdult==="function") applyAdult(); commit(); toast(nArt?`Backup restored with ${nArt} image${nArt===1?"":"s"}.`:"Save restored."); }
   catch(e){ toast("That isn't a Night Kettle save. Use the file or text from Backup.", true); }
@@ -6309,6 +6319,69 @@ const _cardsTodayBody=todayBody;
 todayBody=function(){ const h=_cardsTodayBody(); const c=cardsTodayHTML(); if(!c) return h; const i=h.indexOf('<p class="sh acc">DUE TODAY'); return i<0?c+h:h.slice(0,i)+c+h.slice(i); };
 const _cardsBadge=badgeCount;
 badgeCount=function(){ return _cardsBadge()+cardsDue().length; };
+
+/* ---------- ART PACK: move content (art, animations, favors, scenes) between devices without touching progress ---------- */
+/* worker fields that are progress, not content: never sent, never overwritten */
+const AP_PROG=new Set(["id","lv","xp","serves","perfects","tips","lw","outfit","wear","skills","skill","charm","job","role","hired","deck","rep","log","bucket","up","down","x"]);
+function apWorker(w){ const o={id:w.id}; Object.keys(w).forEach(k=>{ if(!AP_PROG.has(k)) o[k]=w[k]; }); if(w.ward){ o.ward={}; Object.entries(w.ward).forEach(([t,x])=>{ const y=Object.assign({},x); delete y.owned; o.ward[t]=y; }); } o._role=w.role; return o; }
+function artPackContent(){
+  const c={
+    workers:S.staff.map(apWorker),
+    favors:S.favors.deck, prog:S.prog, wardrobe:S.wardrobe, lines:S.lines||null,
+    sprites:S.sprites||{}, scenes:S.scenes||{}, scnStaffH:S.scnStaffH, patronDefs:S.patronDefs||[], patronOff:S.patronOff||{},
+    jobs:S.jobs||null, charmMoves:(S.charm&&S.charm.moves)||null,
+    edgeArt:(S.edge&&S.edge.art)||null, edgeScenes:(S.edge&&S.edge.scenes)||null };
+  return JSON.parse(JSON.stringify(c));
+}
+function artPackText(){ const c=artPackContent(), refs=new Set((JSON.stringify(c).match(/"idb:[^"]+"/g)||[]).map(x=>x.slice(5,-1))), art={};
+  refs.forEach(k=>{ if(ART[k]) art[k]=ART[k]; });
+  return JSON.stringify({nk:"art",v:1,when:Date.now(),app:"habtiks",content:c,art}); }
+function artPackSize(){ const c=artPackContent(); let n=JSON.stringify(c).length; new Set((JSON.stringify(c).match(/"idb:[^"]+"/g)||[]).map(x=>x.slice(5,-1))).forEach(k=>{ if(ART[k]) n+=ART[k].length; }); return n; }
+const apMergeById=(cur,inc,map)=>{ const out=(cur||[]).slice(); (inc||[]).forEach(x=>{ const y=map?map(x):x, i=out.findIndex(o=>o.id===y.id); if(i>=0) out[i]=y; else out.push(y); }); return out; };
+
+function importArtPack(text){
+  let o; try{ o=typeof text==="string"?JSON.parse(text):text; }catch(e){ toast("That isn't an Art Pack. Use the file from Export Art Pack.", true); return false; }
+  if(!o||o.nk!=="art"||!o.content){ toast("That isn't an Art Pack. Use the file from Export Art Pack.", true); return false; }
+  const c=o.content; let nArt=0, upd=0, add=0;
+  Object.entries(o.art||{}).forEach(([k,v])=>{ if(typeof v==="string"&&v.indexOf("data:image/")===0&&ART[k]!==v){ ART[k]=v; ArtDB.put(k,v).catch(()=>{}); nArt++; } });
+  /* workers: match by id, then by name; keep this device's progress */
+  const idMap={};
+  (c.workers||[]).forEach(pw=>{ let w=S.staff.find(x=>x.id===pw.id)||S.staff.find(x=>(x.name||"").trim().toLowerCase()===(pw.name||"").trim().toLowerCase());
+    const src=Object.assign({},pw); delete src._role;
+    if(w){ idMap[pw.id]=w.id; Object.keys(src).forEach(k=>{ if(AP_PROG.has(k)) return;
+        if(k==="ward"){ const nw={}; Object.entries(src.ward||{}).forEach(([t,x])=>{ nw[t]=Object.assign({},x,(w.ward&&w.ward[t]&&w.ward[t].owned)?{owned:true}:{}); }); Object.entries(w.ward||{}).forEach(([t,x])=>{ if(!nw[t]&&x&&x.owned) nw[t]={owned:true}; }); w.ward=nw; }
+        else w[k]=src[k]; }); upd++; }
+    else { const nw=Object.assign({},src,{id:S.staff.some(x=>x.id===pw.id)?uid():pw.id,role:pw._role||"cafe",lv:1,xp:0,serves:0,perfects:0,tips:0,lw:0,outfit:1,wear:1,skills:[],skill:1,charm:1,hired:false});
+      if(typeof defaultJobs==="function"){ const js=(c.jobs&&c.jobs[nw.role])||(S.jobs&&S.jobs[nw.role])||[]; nw.job=js[0]&&js[0].id; }
+      idMap[pw.id]=nw.id; S.staff.push(nw); add++; } });
+  const remap=id=>id&&idMap[id]?idMap[id]:id;
+  const fixFav=f=>{ const g=JSON.parse(JSON.stringify(f)); if(g.worker&&g.worker!=="any") g.worker=remap(g.worker); (g.vars||[]).forEach(v=>{ if(v.who&&v.who!=="any") v.who=remap(v.who); }); return g; };
+  const nFav=(c.favors||[]).length; S.favors.deck=apMergeById(S.favors.deck,c.favors,fixFav);
+  if(c.prog) S.prog=c.prog; if(c.wardrobe) S.wardrobe=c.wardrobe; if(c.lines){ S.lines=c.lines; applyLines(); }
+  if(c.sprites) S.sprites=Object.assign(S.sprites||{},c.sprites);
+  if(c.scenes) S.scenes=Object.assign(S.scenes||{},c.scenes);
+  if(c.scnStaffH) S.scnStaffH=c.scnStaffH;
+  if(c.patronDefs) S.patronDefs=apMergeById(S.patronDefs,c.patronDefs);
+  if(c.patronOff) S.patronOff=c.patronOff;
+  if(c.jobs) S.jobs=c.jobs;
+  if(c.charmMoves&&S.charm) S.charm.moves=apMergeById(S.charm.moves,c.charmMoves);
+  if(c.edgeArt&&S.edge) S.edge.art=Object.assign(S.edge.art||{},c.edgeArt);
+  if(c.edgeScenes&&S.edge) S.edge.scenes=apMergeById(S.edge.scenes,c.edgeScenes);
+  S=migrate(S); if(typeof applyAdult==="function") applyAdult(); commit();
+  setTimeout(()=>{ try{ cleanArt(); }catch(e){} },500);
+  const parts=[upd&&`${upd} worker${upd===1?"":"s"} updated`,add&&`${add} new on the hiring board`,nFav&&`${nFav} favor${nFav===1?"":"s"}`,`${nArt} new image${nArt===1?"":"s"}`].filter(Boolean);
+  addLog("Art Pack imported: "+parts.join(", ")+".","build"); toast("Art Pack imported: "+parts.join(", ")+".");
+  return true;
+}
+function artPackHTML(){ return `
+    <p class="alabel" style="margin:14px 0 6px">ART PACK · CONTENT ONLY · ${fmtSize(artPackSize())}</p>
+    <p class="hint" style="margin:0 0 6px">Every worker's art, sprites, animations, portraits and outfits, plus favors, scenes, patrons and Edge art. Importing merges it in and leaves tasks, habits, savings and progress alone. Use it to build art on one device and bring it to another.</p>
+    <div class="actions" style="margin-top:0">${FRAMED?"":`<button class="btn solid" data-act="exportArt">EXPORT ART PACK</button>`}<button class="btn ${FRAMED?"solid":"ghost"}" data-act="copyArt">COPY AS TEXT</button>
+      <label class="btn" for="artPackFile" style="text-align:center">IMPORT ART PACK</label><input type="file" id="artPackFile" class="srt" accept=".json,application/json,text/plain"></div>`; }
+document.addEventListener("click",ev=>{ const el=ev.target.closest("[data-act]"); if(!el) return; const a=el.dataset.act;
+  if(a==="exportArt"){ const d=new Date(), nm=`habtiks-art-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`; if(downloadText(nm,artPackText())) toast("Art Pack saved. Send it to your other device and import it there."); else toast("Downloads are blocked here. Use Copy as text.", true); }
+  if(a==="copyArt"){ const t=artPackText(); (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(`Art Pack copied (${fmtSize(t.length)}).`)).catch(()=>toast("Copy was blocked. Use Export instead.", true)); } });
+document.addEventListener("change",ev=>{ const t=ev.target; if(t.id!=="artPackFile"||!t.files||!t.files[0]) return; const r=new FileReader(); r.onload=()=>{ importArtPack(String(r.result)); t.value=""; }; r.readAsText(t.files[0]); });
 
 /* ================= SKILLS, COVERING OTHER VENUES, AND HIRING YOUR OWN CHARACTERS ================= */
 const SKILL_SLOTS=3, SLOT_MULT=[1,2,4];
