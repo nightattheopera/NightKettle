@@ -938,6 +938,12 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .ccdue-row .tbtn{color:var(--bad)}
 
 .repwrap .rep-any{display:none}.repwrap[data-rep="onceweek"] .rep-any,.repwrap[data-rep="oncemonth"] .rep-any{display:block}.repwrap[data-rep="onceweek"] .rep-hint,.repwrap[data-rep="oncemonth"] .rep-hint{display:none}
+.picks{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.picklist{display:grid;gap:6px;max-height:260px;overflow:auto}
+.pickrow{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--panel);padding:8px 10px;cursor:pointer;color:var(--ink)}
+.pickrow b{display:block;font-size:15px}.pickrow small{display:block;font-size:12px}
+.pickrow.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.pickrow .pk-star{color:var(--accent);font-size:16px}.pickrow .pk-price{font-family:var(--pixel);font-size:10px;color:var(--good)}
 
 </style>
 </head>
@@ -3272,7 +3278,7 @@ function renderServe(){
   if(done){
     const r=srv.result, col=r.grade==="perfect"?"var(--good)":r.grade==="close"?"var(--accent)":"var(--bad)";
     station=`<div class="station"><div class="result" style="border-color:${col};color:${col}">${r.grade.toUpperCase()} · +${r.tip}₵</div>
-      <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":sec==="club"?(adultOn()?"danced to":"performed"):"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>
+      <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":sec==="club"?(adultOn()?"danced to":"performed"):"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>${r.pick?`<p class="${r.pick.sold?"good":"muted"}" style="margin:4px 0 0">★ Staff pick ${esc(r.pick.t)}: ${r.pick.sold?`sold · +${r.pick.price}₵${r.pick.fit?" · +1 rep":""}`:"they passed. It's back on the shelf."}</p>`:""}
       <div class="actions">${left>0?`<button class="btn solid" data-act="srvNext">NEXT CLIENT · ${left}</button>`:`<p class="hint" style="margin:0;flex-basis:100%">That's everyone. Finish a task or habit to bring in the next client.</p>`}<button class="btn ghost" data-act="srvClose">BACK TO THE SHOP</button></div></div>`;
   } else station=sec==="bar"?stationBar():sec==="cafe"?stationCafe():stationBooks();
   const FM=srv.favor?(srv.favLines||srv.favor):null, favAnim=srv.showFavorArt&&FM&&FM.anim&&FM.anim.ref&&resolveArt(FM.anim.ref);
@@ -5846,13 +5852,13 @@ commit=function(){ crewRankCheck(); _crewCommit(); };
 /* ================= RUNNING THE EDGE: focus timer + supply runs ================= */
 /* Start a focus session and send one employee out. Their home floor decides the errand:
    café/bar bring ingredients (tip boost for a few serves, spoils), bookshop brings real books
-   (shelf prestige), lounge brings outfits & décor (rack vibe). Runs never pay cash directly. */
+   (staff picks the bookshop sells at the counter), lounge brings outfits & décor (rack vibe). Runs never pay cash directly. */
 
 const EDGE_LENS=[15,25,45,50];
 const EDGE_ERR={
   cafe: {label:"Ingredients",what:"beans, citrus, herbs and syrups",room:"café",stops:["Night market","Spice stall","Rooftop farm"]},
   bar:  {label:"Bar stock",what:"spirits, bitters and fruit",room:"bar",stops:["Liquor depot","Citrus vendor","Ice house"]},
-  books:{label:"Books",what:"books for the shelf",room:"bookshop",stops:["Used-book stall","Estate sale","Collector's flat"]},
+  books:{label:"Books",what:"staff picks to sell",room:"bookshop",stops:["Used-book stall","Estate sale","Collector's flat"]},
   club: {label:"Lounge kit",what:"outfits, décor and vinyl",room:"lounge",stops:["Back-alley tailor","Record shop","Prop warehouse"]}
 };
 const EDGE_TIERS={books:[["common","Common copy",1],["rare","Rare copy",3],["signed","Signed edition",8]],
@@ -5861,17 +5867,17 @@ const EDGE_ODDS={norm:[70,25,5],deep:[50,35,15]};
 const SHELF_MAX=12, RACK_MAX=10, PANTRY_DAYS=3;
 
 const EDGE_BOOKS=[
- ["Frankenstein","Mary Shelley"],["Dracula","Bram Stoker"],["The Time Machine","H. G. Wells"],["The War of the Worlds","H. G. Wells"],
- ["The Invisible Man","H. G. Wells"],["The Island of Doctor Moreau","H. G. Wells"],["Metropolis","Thea von Harbou"],["R.U.R.","Karel Čapek"],
- ["We","Yevgeny Zamyatin"],["The Machine Stops","E. M. Forster"],["Twenty Thousand Leagues Under the Seas","Jules Verne"],["From the Earth to the Moon","Jules Verne"],
- ["A Princess of Mars","Edgar Rice Burroughs"],["Strange Case of Dr Jekyll and Mr Hyde","Robert Louis Stevenson"],["Treasure Island","Robert Louis Stevenson"],
- ["The Picture of Dorian Gray","Oscar Wilde"],["The Hound of the Baskervilles","Arthur Conan Doyle"],["A Study in Scarlet","Arthur Conan Doyle"],
- ["The Maltese Falcon","Dashiell Hammett"],["Red Harvest","Dashiell Hammett"],["The Great Gatsby","F. Scott Fitzgerald"],["The Sun Also Rises","Ernest Hemingway"],
- ["Mrs Dalloway","Virginia Woolf"],["A Room of One's Own","Virginia Woolf"],["Moby-Dick","Herman Melville"],["Pride and Prejudice","Jane Austen"],
- ["Jane Eyre","Charlotte Brontë"],["Wuthering Heights","Emily Brontë"],["The Count of Monte Cristo","Alexandre Dumas"],["The Three Musketeers","Alexandre Dumas"],
- ["Crime and Punishment","Fyodor Dostoevsky"],["Notes from Underground","Fyodor Dostoevsky"],["The Metamorphosis","Franz Kafka"],["The Trial","Franz Kafka"],
- ["Heart of Darkness","Joseph Conrad"],["The Call of Cthulhu","H. P. Lovecraft"],["The Yellow Wallpaper","Charlotte Perkins Gilman"],["Flatland","Edwin A. Abbott"],
- ["The Turn of the Screw","Henry James"],["Carmilla","Sheridan Le Fanu"],["The Thirty-Nine Steps","John Buchan"],["Herland","Charlotte Perkins Gilman"]
+ ["Frankenstein","Mary Shelley",["horror","scifi"]],["Dracula","Bram Stoker",["horror","gritty"]],["The Time Machine","H. G. Wells",["scifi"]],["The War of the Worlds","H. G. Wells",["scifi","gritty"]],
+ ["The Invisible Man","H. G. Wells",["scifi","horror"]],["The Island of Doctor Moreau","H. G. Wells",["horror","scifi"]],["Metropolis","Thea von Harbou",["cyber","scifi"]],["R.U.R.","Karel Čapek",["cyber","scifi"]],
+ ["We","Yevgeny Zamyatin",["scifi","gritty"]],["The Machine Stops","E. M. Forster",["scifi","cyber","short"]],["Twenty Thousand Leagues Under the Seas","Jules Verne",["scifi","nature"]],["From the Earth to the Moon","Jules Verne",["scifi","hopeful"]],
+ ["A Princess of Mars","Edgar Rice Burroughs",["scifi","romance"]],["Strange Case of Dr Jekyll and Mr Hyde","Robert Louis Stevenson",["horror","mystery","short"]],["Treasure Island","Robert Louis Stevenson",["heist","found-family"]],
+ ["The Picture of Dorian Gray","Oscar Wilde",["horror","gritty"]],["The Hound of the Baskervilles","Arthur Conan Doyle",["mystery","horror"]],["A Study in Scarlet","Arthur Conan Doyle",["mystery","noir"]],
+ ["The Maltese Falcon","Dashiell Hammett",["noir","mystery","heist"]],["Red Harvest","Dashiell Hammett",["noir","gritty"]],["The Great Gatsby","F. Scott Fitzgerald",["romance","gritty"]],["The Sun Also Rises","Ernest Hemingway",["romance","found-family"]],
+ ["Mrs Dalloway","Virginia Woolf",["cozy","hopeful"]],["A Room of One's Own","Virginia Woolf",["short","hopeful"]],["Moby-Dick","Herman Melville",["nature","gritty"]],["Pride and Prejudice","Jane Austen",["romance","hopeful","cozy"]],
+ ["Jane Eyre","Charlotte Brontë",["romance","mystery"]],["Wuthering Heights","Emily Brontë",["romance","gritty"]],["The Count of Monte Cristo","Alexandre Dumas",["heist","gritty"]],["The Three Musketeers","Alexandre Dumas",["found-family","heist"]],
+ ["Crime and Punishment","Fyodor Dostoevsky",["mystery","noir","gritty"]],["Notes from Underground","Fyodor Dostoevsky",["short","gritty"]],["The Metamorphosis","Franz Kafka",["short","horror"]],["The Trial","Franz Kafka",["noir","gritty"]],
+ ["Heart of Darkness","Joseph Conrad",["nature","gritty","short"]],["The Call of Cthulhu","H. P. Lovecraft",["horror","short"]],["The Yellow Wallpaper","Charlotte Perkins Gilman",["horror","short"]],["Flatland","Edwin A. Abbott",["scifi","short"]],
+ ["The Turn of the Screw","Henry James",["horror","short"]],["Carmilla","Sheridan Le Fanu",["horror","romance"]],["The Thirty-Nine Steps","John Buchan",["mystery","heist"]],["Herland","Charlotte Perkins Gilman",["hopeful","scifi"]]
 ];
 const EDGE_RACK={
   common:["Thrift-store blazer","Mesh crop jacket","City-pop vinyl","Pink neon tube","Velvet bar stools","Rain-slick trench","Disco ball (dented)","Synthwave tapes","Holo table lamp","Faux-fur stole"],
@@ -5924,19 +5930,16 @@ function edgePickW(obj,rnd,deep){ const ks=Object.keys(obj), ws=ks.map(k=>obj[k]
 function edgeTier(rnd,deep){ const o=EDGE_ODDS[deep?"deep":"norm"], r=rnd()*100; return r<o[0]?0:r<o[0]+o[1]?1:2; }
 
 /* ---------- boosts ---------- */
-const shelfPrestige=()=>edgeS().shelf.reduce((a,b)=>a+(EDGE_TIERS.books[b.tier]||[0,0,1])[2],0);
+/* staff picks: books from runs, suggested to bookshop clients at the counter and sold */
+const PICK_PRICE=[10,30,80];
+const pickTags=b=>(b&&b.g)||((EDGE_BOOKS.find(x=>x[0]===(b&&b.t))||[])[2])||[];
+const pickPrice=b=>PICK_PRICE[b.tier]||PICK_PRICE[0];
+const picksValue=()=>edgeS().shelf.reduce((a,b)=>a+pickPrice(b),0);
 const rackVibe=()=>edgeS().rack.reduce((a,b)=>a+(EDGE_TIERS.club[b.tier]||[0,0,1])[2],0);
-const shelfTip=()=>Math.min(.20,shelfPrestige()*.002);
-const shelfClient=()=>Math.min(.25,shelfPrestige()*.0025);
 const vibeTip=()=>Math.min(.20,rackVibe()*.0025);
 function pantryFor(sec){ return edgeS().pantry.filter(p=>p.sec===sec).sort((a,b)=>a.exp<b.exp?-1:1)[0]||null; }
-function edgeTipMult(sec){ let b=0; const p=pantryFor(sec); if(p) b+=p.pct; if(sec==="books") b+=shelfTip(); if(sec==="bar"||sec==="club") b+=vibeTip(); return 1+Math.min(.5,b); }
+function edgeTipMult(sec){ let b=0; const p=pantryFor(sec); if(p) b+=p.pct; if(sec==="bar"||sec==="club") b+=vibeTip(); return 1+Math.min(.5,b); }
 function edgeConsume(sec){ const p=pantryFor(sec); if(!p) return; p.uses--; if(p.uses<=0){ S.edge.pantry=S.edge.pantry.filter(x=>x!==p); addLog(`The ${p.name.toLowerCase()} ran out.`); } }
-/* finished tasks/habits: a prestige-based chance of a bonus client, once per item per day */
-const _edgeGive=giveReward;
-giveReward=function(o,vip,why){ const d=_edgeGive(o,vip,why); try{ const e=edgeS(), k=(o&&o.id||"")+":"+today(), c=shelfClient();
-  if(c>0&&o&&o.id&&!e.bonus[k]){ e.bonus[k]=1; if(Math.random()<c){ addClient(false,"",true); addLog("A book lover walked in, drawn by the shelf.","gain"); setTimeout(()=>toast("Bonus client: a book lover, drawn by your shelf."),900); } } }catch(err){} return d; };
-
 /* ---------- start ---------- */
 function edgeStartSheet(){
   const e=edgeS(), team=S.staff.filter(isHired); if(!team.length){ toast("Hire someone first, in the Upgrade tab.", true); return; }
@@ -5975,7 +5978,7 @@ function edgeHaul(r,full){
   } else {
     let n=(r.mins>=45?2:1)+(r.deep?1:0);
     if(ev==="market") n*=2; if(ev==="favor") n+=1;
-    const make=t=>{ if(kind==="books"){ const have=new Set(edgeS().shelf.map(b=>b.t)); let pool=EDGE_BOOKS.filter(b=>!have.has(b[0])); if(!pool.length) pool=EDGE_BOOKS; const b=pool[Math.floor(rnd()*pool.length)]; return {t:b[0],a:b[1],tier:t}; }
+    const make=t=>{ if(kind==="books"){ const have=new Set(edgeS().shelf.map(b=>b.t)); let pool=EDGE_BOOKS.filter(b=>!have.has(b[0])); if(!pool.length) pool=EDGE_BOOKS; const b=pool[Math.floor(rnd()*pool.length)]; return {t:b[0],a:b[1],g:b[2],tier:t}; }
       const pool=EDGE_RACK[["common","rare","signed"][t]]; return {t:pool[Math.floor(rnd()*pool.length)],tier:t}; };
     if(!full){ n=Math.floor(n/2); for(let i=0;i<Math.max(1,n);i++) h.items.push(make(0)); }
     else for(let i=0;i<n;i++) h.items.push(make(edgeTier(rnd,r.deep)));
@@ -5994,8 +5997,8 @@ function edgeApply(h){
   h.items.forEach(it=>{ const arr=h.kind==="books"?e.shelf:e.rack, max=h.kind==="books"?SHELF_MAX:RACK_MAX;
     const dupe=arr.find(x=>x.t===it.t);
     if(dupe){ if(it.tier>dupe.tier){ dupe.tier=it.tier; it.res="upgraded"; } else it.res="duplicate"; return; }
-    if(arr.length<max){ arr.push({t:it.t,a:it.a,tier:it.tier}); it.res="added"; return; }
-    let lo=0; arr.forEach((x,i)=>{ if(x.tier<arr[lo].tier) lo=i; }); if(it.tier>arr[lo].tier){ it.res="swapped for "+arr[lo].t; arr[lo]={t:it.t,a:it.a,tier:it.tier}; } else it.res="no room"; });
+    if(arr.length<max){ arr.push(h.kind==="books"?{t:it.t,a:it.a,g:it.g,tier:it.tier}:{t:it.t,a:it.a,tier:it.tier}); it.res="added"; return; }
+    let lo=0; arr.forEach((x,i)=>{ if(x.tier<arr[lo].tier) lo=i; }); if(it.tier>arr[lo].tier){ it.res="swapped for "+arr[lo].t; arr[lo]=h.kind==="books"?{t:it.t,a:it.a,g:it.g,tier:it.tier}:{t:it.t,a:it.a,tier:it.tier}; } else it.res="no room"; });
   for(let i=0;i<h.clients;i++) addClient(false,"",true); if(h.vip) addClient(true,"",true);
   const w=S.staff.find(x=>x.id===(e.run&&e.run.runner)); if(w&&h.xp>0){ const m=workerXP(w,"perfect",h.xp); if(m) h.lvl=m; }
   return msgs;
@@ -6025,7 +6028,7 @@ function edgeShowPend(){
     if(h.lost&&h.lost.length) body+=`<p class="muted" style="margin:6px 0 0">Lost on the way: ${h.lost.map(x=>esc(x.t)).join(", ")}.</p>`;
     const extra=[h.clients?`+${h.clients} client`:"",h.vip?"+1 VIP client":"",h.xp?`${esc(h.name)} earned XP${h.lvl?". "+esc(h.lvl):""}`:""].filter(Boolean);
     if(extra.length) body+=`<p class="good" style="margin:8px 0 0">${extra.join(" · ")}</p>`;
-    if(h.kind==="books") body+=`<p class="hint" style="margin:8px 0 0">Shelf prestige ${shelfPrestige()}: +${Math.round(shelfTip()*100)}% bookshop tips, ${Math.round(shelfClient()*100)}% bonus-client chance per finished task.</p>`;
+    if(h.kind==="books") body+=`<p class="hint" style="margin:8px 0 0">Staff picks shelf: ${edgeS().shelf.length}/${SHELF_MAX} · worth ${picksValue()}₵. Suggest them to bookshop clients at the counter.</p>`;
     if(h.kind==="club") body+=`<p class="hint" style="margin:8px 0 0">Lounge vibe ${rackVibe()}: +${Math.round(vibeTip()*100)}% tips at the bar and lounge.</p>`;
   }
   const b=e.brk&&h.full?`<p class="acc" style="margin:10px 0 0">${e.brk.long?"Long break":"Break"}: ${e.brk.long?15:5} minutes. Go serve your clients.</p>`:"";
@@ -6047,11 +6050,11 @@ setInterval(()=>{ if(!S) return; const e=S.edge; if(!e) return;
 /* ---------- Shop panel ---------- */
 function edgeBoostLine(){ const e=edgeS(), out=[];
   ["cafe","bar"].forEach(sec=>{ const p=pantryFor(sec); if(p) out.push(`${esc(SEC_NAME[sec])}: ${esc(p.name)} +${Math.round(p.pct*100)}% · ${p.uses} serves`); });
-  if(e.shelf.length) out.push(`Shelf prestige ${shelfPrestige()}`); if(e.rack.length) out.push(`Lounge vibe ${rackVibe()}`);
+  if(e.shelf.length) out.push(`${e.shelf.length} staff pick${e.shelf.length===1?"":"s"} to sell`); if(e.rack.length) out.push(`Lounge vibe ${rackVibe()}`);
   return out.length?`<p class="hint" style="margin:8px 0 0">${out.join(" · ")}</p>`:""; }
 function edgeShelfHTML(){ const e=edgeS(), T=EDGE_TIERS;
-  return `<details class="sub"><summary>Shelf · ${e.shelf.length}/${SHELF_MAX} · prestige ${shelfPrestige()}</summary>${e.shelf.length?`<ul class="hlist">${e.shelf.slice().sort((a,b)=>b.tier-a.tier).map(b=>`<li class="hitem t${b.tier}"><span class="htier">${esc(T.books[b.tier][1])}</span><b>${esc(b.t)}</b> <small class="muted">${esc(b.a||"")}</small></li>`).join("")}</ul>`:`<p class="hint">Send a bookshop worker out to start the shelf.</p>`}
-    <p class="hint">+${Math.round(shelfTip()*100)}% bookshop tips (max 20%) · ${Math.round(shelfClient()*100)}% chance a finished task brings a bonus client (max 25%).</p></details>
+  return `<details class="sub"><summary>Staff picks · ${e.shelf.length}/${SHELF_MAX} · worth ${picksValue()}₵</summary>${e.shelf.length?`<ul class="hlist">${e.shelf.slice().sort((a,b)=>b.tier-a.tier).map(b=>`<li class="hitem t${b.tier}"><span class="htier">${esc(T.books[b.tier][1])} · ${pickPrice(b)}₵</span><b>${esc(b.t)}</b> <small class="muted">${esc(b.a||"")}</small> ${pickTags(b).map(t=>`<span class="tag">${esc(t)}</span>`).join(" ")}</li>`).join("")}</ul>`:`<p class="hint">Send a bookshop worker out to find books.</p>`}
+    <p class="hint">At the bookshop desk, suggest one staff pick per client. If it fits what they asked for, they buy it. If not, they might still take a chance on it.</p></details>
   <details class="sub"><summary>Lounge rack · ${e.rack.length}/${RACK_MAX} · vibe ${rackVibe()}</summary>${e.rack.length?`<ul class="hlist">${e.rack.slice().sort((a,b)=>b.tier-a.tier).map(b=>`<li class="hitem t${b.tier}"><span class="htier">${esc(T.club[b.tier][1])}</span><b>${esc(b.t)}</b></li>`).join("")}</ul>`:`<p class="hint">Send a lounge worker out for outfits and décor.</p>`}
     <p class="hint">+${Math.round(vibeTip()*100)}% tips at the bar and lounge (max 20%).</p></details>`; }
 function edgePanel(){
@@ -6212,6 +6215,28 @@ document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&edgeViewIsOpen()
 
 const _edgeRender=render;
 render=function(){ _edgeRender(); try{ edgePill(); }catch(e){} };
+
+/* ---------- staff picks at the bookshop desk ---------- */
+{ const _sb=stationBooks;
+  stationBooks=function(){ const html=_sb(); if(srv.sec!=="books"||!srv.cust) return html; const sh=edgeS().shelf; if(!sh.length) return html;
+    const sel=srv.cust.pick;
+    const list=sh.map((b,i)=>({b,i})).sort((x,y)=>y.b.tier-x.b.tier).map(({b,i})=>`<button class="pickrow ${sel===i?"on":""} t${b.tier}" data-pick="${i}" aria-pressed="${sel===i}"><span class="pk-star" aria-hidden="true">${sel===i?"★":"☆"}</span><span class="pk-main"><b>${esc(b.t)}</b><small class="muted">${esc(b.a||"")} · ${esc(EDGE_TIERS.books[b.tier][1])}</small><span class="btags">${pickTags(b).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</span></span><span class="pk-price">${pickPrice(b)}₵</span></button>`).join("");
+    const box=`<div class="picks"><p class="fl" style="margin:0 0 4px">★ Staff pick · optional</p><p class="hint" style="margin:0 0 6px">Tap one for ${esc(srv.worker.name)} to suggest as well, then pick their book above.</p><div class="picklist">${list}</div></div>`;
+    return html.replace(/<\/div>$/,box+"</div>"); };
+}
+{ const _sf=srvFinish;
+  srvFinish=function(res,ev){ const C=srv.cust, sec=srv.sec, i=C&&C.pick; _sf.apply(this,arguments);
+    if(sec!=="books"||i==null||!srv.result) return; const e=edgeS(), b=e.shelf[i]; if(!b) return;
+    const req=(C.req&&C.req.tags)||[], tg=pickTags(b), fit=req.some(t=>tg.includes(t)), buy=fit||Math.random()<.35, w=srv.worker;
+    if(buy){ const price=pickPrice(b); e.shelf.splice(i,1); S.credits+=price; S.xp+=price; S.stats.tips+=price; w.tips+=price; const d=serveDay(); d.tips=(d.tips||0)+price; if(fit) S.rep+=1;
+      srv.result.pick={t:b.t,sold:true,price,fit};
+      pushLines([{who:"w",text:`Oh, and one of our staff picks: ${b.t}.`},{who:"c",text:fit?"Yes. I'll take that too.":"Huh. Not what I came for, but sure, I'll try it."}]);
+      addLog(`${w.name} sold a staff pick: ${b.t} · +${price}₵`,"gain"); setTimeout(()=>pop(ev,"+"+price+"₵ pick","var(--good)"),350); }
+    else { srv.result.pick={t:b.t,sold:false};
+      pushLines([{who:"w",text:`Oh, and one of our staff picks: ${b.t}.`},{who:"c",text:"Maybe next time."}]); }
+    save(); renderTop(); renderServe(); };
+}
+document.addEventListener("click",ev=>{ const el=ev.target.closest("[data-pick]"); if(!el||!srv.open||srv.result||!srv.cust) return; const i=+el.dataset.pick; srv.cust.pick=srv.cust.pick===i?null:i; renderServe(); });
 
 /* ================= CARDS: purchases on a card, running total, due date ================= */
 /* Lives in Tasks › Savings. Separate from savings buckets. Paying on or before the due date
