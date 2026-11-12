@@ -937,6 +937,8 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .ccmore summary{cursor:pointer;color:var(--dim);font-size:13px;padding:6px 0}
 .ccdue-row .tbtn{color:var(--bad)}
 
+.repwrap .rep-any{display:none}.repwrap[data-rep="onceweek"] .rep-any,.repwrap[data-rep="oncemonth"] .rep-any{display:block}.repwrap[data-rep="onceweek"] .rep-hint,.repwrap[data-rep="oncemonth"] .rep-hint{display:none}
+
 </style>
 </head>
 <body class="night">
@@ -3443,9 +3445,10 @@ const habitsDueOpen=()=>S.habits.filter(h=>isDue(h,today())&&!h.hist[today()]);
 function repeatUI(pfx,r,due){
   r=r||{type:"none"}; const dd=due?new Date(due+"T12:00:00"):new Date(), dow=dd.getDay();
   const days=r.type==="weekly"&&r.days?r.days:[dow];
-  return `<div class="repwrap" data-rep="${r.type}" id="${pfx}RepWrap">
+  const anyDay=r.type==="again"&&r.hide&&r.goal===1?(r.per==="month"?"oncemonth":"onceweek"):"", sel=anyDay||r.type;
+  return `<div class="repwrap" data-rep="${sel}" id="${pfx}RepWrap">
     <label class="fl" for="${pfx}Rep">Repeat</label>
-    <select class="field" id="${pfx}Rep" data-repsel="${pfx}">${[["none","Doesn't repeat"],["daily","Every day"],["weekly","Weekly on…"],["every","Every few days"],["monthly","Monthly"],["yearly","Yearly"],["again","Again when done · counter"]].map(([v,l])=>`<option value="${v}" ${r.type===v?"selected":""}>${l}</option>`).join("")}</select>
+    <select class="field" id="${pfx}Rep" data-repsel="${pfx}">${[["none","Doesn't repeat"],["daily","Every day"],["weekly","Weekly on…"],["onceweek","Once a week · any day"],["every","Every few days"],["monthly","Monthly"],["oncemonth","Once a month · any day"],["yearly","Yearly"],["again","Again when done · counter"]].map(([v,l])=>`<option value="${v}" ${sel===v?"selected":""}>${l}</option>`).join("")}</select>
     <div class="rep-weekly"><div class="seg" style="margin-top:6px">${[1,2,3,4,5,6,0].map(d=>`<input type="checkbox" name="${pfx}RepDay" id="${pfx}rd${d}" value="${d}" ${days.includes(d)?"checked":""}><label for="${pfx}rd${d}">${DOWL[d].slice(0,2)}</label>`).join("")}</div></div>
     <div class="rep-every"><label class="fl" for="${pfx}RepN" style="margin-top:6px">Every how many days?</label><input class="field num" id="${pfx}RepN" type="number" min="2" max="365" value="${r.type==="every"?r.n:3}"></div>
     <div class="rep-monthly"><label class="fl" for="${pfx}RepDom" style="margin-top:6px">On day</label><select class="field" id="${pfx}RepDom">${[...Array(31)].map((_,i)=>`<option value="${i+1}" ${String(r.dom||dd.getDate())===String(i+1)?"selected":""}>${ordinal(i+1)}</option>`).join("")}<option value="last" ${r.dom==="last"?"selected":""}>Last day</option></select></div>
@@ -3453,6 +3456,7 @@ function repeatUI(pfx,r,due){
       <div><label class="fl" for="${pfx}RepGoal">Goal <small class="muted">optional</small></label><input class="field num" id="${pfx}RepGoal" type="number" min="0" max="99" value="${r.goal||""}" placeholder="—"></div></div>
       <label class="checkrow" style="margin-top:6px"><input type="checkbox" id="${pfx}RepHide" ${r.hide?"checked":""}> Hide once goal reached, until it resets</label>
       <p class="hint" style="margin:4px 0 0">No due date. Each time you finish it, the counter goes up and it sends a client. With hide on and a goal of 1, it's a once-a-week (or month) task you can do any day.</p></div>
+    <p class="hint rep-any" style="margin:4px 0 0">No set day: do it any day that week (or month). It stays in your task list until it's done, then hides until the next week (or month) starts. If it's still open on the last day, it shows up in Today.</p>
     <p class="hint rep-hint" style="margin:4px 0 0">Finishing it moves it to the next date and sends a client every time.</p>
   </div>`;
 }
@@ -3464,6 +3468,7 @@ function readRepeat(pfx,due){
   if(v==="every") return {type:"every",n:Math.max(2,Math.min(365,+($(pfx+"RepN")||{}).value||3)),anchor:due||today()};
   if(v==="monthly"){ const x=($(pfx+"RepDom")||{}).value||String(d0.getDate()); return {type:"monthly",dom:x==="last"?"last":+x}; }
   if(v==="yearly") return {type:"yearly",m:d0.getMonth()+1,d:d0.getDate()};
+  if(v==="onceweek"||v==="oncemonth") return {type:"again",per:v==="oncemonth"?"month":"week",goal:1,hide:true};
   if(v==="again"){ const g=Math.max(0,Math.min(99,+($(pfx+"RepGoal")||{}).value||0)); const hide=!!(($(pfx+"RepHide")||{}).checked)&&g>0; return Object.assign({type:"again",per:($(pfx+"RepPer")||{}).value==="month"?"month":"week",goal:g||0},hide?{hide:true}:{}); }
   return null;
 }
