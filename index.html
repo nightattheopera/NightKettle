@@ -5274,6 +5274,36 @@ function scnPick(sec,st,preferQueue){
   const q=free.filter(f=>f.q); if(preferQueue&&q.length) return q[0];
   return free[Math.floor(Math.random()*free.length)];
 }
+/* ---------- helper paths: spots on the shop floor where helpers walk to and work for a bit ----------
+   x,b in scene units (320 wide); face = which way they look while working; need = a room that must be built */
+const SCN_HELP_PTS={
+  cafe:[{x:18,b:149,face:-1,act:"shelf"},{x:44,b:152,face:1,act:"table"},{x:92,b:154,face:-1,act:"table"},{x:68,b:150,face:1,act:"table",need:"booths"},
+        {x:132,b:157,face:1,act:"patio",need:"patio"},{x:168,b:156,face:-1,act:"patio",need:"patio"},{x:296,b:150,face:-1,act:"counter"}],
+  books:[{x:22,b:150,face:-1,act:"shelf"},{x:70,b:153,face:-1,act:"nook",need:"nook"},{x:104,b:148,face:1,act:"shelf"},{x:150,b:147,face:1,act:"shelf"},
+        {x:204,b:149,face:-1,act:"shelf"},{x:300,b:151,face:-1,act:"counter"}],
+  bar:[{x:24,b:151,face:1,act:"table"},{x:44,b:156,face:1,act:"table"},{x:88,b:153,face:-1,act:"table"},{x:138,b:157,face:1,act:"floor"},{x:306,b:152,face:-1,act:"counter"}],
+  club:[{x:48,b:150,face:-1,act:"vip",need:"vip"},{x:80,b:152,face:1,act:"vip",need:"vip"},{x:124,b:156,face:1,act:"floor"},{x:190,b:150,face:1,act:"floor"},{x:300,b:154,face:-1,act:"merch"}]
+};
+function scnHelpPts(sec){ const P=SCN_HELP_PTS[sec]||[]; return P.filter(p=>!p.need||scnCustom(sec)||S.modules[p.need]); }
+/* move each helper between walk points; two helpers never aim for the same spot */
+function scnHelpers(sec,now,dt){
+  const st=scnState(sec), hs=scnStaffList(sec).slice(1), P=scnHelpPts(sec); st.help=st.help||{};
+  const ids=new Set(hs.map(w=>w.id)); Object.keys(st.help).forEach(id=>{ if(!ids.has(id)) delete st.help[id]; });
+  if(!P.length) return;
+  const taken=id=>new Set(Object.entries(st.help).filter(([k])=>k!==id).map(([,h])=>h.wp));
+  hs.forEach((w,i)=>{
+    let h=st.help[w.id];
+    if(!h){ const busy=taken(w.id), free=P.map((p,k)=>k).filter(k=>!busy.has(k)), k=free.length?free[(i*3)%free.length]:0, p=P[k];
+      h=st.help[w.id]={x:p.x,b:p.b,tx:p.x,tb:p.b,wp:k,state:"work",dir:p.face||1,until:now+1000+Math.random()*3000}; }
+    if(h.wp>=P.length){ h.wp=0; h.state="work"; h.until=0; }
+    if(h.state==="go"){ const dx=h.tx-h.x, db=h.tb-h.b, d=Math.hypot(dx,db), sp=26*dt;
+      if(d<=sp){ h.x=h.tx; h.b=h.tb; h.state="work"; h.dir=P[h.wp].face||h.dir; h.until=now+3000+Math.random()*5000; }
+      else { h.x+=dx/d*sp; h.b+=db/d*sp; if(Math.abs(dx)>.4) h.dir=dx>0?1:-1; } }
+    else if(now>h.until){ const busy=taken(w.id), opts=P.map((p,k)=>k).filter(k=>k!==h.wp&&!busy.has(k));
+      if(!opts.length){ h.until=now+2000; return; }
+      const k=opts[Math.floor(Math.random()*opts.length)]; h.wp=k; h.tx=P[k].x; h.tb=P[k].b; h.state="go"; }
+  });
+}
 function scnDestXY(sec,d){ const M=scnMeta(sec); if(d.t==="s"){ const s=M.seats[d.i]; return {x:s.x,b:s.hip+15}; } const s=M.spots[d.i]; return {x:s.x,b:s.b}; }
 function scnUpdate(sec,now){
   const st=scnState(sec), M=scnMeta(sec), dt=Math.min(.12,(now-(st.last||now))/1000); st.last=now;
@@ -5310,6 +5340,7 @@ function scnUpdate(sec,now){
   const q=st.pats.find(p=>p.state==="wait"&&M.spots[p.dest.i].kind==="queue");
   const goal=q&&Math.random()<.02?Math.max(M.staff.x0,Math.min(M.staff.x1,q.x+16)):sf.tx; if(q) sf.tx=goal;
   const ddx=sf.tx-sf.x; sf.moving=Math.abs(ddx)>.6; if(sf.moving){ sf.x+=Math.sign(ddx)*Math.min(Math.abs(ddx),22*dt); sf.dir=ddx>0?1:-1; } else if(q) sf.dir=q.x<sf.x?-1:1;
+  scnHelpers(sec,now,dt);
 }
 /* trim: the union box of every frame's visible pixels, so the figure (not the empty frame) is what gets sized */
 const SCN_TRIM=new Map();
@@ -5358,14 +5389,15 @@ function drawFloorScene(g,sec,now){
       pixText(g,nm,Math.round((x0+x1-w)/2),Math.round((y0+y1)/2-sc*2.5),on?"#ff7ac8":"#a06a8a",sc); } }
   if(cs.ok||(cs.built&&cs.open)||scnState(sec).pats.length) scnUpdate(sec,now);
   const st=scnState(sec), sf=st.staff;
-  if(!cs.roof&&cs.built&&cs.open&&M.staff){ const L=scnStaffList(sec);
-    L.forEach((w,i)=>{ const span=M.staff.x1-M.staff.x0, x=i===0?(sf.x??(M.staff.x0+span/2)):M.staff.x0+((i*0.37+0.2)%1)*span, base=M.staff.base*K, mv=i===0&&sf.moving, dir=i===0?sf.dir:(i%2?1:-1);
-      scnDrawStaff(g,w,x*K,base,dir,mv,now,i*700); });
-  }
+  const onFloor=!cs.roof&&cs.built&&cs.open&&M.staff;
+  if(onFloor){ const lead=scnStaffList(sec)[0]; if(lead){ const span=M.staff.x1-M.staff.x0; scnDrawStaff(g,lead,(sf.x??(M.staff.x0+span/2))*K,M.staff.base*K,sf.dir,sf.moving,now,0); } }
   if(sec!=="roof") scnPaint(g,sec,"mid",sw);
   const pool={}; scnPool(sec).forEach(p=>pool[p.id]=p);
   let bubble=false;
-  st.pats.slice().sort((a,b)=>a.b-b.b).forEach(p=>{ const d=pool[p.def]; if(!d) return;
+  const helpDraw=onFloor?scnStaffList(sec).slice(1).map((w,i)=>({w,h:(st.help||{})[w.id],i})).filter(o=>o.h):[];
+  [...st.pats.map(p=>({b:p.b,p})),...helpDraw.map(o=>({b:o.h.b,o}))].sort((a,b)=>a.b-b.b).forEach(({p,o})=>{
+    if(o){ scnDrawStaff(g,o.w,o.h.x*K,o.h.b*K,o.h.dir,o.h.state==="go",now,(o.i+1)*700); return; }
+    const d=pool[p.def]; if(!d) return;
     if(p.state==="sit"&&d.sit){ const s=M.seats[p.dest.i]; const top=s.hip*K-d.h*d.hip, base=top+d.h*(1-d.foot); scnSheet(g,d.sit,0,p.x*K,base,d.h,p.dir,d.foot,d.flip,{trim:d.trim}); return; }
     const walking=p.state==="go"||p.state==="out", sh=walking?d.walk:d.idle, fps=walking?d.fps:3;
     scnSheet(g,sh,Math.floor((now+p.ph)/(1000/fps)),p.x*K,p.b*K,d.h,p.dir,d.foot,d.flip,{trim:d.trim});
