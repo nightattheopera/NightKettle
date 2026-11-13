@@ -961,6 +961,7 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .knackseg{flex-wrap:wrap}
 .rosterpanel details.sub>summary{font-size:14px}
 .edgepick span.tag{display:inline-block;padding:2px 6px;margin-left:6px;border:1px solid var(--line);vertical-align:middle;box-shadow:none}
+.pmrow .pmmonth{opacity:.8}
 
 </style>
 </head>
@@ -3679,11 +3680,14 @@ function winRow(w){
 function pmTrend(w){ const k=today(); let sc=0; w.log.forEach(l=>{ if(l.d>addDays(k,-7)) sc+=l.s===-1?-1:1; }); return sc; }
 function pmTone(w){ const t=pmTrend(w); return t>=5?"pm-g3":t>=2?"pm-g2":t>=1?"pm-g1":t<=-5?"pm-r3":t<=-2?"pm-r2":t<=-1?"pm-r1":"pm-n"; }
 function pmStrip(w){ const k=today(); let h=""; for(let i=6;i>=0;i--){ const d=addDays(k,-i), p=winCount(w,d), m=winMinus(w,d), c=p>m?"up":m>p?"dn":p?"ev":""; h+=`<i class="${c}" title="${DOW3[dowOf(d)]}: +${p} −${m}"></i>`; } return `<span class="pmstrip" aria-hidden="true">${h}</span>`; }
-function pmTally(w){ const k=today(), ws=weekStart(k), p=winCount(w,ws,k), m=winMinus(w,ws,k), n=winNet(w,ws,k);
-  return `${w.up?`<b class="good">+${p}</b>`:""}${w.up&&w.down?" / ":""}${w.down?`<b class="bad">−${m}</b>`:""} this week${n?` · net ${n<0?"−"+money(-n):"+"+money(n)}`:""}`; }
+function pmSpan(w,from,to,label){ const p=winCount(w,from,to), m=winMinus(w,from,to), n=winNet(w,from,to);
+  return `${w.up?`<b class="good">+${p}</b>`:""}${w.up&&w.down?" / ":""}${w.down?`<b class="bad">−${m}</b>`:""} ${label}${n?` · net ${n<0?"−"+money(-n):"+"+money(n)}`:""}`; }
+function pmTally(w){ const k=today(); return pmSpan(w,weekStart(k),k,"this week"); }
+const PM_MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function pmMonth(w){ const k=today(); return pmSpan(w,k.slice(0,8)+"01",k,"in "+PM_MONTHS[+k.slice(5,7)-1]); }
 function pmRow(w){ const b=bucketById(w.bucket);
   return `<div class="trow pmrow ${pmTone(w)}">${w.down?`<button class="tbtn minus" data-act="winMinus" data-id="${w.id}" aria-label="− ${esc(w.name)}">−</button>`:`<span class="tbtn ghostbtn" aria-hidden="true"></span>`}
-    <button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${pmTally(w)}</small>
+    <button class="ttl" data-act="editWin" data-id="${w.id}"><span>${esc(w.name)}</span><small>${pmTally(w)}</small><small class="pmmonth">${pmMonth(w)}</small>
       <small class="muted">${b&&(w.save||w.ask)?`${w.ask?"amount varies":(w.up?"+":"")+(w.down?(w.up?"/−":"−"):"")+money(w.save)} · ${esc(b.name)}`:""}${w.down&&w.rep?`${b&&(w.save||w.ask)?" · ":""}−${w.rep} rep`:""} ${diffTag(w)}</small>${pmStrip(w)}${noteLine(w)}</button>
     ${w.up?`<button class="tbtn plus" data-act="win" data-id="${w.id}" aria-label="+ ${esc(w.name)}">+</button>`:`<span class="tbtn ghostbtn" aria-hidden="true"></span>`}</div>`; }
 function pmChip(w){ const k=today(), p=winCount(w,k), m=winMinus(w,k);
