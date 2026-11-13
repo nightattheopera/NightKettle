@@ -4200,6 +4200,7 @@ function vSprites(){
       <label class="btn solid" for="ssImport" style="text-align:center;flex:1">UPLOAD TO EDIT</label><input type="file" id="ssImport" class="srt" accept="image/*">
       <label class="btn" for="ssDirect" style="text-align:center;flex:1">UPLOAD STRAIGHT TO SLOT</label><input type="file" id="ssDirect" class="srt" accept="image/*">
     </div>
+    <label class="checkrow"><input type="checkbox" class="ssflip" id="ssFlipA" ${SS.flip?"checked":""}> Sheet faces left</label>
     <p class="hint" style="margin:6px 0 0">Frames are found automatically when the sheet has a clear background between figures. <b>To edit</b> opens it in the pixel editor below (full detail up to ${SS_MAX}px a frame; bigger frames are shrunk to fit). <b>Straight to slot</b> saves it as-is; you can still open what's in the slot in the editor afterwards. Check the result in the slot below.</p>
   </section>
   ${ssSlotHTML()}
@@ -4221,8 +4222,8 @@ function vSprites(){
       <div class="stack" style="flex:1;gap:8px">
         <div><label class="fl" for="ssFps">Speed (fps)</label><input class="field num" id="ssFps" type="number" min="1" max="30" value="${SS.fps}"></div>
         <div><label class="fl" for="ssHeight">Height on the old floor plan (px)</label><input class="field num" id="ssHeight" type="number" min="16" max="100" value="${SS.height}"></div>
-        <label class="checkrow"><input type="checkbox" id="ssFlip" ${SS.flip?"checked":""}> Preview facing left</label></div></div>
-    <p class="hint">Draw facing right with the feet on the bottom row. The game flips the sprite when they turn around. Customers are about 44px tall.</p>
+        <label class="checkrow"><input type="checkbox" class="ssflip" id="ssFlipB" ${SS.flip?"checked":""}> Sheet faces left</label></div></div>
+    <p class="hint">The preview shows them walking right. Draw facing either way and tick <b>Sheet faces left</b> if your art faces left; the game turns the sprite when they change direction. Feet on the bottom row.</p>
     <button class="btn solid wide" data-act="ssSave">SAVE TO ${esc(((S.staff.find(w=>w.id===SS.wid)||{}).name||"").toUpperCase())} · ${SS.kind==="fidle"?"STANDING":"WALKING"}</button>
   </section>`;
 }
@@ -4250,7 +4251,7 @@ async function ssSave(){
   const n=SS.frames.length, c=document.createElement("canvas"); c.width=SS.w*n; c.height=SS.h; const g=c.getContext("2d");
   SS.frames.forEach((px,i)=>g.putImageData(new ImageData(new Uint8ClampedArray(px),SS.w,SS.h),i*SS.w,0));
   const ref=await storeArt(c.toDataURL("image/png")); w.anim=w.anim||{}; if(w.anim[SS.kind]) dropArt(w.anim[SS.kind].ref);
-  w.anim[SS.kind]={ref,cols:n,rows:1,fps:SS.fps,h:SS.height,flip:false};
+  w.anim[SS.kind]={ref,cols:n,rows:1,fps:SS.fps,h:SS.height,flip:!!SS.flip};
   addLog(`New ${SS.kind==="fidle"?"standing":"walking"} sprite for ${w.name} (${n} frames).`,"build"); commit(); toast(`Saved. ${w.name} uses it on the Inside view now.`);
 }
 function handleSprite(act,id,ev,el){
@@ -4278,7 +4279,7 @@ function handleSprite(act,id,ev,el){
     case "ssNew": { if(armed!==act){ armed=act; el.textContent="TAP AGAIN · CLEARS DRAFT"; return true; } armed=null; const [w,h]=($("ssSize").value||"32x48").split("x").map(Number); Object.assign(SS,{w,h,frames:[],cur:0,undo:[],redo:[],height:Math.min(100,h)}); SS.frames=[ssBlank()]; re(); return true; }
     case "ssFromCode": ssFromCode(); return true;
     case "ssOpenSlot": { const w=S.staff.find(x=>x.id===SS.wid), a=w&&w.anim&&w.anim[SS.kind], src=a&&resolveArt(a.ref); if(!src){ toast("That slot is empty. Start blank or from the code look.", true); return true; }
-      const f=sheetFrames(a); ssLoadSheet(src,f.c,f.r,()=>{ SS.frames=SS.frames.slice(0,f.n); SS.fps=a.fps||8; SS.height=a.h||46; re(); toast("Loaded the slot's frames to edit."); }); return true; }
+      const f=sheetFrames(a); ssLoadSheet(src,f.c,f.r,()=>{ SS.frames=SS.frames.slice(0,f.n); SS.fps=a.fps||8; SS.height=a.h||46; SS.flip=!!a.flip; re(); toast("Loaded the slot's frames to edit."); }); return true; }
     case "ssSave": ssSave(); return true;
   }
   return false;
@@ -4292,7 +4293,8 @@ document.addEventListener("pointerup",()=>{ SS.pan=null; if(!SS.drawing) return;
 document.addEventListener("change",ev=>{ const t=ev.target; if(!t.id||t.id.indexOf("ss")!==0) return;
   if(t.id==="ssBrush"){ SS.brush=Math.max(1,Math.min(16,+t.value||1)); return; }
   if(t.id==="ssWho"){ SS.wid=t.value; render(); } if(t.id==="ssKind"){ SS.kind=t.value; render(); }
-  if(t.id==="ssFps") SS.fps=Math.max(1,Math.min(30,+t.value||8)); if(t.id==="ssHeight") SS.height=Math.max(16,Math.min(100,+t.value||46)); if(t.id==="ssFlip") SS.flip=t.checked;
+  if(t.id==="ssFps") SS.fps=Math.max(1,Math.min(30,+t.value||8)); if(t.id==="ssHeight") SS.height=Math.max(16,Math.min(100,+t.value||46)); if(t.classList&&t.classList.contains("ssflip")){ SS.flip=t.checked; document.querySelectorAll(".ssflip").forEach(x=>{ x.checked=SS.flip; });
+    const w=S.staff.find(x=>x.id===SS.wid), a=w&&w.anim&&w.anim[SS.kind]; if(a&&a.ref){ a.flip=SS.flip; save(); toast(`${w.name}'s ${SS.kind==="fidle"?"standing":"walking"} sprite now ${SS.flip?"faces left":"faces right"} in the shop.`); } ssSaveDraft(); }
   if(t.id==="ssSwatch"){ SS.color=t.value; if(SS.tool!=="pen"&&SS.tool!=="fill") SS.tool="pen"; render(); }
   if(t.id==="ssAcross") SS.upCols=Math.max(1,Math.min(16,+t.value||1));
   if(t.id==="ssDown") SS.upRows=Math.max(1,Math.min(8,+t.value||1));
@@ -5094,7 +5096,7 @@ function routeSS(t){
     const IW=img.width||img.naturalWidth, IH=img.height||img.naturalHeight, w=S.staff.find(x=>x.id===SS.wid);
     if(direct){ if(!w){ toast("Pick a worker first.", true); return; }
       if(found) toast(found);
-      sheetUploadNoBox(file,w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; }
+      sheetUploadNoBox(file,w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height,flip:!!SS.flip}); return; }
     const c=document.createElement("canvas"); c.width=IW; c.height=IH; c.getContext("2d").drawImage(img,0,0);
     ssLoadSheet(c.toDataURL("image/png"),n,m,()=>{ ssSaveDraft(); render(); toast(`${found}Loaded ${n*m} frame${n*m===1?"":"s"} to edit.`); });
   }).catch(()=>toast(imgErr(file), true));
