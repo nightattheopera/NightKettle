@@ -979,6 +979,7 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .sswrap{overflow:auto;max-height:72vh;border:1px solid var(--line)}
 .ssed.big{width:100%;margin:0}
 .sszoom{display:inline-flex;align-items:center;gap:4px}.sszoom b{font-family:var(--pixel);font-size:10px;min-width:2.2em;text-align:center}
+.bgxnote{margin:4px 12px 0;font-size:13px;color:var(--dim)}
 
 </style>
 </head>
@@ -5112,8 +5113,7 @@ document.addEventListener("change",ev=>{
     W=Math.max(1,Math.round(W*sc)); H=Math.max(1,Math.round(H*sc));
     const c=document.createElement("canvas"); c.width=W; c.height=H; const g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(img,0,0,W,H);
     const src=g.getImageData(0,0,W,H); let tr=0; for(let i=3;i<src.data.length;i+=4) if(src.data[i]<16) tr++;
-    if(tr>W*H*0.01){ toast("Already has a transparent background. Imported as is."); deliver(file); return; }
-    bxOpen(c,src,file,deliver);
+    bxOpen(c,src,file,deliver,tr>W*H*0.01);   /* already-transparent images open too, with nothing removed yet */
   }).catch(()=>deliver(file));
 },true);
 function bxEdgeKeys(src,W,H){
@@ -5122,12 +5122,12 @@ function bxEdgeKeys(src,W,H){
   for(let x=0;x<W;x++){ add(x); add((H-1)*W+x); } for(let y=1;y<H-1;y++){ add(y*W); add(y*W+W-1); }
   return [...B.values()].sort((p,q)=>q[0]-p[0]).filter(b=>b[0]>=tot*0.08).slice(0,4).map(b=>[b[1]/b[0],b[2]/b[0],b[3]/b[0]]);
 }
-function bxOpen(canvas,src,file,deliver){
+function bxOpen(canvas,src,file,deliver,clear){
   const W=canvas.width, H=canvas.height;
   Object.assign(BX,{open:true,W,H,src,orig:canvas,file,deliver,tol:42,mode:"edge",shrink:0,soft:false,specks:false,tool:"remove",brush:24,zoom:1,bg:"check",edgeKeys:bxEdgeKeys(src,W,H)});
-  BX.acts=BX.edgeKeys.length?[{type:"edge"}]:[];
+  BX.acts=BX.edgeKeys.length&&!clear?[{type:"edge"}]:[]; BX.clear=!!clear;
   const el=document.createElement("div"); el.id="bgx"; el.className="bgx"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label","Remove background");
-  el.innerHTML=`<div class="bgxhead"><b>REMOVE BACKGROUND</b><span id="bgxInfo"></span></div>
+  el.innerHTML=`<div class="bgxhead"><b>REMOVE BACKGROUND</b><span id="bgxInfo"></span></div>${clear?`<p class="bgxnote">This image already has a transparent background, so nothing was removed automatically. Tap leftover areas to clear them, or use Keep background.</p>`:""}
   <div class="bgxview" id="bgxView" data-bg="check"><canvas id="bgxCan" width="${W}" height="${H}"></canvas></div>
   <div class="bgxctl">
     <div class="bgxrow"><span class="fl">Tap to</span><div class="bgxseg" data-grp="tool">
@@ -5227,7 +5227,7 @@ function bxClick(ev){
   else if(k==="bg"){ BX.bg=v; bxSeg("bg",v); $("bgxView").dataset.bg=v; }
   else if(k==="zoom"){ const Z=[1,2,4,8], i=Z.indexOf(BX.zoom); BX.zoom=Z[Math.max(0,Math.min(Z.length-1,i+ +v))]; bxFit(); }
   else if(k==="undo"){ if(!BX.acts.length){ toast("Nothing to undo."); return; } BX.acts.pop(); bxCompute(); }
-  else if(k==="reset"){ BX.acts=BX.edgeKeys.length?[{type:"edge"}]:[]; bxCompute(); }
+  else if(k==="reset"){ BX.acts=BX.edgeKeys.length&&!BX.clear?[{type:"edge"}]:[]; bxCompute(); }
   else if(k==="cancel"){ bxClose(); }
   else if(k==="keep"){ const f=BX.file, dl=BX.deliver; bxClose(); dl(f); }
   else if(k==="use"){ const dl=BX.deliver, name=((BX.file&&BX.file.name)||"art").replace(/\.\w+$/,"")+"-cut.png";
