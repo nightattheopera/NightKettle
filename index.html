@@ -976,6 +976,9 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 @media (prefers-reduced-motion:reduce){.go-kicker,.go-title{animation:none}}
 
 .ssbrush{width:auto;min-height:36px;padding:4px 8px;font-size:13px}
+.sswrap{overflow:auto;max-height:72vh;border:1px solid var(--line)}
+.ssed.big{width:100%;margin:0}
+.sszoom{display:inline-flex;align-items:center;gap:4px}.sszoom b{font-family:var(--pixel);font-size:10px;min-width:2.2em;text-align:center}
 
 </style>
 </head>
@@ -4120,7 +4123,7 @@ function vFavors(){
 const SS_PAL=["#1a1424","#3a3048","#6a5e7e","#a49cb8","#ece8f7","#ffffff","#f7d6bc","#e0a888","#b07850","#6a4028",
   "#ff3d8b","#c81e5a","#ff8a3a","#ffd23f","#3fbf6a","#1e7a4a","#3ef2e0","#3a8af0","#24306a","#9a5ad8","#5a2a8a","#8a5224","#34507a","#c8c4dc"];
 const SS_MAX=512;   /* biggest frame the pixel editor opens at full detail */
-const SS={brush:1,w:32,h:48,frames:[],cur:0,tool:"pen",color:"#1a1424",onion:true,fps:8,undo:[],redo:[],wid:null,kind:"fidle",height:48,flip:false,grid:true,ready:false,drawing:false,last:null};
+const SS={brush:1,zoom:1,w:32,h:48,frames:[],cur:0,tool:"pen",color:"#1a1424",onion:true,fps:8,undo:[],redo:[],wid:null,kind:"fidle",height:48,flip:false,grid:true,ready:false,drawing:false,last:null};
 function ssBlank(){ return new Uint8ClampedArray(SS.w*SS.h*4); }
 function ssLoadDraft(){
   if(SS.ready) return; SS.ready=true;
@@ -4163,9 +4166,10 @@ function ssDraw(){
 function ssThumbs(){ document.querySelectorAll("canvas[data-ssf]").forEach(c=>{ const px=SS.frames[+c.dataset.ssf]; if(!px) return; c.width=SS.w; c.height=SS.h; c.getContext("2d").putImageData(new ImageData(new Uint8ClampedArray(px),SS.w,SS.h),0,0); }); }
 function ssToolbar(){ const el=$("ssTools"); if(el) el.outerHTML=ssToolsHTML(); const sw=$("ssSwatch"); if(sw) sw.value=SS.color; }
 function ssToolsHTML(){
-  const T=[["pen","✎ Pen"],["erase","⌫ Erase"],["fill","◩ Fill"],["pick","◉ Pick"]];
+  const T=[["pen","✎ Pen"],["erase","⌫ Erase"],["fill","◩ Fill"],["pick","◉ Pick"],...(SS.w>=96?[["pan","✋ Move"]]:[])];
   return `<div id="ssTools" class="sstools">${T.map(([k,l])=>`<button class="btn ${SS.tool===k?"solid":"ghost"} smallbtn" data-act="ssTool" data-id="${k}" aria-pressed="${SS.tool===k}">${l}</button>`).join("")}
     <button class="btn ghost smallbtn" data-act="ssUndo" aria-label="Undo">↶</button><button class="btn ghost smallbtn" data-act="ssRedo" aria-label="Redo">↷</button>
+    ${SS.w>=96?`<span class="sszoom"><button class="btn ghost smallbtn" data-act="ssZoom" data-id="-1" aria-label="Zoom out" ${(SS.zoom||1)<=1?"disabled":""}>−</button><b>${SS.zoom||1}×</b><button class="btn ghost smallbtn" data-act="ssZoom" data-id="1" aria-label="Zoom in" ${(SS.zoom||1)>=4?"disabled":""}>+</button></span>`:""}
     <label class="srt" for="ssBrush">Brush size</label><select class="field ssbrush" id="ssBrush" title="Brush size">${[1,2,3,4,6,8,12,16].map(n=>`<option value="${n}" ${(SS.brush||1)===n?"selected":""}>${n}px</option>`).join("")}</select></div>`;
 }
 function ssUsed(){ const s=new Set(), step=4*Math.max(1,Math.floor(SS.w*SS.h/8192)); SS.frames.forEach(px=>{ for(let i=0;i<px.length&&s.size<64;i+=step) if(px[i+3]) s.add(toHex(px[i],px[i+1],px[i+2])); }); return [...s].slice(0,16); }
@@ -4204,7 +4208,7 @@ function vSprites(){
     <div class="sspal">${SS_PAL.map(c=>`<button class="ssc ${SS.color===c?"on":""}" style="background:${c}" data-act="ssColor" data-id="${c}" aria-label="Color ${c}"></button>`).join("")}
       <label class="ssc custom" aria-label="Custom color"><input type="color" id="ssSwatch" value="${SS.color}"></label></div>
     ${used.length?`<div class="sspal used"><span class="fl" style="margin:0 6px 0 0">In use</span>${used.map(c=>`<button class="ssc ${SS.color===c?"on":""}" style="background:${c}" data-act="ssColor" data-id="${c}" aria-label="Color ${c}"></button>`).join("")}</div>`:""}
-    <canvas id="ssEd" class="ssed" width="${SS.w*Z}" height="${SS.h*Z}" aria-label="Pixel editor, frame ${SS.cur+1}"></canvas>
+    <div class="sswrap" id="ssWrap"><canvas id="ssEd" class="ssed ${SS.w>=96?"big":""}" width="${SS.w*Z}" height="${SS.h*Z}" style="${SS.w>=96?`width:${100*(SS.zoom||1)}%;max-width:none`:""}" aria-label="Pixel editor, frame ${SS.cur+1}"></canvas></div>
     <div class="actions" style="margin-top:6px"><button class="btn ghost smallbtn" data-act="ssOnion" aria-pressed="${SS.onion}">${SS.onion?"ONION ON":"ONION OFF"}</button><button class="btn ghost smallbtn" data-act="ssGrid" aria-pressed="${SS.grid}">${SS.grid?"GRID ON":"GRID OFF"}</button><button class="btn ghost smallbtn" data-act="ssMirror">FLIP FRAME</button><button class="btn ghost smallbtn" data-act="ssShift" data-id="0,-1">↑</button><button class="btn ghost smallbtn" data-act="ssShift" data-id="0,1">↓</button><button class="btn ghost smallbtn" data-act="ssShift" data-id="-1,0">←</button><button class="btn ghost smallbtn" data-act="ssShift" data-id="1,0">→</button><button class="btn danger smallbtn" data-act="ssClear">CLEAR</button></div>
   </section>
   <section class="panel"><h2><span>FRAMES</span><span>${SS.cur+1} / ${SS.frames.length}</span></h2>
@@ -4253,6 +4257,10 @@ function handleSprite(act,id,ev,el){
   const re=()=>{ ssSaveDraft(); render(); };
   switch(act){
     case "ssTool": SS.tool=id; ssToolbar(); return true;
+    case "ssZoom": { const wrap=$("ssWrap"), cv=$("ssEd"), z0=SS.zoom||1, z=Math.max(1,Math.min(4,z0+(+id))); if(z===z0) return true;
+      const cx=wrap?(wrap.scrollLeft+wrap.clientWidth/2)/wrap.scrollWidth:.5, cy=wrap?(wrap.scrollTop+wrap.clientHeight/2)/wrap.scrollHeight:.5;
+      SS.zoom=z; if(cv) cv.style.width=(100*z)+"%"; ssToolbar();
+      if(wrap){ wrap.scrollLeft=cx*wrap.scrollWidth-wrap.clientWidth/2; wrap.scrollTop=cy*wrap.scrollHeight-wrap.clientHeight/2; } return true; }
     case "ssColor": SS.color=id; if(SS.tool==="erase"||SS.tool==="pick") SS.tool="pen"; render(); return true;
     case "ssUndo": { const u=SS.undo.pop(); if(u){ SS.redo.push({i:u.i,d:new Uint8ClampedArray(SS.frames[u.i])}); SS.frames[u.i]=u.d; SS.cur=u.i; re(); } return true; }
     case "ssRedo": { const r=SS.redo.pop(); if(r){ SS.undo.push({i:r.i,d:new Uint8ClampedArray(SS.frames[r.i])}); SS.frames[r.i]=r.d; SS.cur=r.i; re(); } return true; }
@@ -4275,9 +4283,11 @@ function handleSprite(act,id,ev,el){
   return false;
 }
 document.addEventListener("pointerdown",ev=>{ if(ev.target.id!=="ssEd") return; ev.preventDefault(); ev.target.setPointerCapture&&ev.target.setPointerCapture(ev.pointerId);
+  if(SS.tool==="pan"){ const w=$("ssWrap"); SS.pan=w&&{x:ev.clientX,y:ev.clientY,l:w.scrollLeft,t:w.scrollTop}; return; }
   ssPush(); SS.drawing=true; SS.last=null; const [x,y]=ssPos(ev); ssApply(x,y,true); ssDraw(); });
-document.addEventListener("pointermove",ev=>{ if(!SS.drawing||ev.target.id!=="ssEd") return; const [x,y]=ssPos(ev); if(SS.last&&SS.last[0]===x&&SS.last[1]===y) return; ssApply(x,y,false); ssDraw(); });
-document.addEventListener("pointerup",()=>{ if(!SS.drawing) return; SS.drawing=false; SS.last=null; ssThumbs(); ssSaveDraft(); });
+document.addEventListener("pointermove",ev=>{ if(SS.pan&&ev.target.id==="ssEd"){ const w=$("ssWrap"); if(w){ w.scrollLeft=SS.pan.l-(ev.clientX-SS.pan.x); w.scrollTop=SS.pan.t-(ev.clientY-SS.pan.y); } return; }
+  if(!SS.drawing||ev.target.id!=="ssEd") return; const [x,y]=ssPos(ev); if(SS.last&&SS.last[0]===x&&SS.last[1]===y) return; ssApply(x,y,false); ssDraw(); });
+document.addEventListener("pointerup",()=>{ SS.pan=null; if(!SS.drawing) return; SS.drawing=false; SS.last=null; ssThumbs(); ssSaveDraft(); });
 document.addEventListener("change",ev=>{ const t=ev.target; if(!t.id||t.id.indexOf("ss")!==0) return;
   if(t.id==="ssBrush"){ SS.brush=Math.max(1,Math.min(16,+t.value||1)); return; }
   if(t.id==="ssWho"){ SS.wid=t.value; render(); } if(t.id==="ssKind"){ SS.kind=t.value; render(); }
