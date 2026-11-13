@@ -975,6 +975,8 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 @keyframes goPulse{50%{opacity:.4}}
 @media (prefers-reduced-motion:reduce){.go-kicker,.go-title{animation:none}}
 
+.ssbrush{width:auto;min-height:36px;padding:4px 8px;font-size:13px}
+
 </style>
 </head>
 <body class="night">
@@ -4117,7 +4119,8 @@ function vFavors(){
 /* ---------- SPRITE STUDIO: draw pixel sprites, save them into floor slots ---------- */
 const SS_PAL=["#1a1424","#3a3048","#6a5e7e","#a49cb8","#ece8f7","#ffffff","#f7d6bc","#e0a888","#b07850","#6a4028",
   "#ff3d8b","#c81e5a","#ff8a3a","#ffd23f","#3fbf6a","#1e7a4a","#3ef2e0","#3a8af0","#24306a","#9a5ad8","#5a2a8a","#8a5224","#34507a","#c8c4dc"];
-const SS={w:32,h:48,frames:[],cur:0,tool:"pen",color:"#1a1424",onion:true,fps:8,undo:[],redo:[],wid:null,kind:"fidle",height:48,flip:false,grid:true,ready:false,drawing:false,last:null};
+const SS_MAX=512;   /* biggest frame the pixel editor opens at full detail */
+const SS={brush:1,w:32,h:48,frames:[],cur:0,tool:"pen",color:"#1a1424",onion:true,fps:8,undo:[],redo:[],wid:null,kind:"fidle",height:48,flip:false,grid:true,ready:false,drawing:false,last:null};
 function ssBlank(){ return new Uint8ClampedArray(SS.w*SS.h*4); }
 function ssLoadDraft(){
   if(SS.ready) return; SS.ready=true;
@@ -4131,11 +4134,12 @@ function ssFrameURL(px){ const c=document.createElement("canvas"); c.width=SS.w;
 function ssSaveDraft(){ clearTimeout(ssSaveDraft.t); ssSaveDraft.t=setTimeout(()=>{ try{ localStorage.setItem("nightkettle.sprdraft",JSON.stringify({w:SS.w,h:SS.h,fps:SS.fps,height:SS.height,flip:SS.flip,kind:SS.kind,wid:SS.wid,frames:SS.frames.map(ssFrameURL)})); }catch(e){} },400); }
 const hex2=h=>{ h=h.replace("#",""); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; };
 const toHex=(r,g,b)=>"#"+[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("");
+function ssDab(px,x,y,rgba){ const b=Math.max(1,SS.brush|0), o=Math.floor((b-1)/2); for(let yy=0;yy<b;yy++) for(let xx=0;xx<b;xx++) ssSet(px,x-o+xx,y-o+yy,rgba); }
 function ssSet(px,x,y,rgba){ if(x<0||y<0||x>=SS.w||y>=SS.h) return; const i=(y*SS.w+x)*4; px[i]=rgba[0]; px[i+1]=rgba[1]; px[i+2]=rgba[2]; px[i+3]=rgba[3]; }
 function ssGet(px,x,y){ const i=(y*SS.w+x)*4; return [px[i],px[i+1],px[i+2],px[i+3]]; }
-function ssPush(){ SS.undo.push({i:SS.cur,d:new Uint8ClampedArray(SS.frames[SS.cur])}); if(SS.undo.length>60) SS.undo.shift(); SS.redo=[]; }
+function ssPush(){ SS.undo.push({i:SS.cur,d:new Uint8ClampedArray(SS.frames[SS.cur])}); if(SS.undo.length>(SS.w*SS.h>16384?15:60)) SS.undo.shift(); SS.redo=[]; }
 function ssLine(px,x0,y0,x1,y1,rgba){ const dx=Math.abs(x1-x0), dy=-Math.abs(y1-y0), sx=x0<x1?1:-1, sy=y0<y1?1:-1; let e=dx+dy;
-  for(let n=0;n<512;n++){ ssSet(px,x0,y0,rgba); if(x0===x1&&y0===y1) break; const e2=2*e; if(e2>=dy){ e+=dy; x0+=sx; } if(e2<=dx){ e+=dx; y0+=sy; } } }
+  for(let n=0;n<4096;n++){ ssDab(px,x0,y0,rgba); if(x0===x1&&y0===y1) break; const e2=2*e; if(e2>=dy){ e+=dy; x0+=sx; } if(e2<=dx){ e+=dx; y0+=sy; } } }
 function ssFill(px,x,y,rgba){ const t=ssGet(px,x,y); if(t.every((v,k)=>v===rgba[k])) return; const st=[[x,y]], same=(a,b)=>a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2]&&a[3]===b[3];
   while(st.length){ const [cx,cy]=st.pop(); if(cx<0||cy<0||cx>=SS.w||cy>=SS.h) continue; if(!same(ssGet(px,cx,cy),t)) continue; ssSet(px,cx,cy,rgba); st.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]); } }
 function ssPos(ev){ const cv=$("ssEd"), r=cv.getBoundingClientRect(); return [Math.floor((ev.clientX-r.left)/r.width*SS.w),Math.floor((ev.clientY-r.top)/r.height*SS.h)]; }
@@ -4143,14 +4147,15 @@ function ssApply(x,y,first){
   const px=SS.frames[SS.cur], col=SS.tool==="erase"?[0,0,0,0]:[...hex2(SS.color),255];
   if(SS.tool==="fill"){ if(first) ssFill(px,x,y,col); return; }
   if(SS.tool==="pick"){ if(first&&x>=0&&y>=0&&x<SS.w&&y<SS.h){ const c=ssGet(px,x,y); if(c[3]){ SS.color=toHex(c[0],c[1],c[2]); SS.tool="pen"; ssToolbar(); } } return; }
-  if(SS.last&&!first) ssLine(px,SS.last[0],SS.last[1],x,y,col); else ssSet(px,x,y,col);
+  if(SS.last&&!first) ssLine(px,SS.last[0],SS.last[1],x,y,col); else ssDab(px,x,y,col);
   SS.last=[x,y];
 }
 function ssDraw(){
   const cv=$("ssEd"); if(!cv) return; const Z=cv.width/SS.w, g=cv.getContext("2d");
-  g.clearRect(0,0,cv.width,cv.height);
-  for(let y=0;y<SS.h;y++) for(let x=0;x<SS.w;x++){ g.fillStyle=((x>>2)+(y>>2))%2?"#1c1826":"#231e30"; g.fillRect(x*Z,y*Z,Z,Z); }
-  const paint=(px,alpha)=>{ g.globalAlpha=alpha; for(let y=0;y<SS.h;y++) for(let x=0;x<SS.w;x++){ const i=(y*SS.w+x)*4; if(px[i+3]){ g.fillStyle=`rgba(${px[i]},${px[i+1]},${px[i+2]},${px[i+3]/255})`; g.fillRect(x*Z,y*Z,Z,Z); } } g.globalAlpha=1; };
+  g.clearRect(0,0,cv.width,cv.height); g.imageSmoothingEnabled=false;
+  const ck=Math.max(4,Math.round(SS.w/16)); for(let y=0;y<SS.h;y+=ck) for(let x=0;x<SS.w;x+=ck){ g.fillStyle=((x/ck|0)+(y/ck|0))%2?"#1c1826":"#231e30"; g.fillRect(x*Z,y*Z,ck*Z,ck*Z); }
+  const off=ssDraw.off||(ssDraw.off=document.createElement("canvas")); off.width=SS.w; off.height=SS.h; const og=off.getContext("2d");
+  const paint=(px,alpha)=>{ og.putImageData(new ImageData(new Uint8ClampedArray(px),SS.w,SS.h),0,0); g.globalAlpha=alpha; g.drawImage(off,0,0,SS.w*Z,SS.h*Z); g.globalAlpha=1; };
   if(SS.onion&&SS.cur>0) paint(SS.frames[SS.cur-1],.28);
   paint(SS.frames[SS.cur],1);
   if(SS.grid&&Z>=6){ g.strokeStyle="rgba(255,255,255,.06)"; g.lineWidth=1; g.beginPath(); for(let x=1;x<SS.w;x++){ g.moveTo(x*Z+.5,0); g.lineTo(x*Z+.5,cv.height); } for(let y=1;y<SS.h;y++){ g.moveTo(0,y*Z+.5); g.lineTo(cv.width,y*Z+.5); } g.stroke(); }
@@ -4160,13 +4165,14 @@ function ssToolbar(){ const el=$("ssTools"); if(el) el.outerHTML=ssToolsHTML(); 
 function ssToolsHTML(){
   const T=[["pen","✎ Pen"],["erase","⌫ Erase"],["fill","◩ Fill"],["pick","◉ Pick"]];
   return `<div id="ssTools" class="sstools">${T.map(([k,l])=>`<button class="btn ${SS.tool===k?"solid":"ghost"} smallbtn" data-act="ssTool" data-id="${k}" aria-pressed="${SS.tool===k}">${l}</button>`).join("")}
-    <button class="btn ghost smallbtn" data-act="ssUndo" aria-label="Undo">↶</button><button class="btn ghost smallbtn" data-act="ssRedo" aria-label="Redo">↷</button></div>`;
+    <button class="btn ghost smallbtn" data-act="ssUndo" aria-label="Undo">↶</button><button class="btn ghost smallbtn" data-act="ssRedo" aria-label="Redo">↷</button>
+    <label class="srt" for="ssBrush">Brush size</label><select class="field ssbrush" id="ssBrush" title="Brush size">${[1,2,3,4,6,8,12,16].map(n=>`<option value="${n}" ${(SS.brush||1)===n?"selected":""}>${n}px</option>`).join("")}</select></div>`;
 }
-function ssUsed(){ const s=new Set(); SS.frames.forEach(px=>{ for(let i=0;i<px.length;i+=4) if(px[i+3]) s.add(toHex(px[i],px[i+1],px[i+2])); }); return [...s].slice(0,16); }
+function ssUsed(){ const s=new Set(), step=4*Math.max(1,Math.floor(SS.w*SS.h/8192)); SS.frames.forEach(px=>{ for(let i=0;i<px.length&&s.size<64;i+=step) if(px[i+3]) s.add(toHex(px[i],px[i+1],px[i+2])); }); return [...s].slice(0,16); }
 function vSprites(){
   ssLoadDraft();
   if(!SS.wid||!S.staff.some(w=>w.id===SS.wid)) SS.wid=S.staff[0]&&S.staff[0].id;
-  const Z=Math.max(4,Math.floor(Math.min(340/SS.w,420/SS.h))), used=ssUsed();
+  const Z=Math.max(1,Math.min(16,Math.floor(Math.min(340/SS.w,420/SS.h)))), used=ssUsed();
   const slots=[["fidle","Floor · Standing"],["fwalk","Floor · Walking"]];
   return `<section class="panel"><h2><span>SPRITE STUDIO</span><span>${SS.w}×${SS.h} · ${SS.frames.length} FRAME${SS.frames.length===1?"":"S"}</span></h2>
     <p class="hint" style="margin:0 0 8px">Draw pixel sprites frame by frame, then save them into a worker's floor slot. Your work-in-progress is kept on this device.</p>
@@ -4189,11 +4195,11 @@ function vSprites(){
       <label class="btn solid" for="ssImport" style="text-align:center;flex:1">UPLOAD TO EDIT</label><input type="file" id="ssImport" class="srt" accept="image/*">
       <label class="btn" for="ssDirect" style="text-align:center;flex:1">UPLOAD STRAIGHT TO SLOT</label><input type="file" id="ssDirect" class="srt" accept="image/*">
     </div>
-    <p class="hint" style="margin:6px 0 0">Frames are found automatically when the sheet has a clear background between figures. <b>To edit</b> opens small pixel art here (up to 128px a frame). Anything bigger, and <b>Straight to slot</b>, saves at full detail. Check the result in the slot below.</p>
+    <p class="hint" style="margin:6px 0 0">Frames are found automatically when the sheet has a clear background between figures. <b>To edit</b> opens it in the pixel editor below (full detail up to ${SS_MAX}px a frame; bigger frames are shrunk to fit). <b>Straight to slot</b> saves it as-is; you can still open what's in the slot in the editor afterwards. Check the result in the slot below.</p>
   </section>
   ${ssSlotHTML()}
   ${ssFitHTML()}
-  <section class="panel ssedwrap"><h2><span>PIXEL EDITOR</span><span>SMALL SPRITES</span></h2>
+  <section class="panel ssedwrap"><h2><span>PIXEL EDITOR</span><span>${SS.w}×${SS.h} · ${SS.frames.length} FRAME${SS.frames.length===1?"":"S"}</span></h2>
     ${ssToolsHTML()}
     <div class="sspal">${SS_PAL.map(c=>`<button class="ssc ${SS.color===c?"on":""}" style="background:${c}" data-act="ssColor" data-id="${c}" aria-label="Color ${c}"></button>`).join("")}
       <label class="ssc custom" aria-label="Custom color"><input type="color" id="ssSwatch" value="${SS.color}"></label></div>
@@ -4223,7 +4229,7 @@ function ssPreviewTick(){
 }
 setInterval(()=>{ if(tab==="dev"&&devSub==="sprites") ssPreviewTick(); },60);
 function ssLoadSheet(src,cols,rows,done){
-  const im=new Image(); im.onload=()=>{ let fw=Math.floor(im.naturalWidth/cols), fh=Math.floor(im.naturalHeight/rows); const sc=Math.min(1,128/fh,128/fw), tw=Math.max(1,Math.round(fw*sc)), th=Math.max(1,Math.round(fh*sc));
+  const im=new Image(); im.onload=()=>{ let fw=Math.floor(im.naturalWidth/cols), fh=Math.floor(im.naturalHeight/rows); const sc=Math.min(1,SS_MAX/fh,SS_MAX/fw), tw=Math.max(1,Math.round(fw*sc)), th=Math.max(1,Math.round(fh*sc)); if(sc<1) setTimeout(()=>toast(`Frames are ${fw}×${fh}px, so they were shrunk to ${tw}×${th}px to fit the editor. Use Straight to slot to keep every pixel.`),400);
     const frames=[]; for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){ const cv=document.createElement("canvas"); cv.width=tw; cv.height=th; const g=cv.getContext("2d"); g.imageSmoothingEnabled=false; g.drawImage(im,c*fw,r*fh,fw,fh,0,0,tw,th); frames.push(g.getImageData(0,0,tw,th).data); }
     Object.assign(SS,{w:tw,h:th,frames,cur:0,undo:[],redo:[]}); if(!SS.height||SS.height>100) SS.height=Math.min(100,th); done&&done(); };
   im.onerror=()=>toast("Couldn't read that image.", true); im.src=src;
@@ -4273,6 +4279,7 @@ document.addEventListener("pointerdown",ev=>{ if(ev.target.id!=="ssEd") return; 
 document.addEventListener("pointermove",ev=>{ if(!SS.drawing||ev.target.id!=="ssEd") return; const [x,y]=ssPos(ev); if(SS.last&&SS.last[0]===x&&SS.last[1]===y) return; ssApply(x,y,false); ssDraw(); });
 document.addEventListener("pointerup",()=>{ if(!SS.drawing) return; SS.drawing=false; SS.last=null; ssThumbs(); ssSaveDraft(); });
 document.addEventListener("change",ev=>{ const t=ev.target; if(!t.id||t.id.indexOf("ss")!==0) return;
+  if(t.id==="ssBrush"){ SS.brush=Math.max(1,Math.min(16,+t.value||1)); return; }
   if(t.id==="ssWho"){ SS.wid=t.value; render(); } if(t.id==="ssKind"){ SS.kind=t.value; render(); }
   if(t.id==="ssFps") SS.fps=Math.max(1,Math.min(30,+t.value||8)); if(t.id==="ssHeight") SS.height=Math.max(16,Math.min(100,+t.value||46)); if(t.id==="ssFlip") SS.flip=t.checked;
   if(t.id==="ssSwatch"){ SS.color=t.value; if(SS.tool!=="pen"&&SS.tool!=="fill") SS.tool="pen"; render(); }
@@ -5074,7 +5081,7 @@ function routeSS(t){
     if(det&&(det.cols!==n||det.rows!==m)){ n=det.cols; m=det.rows; found=`Found ${n*m} frame${n*m===1?"":"s"}${m>1?` (${n} across, ${m} down)`:""}. `; }
     SS.upCols=n; SS.upRows=m;
     const IW=img.width||img.naturalWidth, IH=img.height||img.naturalHeight, w=S.staff.find(x=>x.id===SS.wid);
-    if(direct||IW/n>128||IH/m>128){ if(!w){ toast("Pick a worker first.", true); return; }
+    if(direct){ if(!w){ toast("Pick a worker first.", true); return; }
       if(found) toast(found);
       sheetUploadNoBox(file,w.id,SS.kind,{cols:n,rows:m,fps:SS.fps,h:SS.height}); return; }
     const c=document.createElement("canvas"); c.width=IW; c.height=IH; c.getContext("2d").drawImage(img,0,0);
