@@ -963,6 +963,18 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .edgepick span.tag{display:inline-block;padding:2px 6px;margin-left:6px;border:1px solid var(--line);vertical-align:middle;box-shadow:none}
 .pmrow .pmmonth{opacity:.8}
 
+/* floors */
+.floorreq{list-style:none;margin:0;padding:0;display:grid;gap:4px}.floorreq li{padding:6px 10px;border:1px solid var(--line)}
+.floorreq li.good::before{content:"✓ ";}.floorreq li.bad::before{content:"✕ ";}
+.area.locked>summary{opacity:.85}.area.locked .aico{filter:grayscale(1)}
+.shiftfloor.locked{opacity:.75}.shiftfloor.locked .shifthd{margin:0}
+.floordev{border:1px solid var(--line);padding:8px 10px;margin:0 0 8px}
+.grandopen{text-align:center}.go-kicker{font-family:var(--pixel);font-size:10px;letter-spacing:.3em;color:var(--accent);margin:4px 0 0;animation:goPulse 1.2s ease-in-out infinite}
+.go-title{font-size:28px;margin:6px 0;text-shadow:0 0 12px var(--accent);animation:goIn .7s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes goIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes goPulse{50%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){.go-kicker,.go-title{animation:none}}
+
 </style>
 </head>
 <body class="night">
@@ -1831,6 +1843,7 @@ function povConfig(sec){
       if(night){ g.fillStyle="rgba(170,190,255,.3)"; for(let i=0;i<90;i++){ const y=((i*97+t*.3)%(PH+10))-5, x=(i*53+y*.3)%PW; g.fillRect(Math.round(x),Math.round(y),1,4); } }
     };
   }
+  if(sec!=="roof"&&ROLES[sec]){ C.open=floorOpenAt(sec,viewSide()); if(floorLocked(sec)){ C.built=false; C.opensText="LOCKED"; } }
   if(C.staff){ const w=workerFor(sec); if(w){ C.staff.look=w.look; C.staff.who=w.name; } else { C.staff=null; C.noStaff=true; } }
   povLights(C);
   return C;
@@ -2464,7 +2477,7 @@ function starterWorker(){
   return {id:"mika",name:"Mika",role:"cafe",art:"builtin:mika",skill:1,charm:1,trait:"latte",persona:"bubbly",lv:1,xp:0,serves:0,perfects:0,tips:0,
     look:{skin:"#f7d6bc",hair:"#4ad8e0",hair2:"#9a5ad8",style:8,top:"#1e2a4a",pants:"#34507a",accent:"#3a8af0",visor:false,acc:"choker",outfit:"track",eye:"#3a7ad8",_k:"mika"}};
 }
-const workerFor=role=>{ const er=S.edge&&S.edge.run; if(er&&er.left===role) return null; const H=S.staff.filter(w=>w.hired!==false&&!(er&&er.runner===w.id)), id=S.shift&&S.shift[role]; if(id==="-") return null; const a=id&&H.find(w=>w.id===id); if(a) return a; if(id&&er&&er.runner===id) return null; const busy=new Set(Object.entries(S.shift||{}).filter(([k])=>k!==role).map(([,v])=>v)); Object.values(S.crew||{}).forEach(v=>Array.isArray(v)&&v.forEach(x=>x&&busy.add(x))); return H.find(w=>w.role===role&&!busy.has(w.id))||null; };
+const workerFor=role=>{ if(floorLocked(role)) return null; const er=S.edge&&S.edge.run; if(er&&er.left===role) return null; const H=S.staff.filter(w=>w.hired!==false&&!(er&&er.runner===w.id)), id=S.shift&&S.shift[role]; if(id==="-") return null; const a=id&&H.find(w=>w.id===id); if(a) return a; if(id&&er&&er.runner===id) return null; const busy=new Set(Object.entries(S.shift||{}).filter(([k])=>k!==role).map(([,v])=>v)); Object.values(S.crew||{}).forEach(v=>Array.isArray(v)&&v.forEach(x=>x&&busy.add(x))); return H.find(w=>w.role===role&&!busy.has(w.id))||null; };
 const traitOf=w=>TRAITS[w.trait]||{};
 const traitApplies=(w,t)=>!t.roles||t.roles.includes(w.role);
 const pickR=(r,a)=>a[Math.floor(r()*a.length)];
@@ -2959,7 +2972,7 @@ function gainProg(w,n){
     setTimeout(()=>toast(`${w.name} reached ${PL()} ${after}. ${nm} unlocked.`),400); }
 }
 function favorEligible(f,sec){
-  if(!f.on) return false;
+  if(!f.on||floorLocked(sec)) return false;
   if(f.where&&f.where.length&&!f.where.includes(sec)) return false;
   if(f.when==="day"&&clockSide()!=="day") return false;
   if(f.when==="night"&&clockSide()!=="night") return false;
@@ -2982,10 +2995,12 @@ function freshState(){
     modules:{},sprites:{},staff:[starterWorker()],board:null,boardRoll:0,serves:{},
     buckets:[],cadence:"weekly",lists:[],wins:[],taskLog:[],bads:[],missLog:[],miss:{on:true,rep:1,since:today(),last:addDays(today(),-1)},prog:defaultProg(),
     favors:{on:true,chance:.25,deck:defaultFavors()},
-    lines:null,
+    lines:null, floors:{v:1,bar:{open:false},club:{open:false}},
     log:[{t:Date.now(),k:"sys",m:"Welcome to Night Kettle. Finish tasks and habits to bring clients in, then serve them at the counter to earn creds."}]};
 }
 function migrate(o){
+  /* saves from before floors existed: back up, then lock (see floors.js). v:0 = backup failed, try again next load */
+  if(o&&typeof o==="object"&&!(o.floors&&o.floors.v)){ floorsMigrate(o); if(!(o.floors&&o.floors.v)) o.floors={v:0}; }
   const b=freshState(); o=Object.assign(b,o||{});
   ["modules","sprites","serves","stats","clients"].forEach(k=>{ if(!o[k]||typeof o[k]!=="object") o[k]=b[k]; });
   ["habits","tasks","buckets","log","staff","lists","wins"].forEach(k=>{ if(!Array.isArray(o[k])) o[k]=b[k]; });
@@ -3080,12 +3095,12 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(t&&t.type==="radi
 const diffTag=(o,min)=>{ const k=(o&&o.diff)||2; return (min?k<min:k===2)?"":`<span class="dtag d${k}">${DIFF[k].n.toUpperCase()}</span>`; };
 function removeClient(vip){ if(S.clients.waiting>0){ S.clients.waiting--; if(vip&&S.clients.vip>0) S.clients.vip--; if(S.clients.vip>S.clients.waiting) S.clients.vip=S.clients.waiting; } }
 function dailyWalkIn(){ if(S.lastWalk!==today()){ S.lastWalk=today(); const n=1+Math.floor((S.modules.loyalty||0)/2); S.clients.waiting+=n; addLog(n>1?`${n} walk-in clients are waiting. Loyalty cards bring regulars back.`:"A walk-in client is waiting. One shows up every day.","gain"); save(); } }
-function totals(secs){ let amb=0,seats=2,lv=0; for(const id in S.modules){ const L=S.modules[id], m=MODULES[id]; if(!m||!L) continue; if(secs&&!secs.includes(m.sec)) continue; amb+=m.amb*L; seats+=m.seats*L; lv+=L; } return {amb,seats,lv}; }
+function totals(secs){ let amb=0,seats=2,lv=0; for(const id in S.modules){ const L=S.modules[id], m=MODULES[id]; if(!m||!L||modFloorLocked(id)) continue; if(secs&&!secs.includes(m.sec)) continue; amb+=m.amb*L; seats+=m.seats*L; lv+=L; } return {amb,seats,lv}; }
 function patrons(side){ return Math.max(1,Math.min(14,totals(SIDE_SECS[side]).seats)); }
 const upgradeCost=id=>Math.round(MODULES[id].cost*Math.pow(2,S.modules[id]||0));
 function counterState(sec){
-  const built=SEC_ROOMS[sec].some(id=>S.modules[id]), open=(SIDE_OF[sec]||"night")===clockSide(), w=workerFor(sec);
-  return {built,open,w,ok:built&&open&&!!w};
+  const locked=floorLocked(sec), built=!locked&&SEC_ROOMS[sec].some(id=>S.modules[id]), open=floorOpenNow(sec), w=workerFor(sec);
+  return {built,open,w,locked,ok:built&&open&&!!w};
 }
 
 /* ---------- tasks + habits ---------- */
@@ -3239,7 +3254,7 @@ function srvFinish(res,ev){
   if(g==="close"&&!saved&&fskLv(w,sec)>=7&&Math.random()<.10){ g="perfect"; saved=true; savedBy=`${w.name}'s ${fskName(sec)} experience`; }
   const d=serveDay(); d.n++; if(g==="perfect") d.perf[serveSide(sec)]++;
   const amb=totals(SIDE_SECS[serveSide(sec)]).amb;
-  const tip=Math.max(1,Math.round(tipFor(w,g)*ambMult(amb)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)*skillTipMult(w,sec)*crewTipMult(sec)*edgeTipMult(sec))); edgeConsume(sec);
+  const tip=Math.max(1,Math.round(tipFor(w,g)*ambMult(amb)*(srv.cust.vip?1.5:1)*(1+(srv.tipMod||0))*(srv.favorMult||1)*(1+outfitBonus(w)+.02*(S.modules.tipjar||0))*(perkOf(w)==="tips"?1.2:1)*skillTipMult(w,sec)*crewTipMult(sec)*edgeTipMult(sec)*floorTipMult(sec))); edgeConsume(sec);
   S.credits+=tip; S.xp+=tip; d.tips=(d.tips||0)+tip;
   S.stats.served++; if(g==="perfect") S.stats.perfect++; S.stats.tips+=tip;
   S.rep+=g==="perfect"?2:g==="close"?1:0;
@@ -3405,7 +3420,7 @@ function renderTabs(){
 /* ---------- screens ---------- */
 function vShop(){
   const r=rankInfo(), k=today(), d=S.serves[k]||{n:0,tips:0};
-  const team=S.staff.filter(isHired), shifts=team.length?Object.keys(ROLES).filter(sec=>counterState(sec).built):[];
+  const team=S.staff.filter(isHired), shifts=team.length?Object.keys(ROLES).filter(sec=>counterState(sec).built&&floorUnlocked(sec)):[];
   return `
   <section class="panel duepanel">${dueRail()}</section>
   ${edgePanel()}
@@ -3915,7 +3930,7 @@ function vSave(){
 }
 const AREAS=[["cafe","CAFE","☀","Café","Day"],["books","BOOKS","☀","Bookshop","Day"],["bar","BAR","☾","Bar","Night"],["club","CLUB","☾","Club","Night"],["shop","SHOP","▣","Whole shop","Always"]];
 let openAreas=null, manageOpen=null;
-function defaultOpenAreas(){ return new Set([clockSide()==="day"?"cafe":"bar"]); }
+function defaultOpenAreas(){ return new Set([clockSide()==="day"||floorLocked("bar")?"cafe":"bar"]); }
 const UNLOCKS={tipjar:"+2% tips per tier",loyalty:"+1 daily walk-in every 2 tiers",booth:"Adds live remixes to the stage",lights:"Adds laser sets to the stage",hydro:"Unlocks Mint Leaf + Garden Mojito",still:"Unlocks Smoke Oil + Smog Cutter",jukebox:"Unlocks Velvet Cream + Night Velvet",press:"Adds zines to the book desk",archive:"Adds rare books to the book desk",sign:"Your name on the billboard"};
 function roomRow(id){
   const m=MODULES[id], L=S.modules[id]||0, cost=L<MAX_LVL?upgradeCost(id):0, can=S.credits>=cost;
@@ -4021,6 +4036,12 @@ function candRow(c,role){
     <button class="btn ${can?"solid":""} rbtn" data-act="hire" data-role="${role}" data-id="${c.id}" ${can?"":"disabled"}>HIRE<br>${c.cost}₵</button></div>`;
 }
 function areaPanel([key,sec,icon,label,when]){
+  if(ROLES[key]&&floorLocked(key)){ const ck=floorCheck(key), d=floorDormant(key);
+    return `<details class="area locked" data-area="${key}" ${openAreas.has(key)?"open":""}>
+    <summary><span class="aico" aria-hidden="true">🔒</span><span class="atitle"><b>${esc(SEC_NAME[key])}</b><small>Locked · ${floorReqLine(key)}</small></span>${ck.ok?`<span class="ready">CAN UNLOCK</span>`:""}<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="abody"><p style="margin:0 0 8px">${key==="bar"?"Unlock the Bar to open a night counter under the café.":`Unlock the ${esc(SEC_NAME.club)} for a stage under the bar.`}${ck.ok?"":` Still needed: ${esc(ck.why.join(", "))}.`}</p>
+      ${d.mods.length?`<p class="hint" style="margin:0 0 8px">Dormant until then, kept as they are: ${esc(d.mods.join(", "))}.</p>`:""}
+      <div class="actions" style="margin-top:0"><button class="btn ${ck.ok?"solid":"ghost"}" data-floor="sheet" data-id="${key}">${ck.ok?`UNLOCK · ₵${ck.cost.toLocaleString()}`:"SEE WHAT IT NEEDS"}</button></div></div></details>`; }
   const ids=Object.keys(MODULES).filter(id=>MODULES[id].sec===sec).sort((x,y)=>MODULES[x].cost-MODULES[y].cost);
   const built=ids.filter(id=>S.modules[id]).length, isRole=!!ROLES[key], w=isRole&&workerFor(key);
   const ready=ids.some(id=>(S.modules[id]||0)<MAX_LVL&&S.credits>=upgradeCost(id))||(w&&w.skill<5&&S.credits>=90*w.skill);
@@ -4064,7 +4085,7 @@ function vFavors(){
   </section>
   <section class="panel">
     <h2><span>FAVOR DECK</span><span>${show.length}</span></h2>
-    <div class="povtabs" style="grid-template-columns:repeat(5,1fr)">${[["all","ALL"],["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club",SEC_NAME.club.toUpperCase()]].map(([v,l])=>`<button class="povtab ${favFilter===v?"on":""}" data-act="favFilter" data-id="${v}">${l}</button>`).join("")}</div>
+    <div class="povtabs" style="grid-template-columns:repeat(5,1fr)">${[["all","ALL"],["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club",SEC_NAME.club.toUpperCase()]].map(([v,l])=>`<button class="povtab ${favFilter===v?"on":""}" data-act="favFilter" data-id="${v}">${floorLocked(v)?"🔒 ":""}${l}</button>`).join("")}</div>
     <div class="list">${show.map(f=>{ const a=resolveArt(f.art); return `<div class="favrow ${f.on?"":"off"}">
       <div class="favthumb">${a?`<img src="${a}" alt="">`:`<span>${f.anim&&f.anim.ref?"▶":"✦"}</span>`}</div>
       <button class="info" data-act="editFavor" data-id="${f.id}"><span class="nm">${esc(f.title)}</span><span class="meta"><span class="tag">${f.where.map(x=>x==="cafe"?"CAFÉ":x.toUpperCase()).join(" ")}</span><span>${f.when==="any"?"any time":f.when}</span><span>${f.reward?"+"+f.reward+"₵":""}${(f.tipMult||1)!==1?" tip ×"+f.tipMult:""}</span>${f.needLw?`<span class="acc">Lv ${f.needLw}+</span>`:""}${f.lwGain?`<span class="good">+${f.lwGain} ${esc(PL())}</span>`:""}</span></button>
@@ -4299,6 +4320,7 @@ function devTools(){
     <p class="hint" style="margin:0 0 10px"><button class="linkbtn" style="padding:0" data-act="devGo" data-id="transfer">Import size and background removal are in Dev › Import/Export ›</button></p>
     <div class="actions" style="margin-top:0"><button class="btn ghost" data-act="cleanArt">CLEAN UP UNUSED</button><button class="btn danger" data-act="purgeArt">DELETE ALL UPLOADED ART</button></div>
   </section>
+  ${floorsDevPanel()}
   <section class="panel">
     <h2><span>TEST TOOLS · CHEATS</span><span>₵ ${S.credits.toLocaleString()}</span></h2>
     <div class="actions" style="margin-top:0"><button class="btn" data-act="testCreds" data-id="500">+500₵</button><button class="btn" data-act="testCreds" data-id="5000">+5,000₵</button><button class="btn" data-act="testCreds" data-id="50000">+50,000₵</button><button class="btn ghost" data-act="zeroCreds">SET CREDS TO 0</button><button class="btn" data-act="testClients">+10 CLIENTS</button><button class="btn" data-act="testProg" ${adultOn()?"":"hidden"}>+5 ${esc(PL().toUpperCase())} ALL STAFF</button><button class="btn ghost" data-act="testBoard">NEW HIRING BOARD</button></div>
@@ -4337,7 +4359,7 @@ function vMore(){
     <div class="spread" style="margin-top:14px;align-items:center"><span>Sound effects</span><button class="btn ${S.sound?"":"ghost"}" data-act="sound" aria-pressed="${S.sound}">${S.sound?"ON":"OFF"}</button></div>
     <span class="fl" style="margin-top:14px">Shop clock</span>
     <div class="povtabs" style="grid-template-columns:repeat(3,1fr);margin:0">${[["auto","REAL TIME"],["day","☀ ALWAYS DAY"],["night","☾ ALWAYS NIGHT"]].map(([v,l])=>`<button class="povtab ${(S.clockMode||"auto")===v?"on":""}" data-act="clockMode" data-id="${v}">${l}</button>`).join("")}</div>
-    <p class="hint">Real time: café and bookshop 6 AM to 5 PM, bar and ${ROLES.club.room} after 5 PM. The day rolls over at 4 AM.</p>
+    <p class="hint">${esc(hoursText())}</p>
   </section>
   ${badgeMenuHTML()}
   ${devMenuHTML()}
@@ -4358,7 +4380,7 @@ function render(){
   document.body.classList.toggle("night",clockSide()==="night");
   renderTop(); renderTabs();
   $("screen").innerHTML=({dev:vDev,shop:vShop,tasks:vTasks,save:vSave,upgrade:vUpgrade,favors:vFavors,more:vMore}[tab]||vShop)();
-  startCity(); startFloor(); startScene(); if(tab==="dev"&&devSub==="scene") scnDrawBackdrops(); drawPorts(); if(tab==="dev"&&devSub==="sprites"){ ssDraw(); ssThumbs(); ssSlotDraw(); } S.staff.forEach(drawFramePreview);
+  startCity(); startFloor(); startScene(); try{ floorsSettle(); }catch(e){} if(tab==="dev"&&devSub==="scene") scnDrawBackdrops(); drawPorts(); if(tab==="dev"&&devSub==="sprites"){ ssDraw(); ssThumbs(); ssSlotDraw(); } S.staff.forEach(drawFramePreview);
 }
 
 /* ---------- sheets ---------- */
@@ -4521,7 +4543,7 @@ function setCaption(s){
   floorCap={s,sec:pov&&pov.sec};
   const el=$("floorcap"); if(el) el.innerHTML=`<b>${ROOM_LABEL[floorCap.sec]||""}</b> ${esc(s)}<span class="cursor" aria-hidden="true"></span>`;
 }
-function floorStack(){ const d=viewSide()==="day"; return [["roof",0],[d?"books":"club",RH+SLAB],[d?"cafe":"bar",(RH+SLAB)*2]]; }
+function floorStack(){ const d=viewSide()==="day"||floorLocked("bar"); return [["roof",0],[d?"books":"club",RH+SLAB],[d?"cafe":"bar",(RH+SLAB)*2]]; }
 function drawRoom(g,sec,now){
   if(floorPov[sec]) pov=floorPov[sec];
   if(!floorPov[sec]||pov.sec!==sec||pov.side!==viewSide()) povReset(sec);
@@ -4559,6 +4581,8 @@ function drawFloor(cv,now){
     const og=off.getContext("2d"); og.setTransform(1,0,0,1,0,0); og.clearRect(0,0,off.width,off.height); og.setTransform(FS,0,0,FS,0,0);
     const C=drawRoom(og,sec,now);
     g.drawImage(off,0,CROP*FS,PW*FS,RH*FS,8,y,PW,RH);
+    if(sec!=="roof"&&floorLocked(sec)){ g.fillStyle="rgba(6,4,10,.9)"; g.fillRect(8,y,PW,RH); g.fillStyle="#4a3424"; g.fillRect(8,y+RH/2-10,PW,6); g.fillRect(8,y+RH/2+8,PW,6);
+      const m=pxs(`LOCKED - ${floorCfg(sec).cost.toLocaleString()} CR - RANK ${floorCfg(sec).rank}`), mw=textW(m,1); g.fillStyle="rgba(10,8,18,.95)"; g.fillRect((FW-mw)/2-6,y+RH/2-4,mw+12,11); pixText(g,m,(FW-mw)/2,y+RH/2-2,"#ffd23f",1); }
     /* ceiling shadow under the slab above */
     if(i>0){ for(let k=0;k<4;k++){ g.globalAlpha=.32-k*.08; R(8,y+k,PW,1,"#05030a"); } g.globalAlpha=1; }
     /* walls: cut concrete, doorway on the right */
@@ -4600,6 +4624,7 @@ function floorTap(ev){
   const hit=floorStack().find(([sec,fy])=>y>=fy&&y<fy+RH); if(!hit) return;
   const sec=hit[0];
   if(sec==="roof"){ toast(S.modules.lounge?"The roof is self-serve. Serve clients downstairs.":"Build the Rooftop Lounge to open the roof."); return; }
+  if(floorLocked(sec)){ floorUnlockSheet(sec); return; }
   if(peek&&peek!==clockSide()){ toast("You're peeking. Switch back to "+(clockSide()==="day"?"day":"night")+" to serve.", true); return; }
   serveOpen(sec);
 }
@@ -5324,6 +5349,7 @@ const pxs=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/
 function drawFloorScene(g,sec,now){
   const M=scnMeta(sec), cs=scnCS(sec), K=SCN_K, sw=sec==="roof"?(M.w||320)*K:SCN_W;
   g.imageSmoothingEnabled=false; g.fillStyle="#0a0812"; g.fillRect(0,0,sw,SCN_H);
+  if(sec!=="roof"&&floorLocked(sec)){ drawLockedFloor(g,sec,sw,now); return; }
   const img=s=>{ if(!s) return; const im=imgFor(s); if(im.complete&&im.naturalWidth){ g.imageSmoothingEnabled=im.naturalWidth>sw; g.drawImage(im,0,0,sw,SCN_H); g.imageSmoothingEnabled=false; } };
   scnPaint(g,sec,"back",sw);
   if(sec==="club"&&cs.built&&cs.open&&S.modules.lights&&!scnCustom(sec)) scnBeams(g,now);
@@ -5349,6 +5375,7 @@ function drawFloorScene(g,sec,now){
   if(cs.built&&cs.open&&!scnCustom(sec)) scnSparkle(g,sec,now);
   if(cs.built&&cs.open&&!scnCustom(sec)){ (SCN_FX[sec]||[]).forEach(([fx,fy,need],j)=>{ if(need&&!S.modules[need]) return; for(let i=0;i<3;i++){ const t=((now/1600+i/3+j*.17)%1); g.globalAlpha=.55*(1-t); g.fillStyle="#f0eae4"; g.fillRect(Math.round((fx+Math.sin(t*6+i)*1.5)*K),Math.round((fy-t*14)*K),2,2); } }); g.globalAlpha=1; }
   img(scnLayer(sec,"fg"));
+  if(clockSide()==="night"&&(sec==="cafe"||sec==="books")&&cs.open){ g.fillStyle="rgba(8,10,40,.38)"; g.fillRect(0,0,sw,SCN_H); }   /* covering the night shift */
   const msg=pxs(cs.roof?(cs.built?(S.modules.lounge?(cs.open?"":"ROOFTOP OPENS AT NIGHT"):"BUILD THE ROOFTOP LOUNGE"):"ROOF - BUILD A ROOF UPGRADE"):!cs.built?`BUILD A ${ROLES[sec].room.toUpperCase()} SPOT FIRST`:!cs.open?(SIDE_OF[sec]==="day"?"CLOSED - OPENS IN THE DAYTIME":"CLOSED - OPENS AT NIGHT"):!cs.w?"HIRE SOMEONE TO OPEN":"");
   if(msg){ if(!cs.roof){ g.fillStyle=cs.built?"rgba(8,5,16,.5)":"rgba(8,5,16,.72)"; g.fillRect(0,0,sw,SCN_H); }
     const w=textW(msg,2), y=cs.roof?44:SCN_H/2-6; g.fillStyle="rgba(10,8,18,.85)"; g.fillRect((sw-w)/2-10,y-8,w+20,26); pixText(g,msg,(sw-w)/2,y,"#ece8f7",2); }
@@ -5420,6 +5447,7 @@ function sceneTap(ev){
   const cv=$("tower"), r=cv.getBoundingClientRect(), y=(ev.clientY-r.top)*TWR_H/r.height;
   const row=twrRows().find(q=>y>=q.y&&y<q.y+SCN_H); if(!row) return; const sec=row.sec;
   if(sec==="roof"){ toast(S.modules.lounge?"The roof is self-serve. Serve clients on the floors below.":"Build the Rooftop Lounge to open the roof."); return; }
+  if(floorLocked(sec)){ floorUnlockSheet(sec); return; }
   const cs=counterState(sec);
   if(!cs.built){ toast(`Build a ${ROLES[sec].room} spot first.`, true); return; }
   if(!cs.open){ toast(`The ${SEC_NAME[sec]} opens ${SIDE_OF[sec]==="day"?"in the daytime":"at night"}.`, true); return; }
@@ -5801,7 +5829,7 @@ function hireFullMsg(){
 
 /* helpers on a floor: valid, hired, not the lead, not working anywhere else */
 function crewHelpers(sec){
-  crewInit(); const lead=workerFor(sec), list=Array.isArray(S.crew[sec])?S.crew[sec]:[], out=[];
+  crewInit(); if(floorLocked(sec)) return []; const lead=workerFor(sec), list=Array.isArray(S.crew[sec])?S.crew[sec]:[], out=[];
   list.forEach(id=>{ const w=S.staff.find(x=>x.id===id&&isHired(x)&&x.id!==edgeOutId()); if(w&&w!==lead&&!out.includes(w)) out.push(w); });
   return out.slice(0,Math.max(0,shiftCap()-1));
 }
@@ -5848,6 +5876,7 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(t&&t.dataset&&t.d
 
 /* ---------- rank rewards list + rank-up announcement ---------- */
 function rankPerk(lv){ const p=[], i=lv-1;
+  FLOOR_LOCKABLE.forEach(sec=>{ if(floorLocked(sec)&&floorCfg(sec).rank===lv) p.push(`${SEC_NAME[sec]} can be unlocked (₵${floorCfg(sec).cost.toLocaleString()})`); });
   if(i>0&&CREW_HIRE[i]>CREW_HIRE[i-1]) p.push(`roster of ${CREW_HIRE[i]}`);
   if(i>0&&CREW_SHIFT[i]>CREW_SHIFT[i-1]) p.push(`${CREW_SHIFT[i]} on shift per floor`);
   return p; }
@@ -5863,6 +5892,7 @@ function crewRankCheck(){
   if(lv>before){ S.rankBest=lv; const p=[], i0=before-1, i1=lv-1;
     if(CREW_HIRE[i1]>CREW_HIRE[i0]) p.push(`roster of ${CREW_HIRE[i1]}`);
     if(CREW_SHIFT[i1]>CREW_SHIFT[i0]) p.push(`${CREW_SHIFT[i1]} on shift per floor`);
+    FLOOR_LOCKABLE.forEach(sec=>{ const r=floorCfg(sec).rank; if(floorLocked(sec)&&r>before&&r<=lv) p.push(`the ${SEC_NAME[sec]} can be unlocked`); });
     const m=`Rank up: ${rankName(lv)}.${p.length?" Unlocked: "+p.join(", ")+".":""}`;
     addLog(m,"build"); setTimeout(()=>{ toast(m); try{ beep(660); setTimeout(()=>beep(880),110); setTimeout(()=>beep(1180),220); }catch(e){} },350); }
 }
@@ -5937,11 +5967,11 @@ const EDGE_LINES={
 function edgeS(){ if(!S.edge||typeof S.edge!=="object") S.edge={}; const e=S.edge;
   e.run=e.run||null; e.brk=e.brk||null; e.pantry=Array.isArray(e.pantry)?e.pantry:[]; e.shelf=Array.isArray(e.shelf)?e.shelf:[]; e.rack=Array.isArray(e.rack)?e.rack:[];
   e.art=e.art||{}; e.bonus=e.bonus||{}; e.total=e.total||0; if(e.day!==today()){ e.day=today(); e.n=0; e.bonus={}; } e.n=e.n||0; e.len=e.len||25;
-  e.pantry=e.pantry.filter(p=>p.uses>0&&p.exp>=today()); return e; }
+  e.pantry=e.pantry.filter(p=>p.uses>0&&(p.frozen!=null||p.exp>=today())); return e; }   /* frozen = stored for a locked floor */
 const edgeRun=()=>edgeS().run;
 function edgeOutId(){ const r=S&&S.edge&&S.edge.run; return r?r.runner:null; }
 function edgeAwayMsg(sec){ const r=S&&S.edge&&S.edge.run; if(!r||r.left!==sec) return ""; const w=S.staff.find(x=>x.id===r.runner); return `${w?w.name:"Your runner"} is out on the Edge. The ${SEC_NAME[sec]} is unattended until they're back.`; }
-function edgeErrand(w){ return EDGE_ERR[w&&w.role]?w.role:"cafe"; }   /* default supply: the floor they work now */
+function edgeErrand(w){ return EDGE_ERR[w&&w.role]&&floorUnlocked(w.role)?w.role:"cafe"; }   /* default supply: the floor they work now */
 const edgeEnd=r=>r.start+r.mins*60000;
 const edgeFrac=r=>Math.max(0,Math.min(1,(Date.now()-r.start)/(r.mins*60000)));
 function edgeFmt(ms){ ms=Math.max(0,ms); const s=Math.ceil(ms/1000), m=Math.floor(s/60), ss=s%60; return `${m}:${String(ss).padStart(2,"0")}`; }
@@ -5972,14 +6002,14 @@ const pickPrice=b=>PICK_PRICE[b.tier]||PICK_PRICE[0];
 const picksValue=()=>edgeS().shelf.reduce((a,b)=>a+pickPrice(b),0);
 const rackVibe=()=>edgeS().rack.reduce((a,b)=>a+(EDGE_TIERS.club[b.tier]||[0,0,1])[2],0);
 const vibeTip=()=>Math.min(.20,rackVibe()*.0025);
-function pantryFor(sec){ return edgeS().pantry.filter(p=>p.sec===sec).sort((a,b)=>a.exp<b.exp?-1:1)[0]||null; }
+function pantryFor(sec){ return edgeS().pantry.filter(p=>p.sec===sec&&p.frozen==null).sort((a,b)=>a.exp<b.exp?-1:1)[0]||null; }
 function edgeTipMult(sec){ let b=0; const p=pantryFor(sec); if(p) b+=p.pct; if(sec==="bar"||sec==="club") b+=vibeTip(); return 1+Math.min(.5,b); }
 function edgeConsume(sec){ const p=pantryFor(sec); if(!p) return; p.uses--; if(p.uses<=0){ S.edge.pantry=S.edge.pantry.filter(x=>x!==p); addLog(`The ${p.name.toLowerCase()} ran out.`); } }
 /* ---------- start ---------- */
 function edgeStartSheet(){
   const e=edgeS(), team=S.staff.filter(isHired); if(!team.length){ toast("Hire someone first, in the Build tab.", true); return; }
   if(e.run){ edgeViewOpen(); return; }
-  const deep=(e.n+1)%4===0, sel=e.lastRunner&&team.some(w=>w.id===e.lastRunner)?e.lastRunner:team[0].id, sw=team.find(w=>w.id===sel), sup=e.lastSup&&EDGE_ERR[e.lastSup]&&sel===e.lastRunner?e.lastSup:edgeErrand(sw); edgeSupTouched=false;
+  const deep=(e.n+1)%4===0, sel=e.lastRunner&&team.some(w=>w.id===e.lastRunner)?e.lastRunner:team[0].id, sw=team.find(w=>w.id===sel), sup=e.lastSup&&EDGE_ERR[e.lastSup]&&floorUnlocked(e.lastSup)&&sel===e.lastRunner?e.lastSup:edgeErrand(sw); edgeSupTouched=false;
   openSheet(`<h3>SEND A RUN</h3>
     <p class="muted" style="margin:0 0 10px">Focus while someone goes out for supplies. Finish the timer for the full haul.${deep?` <b class="acc">This is a Deep run: better finds, long break after.</b>`:""}</p>
     <p class="fl">1 · Who goes out</p>
@@ -5987,7 +6017,7 @@ function edgeStartSheet(){
       return `<label class="edgepick"><input type="radio" name="edgeWho" value="${w.id}" ${w.id===sel?"checked":""}><span><b>${esc(w.name)} <span class="tag">RUN LV ${fskLv(w,"run")}</span></b>
         <small class="muted">${esc(shiftWhere(w))}${w.knack&&w.knack.includes("run")?" · knack for runs":""}</small>${s&&s.slot===0?`<small class="bad">The ${esc(SEC_NAME[s.sec])} will be unattended while they're out.</small>`:""}</span></label>`; }).join("")}</div>
     <p class="fl" style="margin-top:12px">2 · What to bring back</p>
-    <div class="edgesup" role="radiogroup" aria-label="Supply">${Object.entries(EDGE_ERR).map(([k,E])=>`<label class="edgepick"><input type="radio" name="edgeSup" value="${k}" ${k===sup?"checked":""}><span><b>${esc(E.label)}</b><small class="muted">${esc(E.what)} · for the ${esc(k==="club"?ROLES.club.room:E.room)}</small></span></label>`).join("")}</div>
+    <div class="edgesup" role="radiogroup" aria-label="Supply">${Object.entries(EDGE_ERR).filter(([k])=>floorUnlocked(k)).map(([k,E])=>`<label class="edgepick"><input type="radio" name="edgeSup" value="${k}" ${k===sup?"checked":""}><span><b>${esc(E.label)}</b><small class="muted">${esc(E.what)} · for the ${esc(k==="club"?ROLES.club.room:E.room)}</small></span></label>`).join("")}</div>
     <p class="fl" style="margin-top:12px">3 · How long</p><div class="edgelens" role="radiogroup" aria-label="Session length">${EDGE_LENS.map(m=>`<label class="edgelen"><input type="radio" name="edgeLen" value="${m}" ${m===e.len?"checked":""}><span>${m} min</span></label>`).join("")}</div>
     ${edgePreviewHTML(edgePreview(sw,sup,e.len||25,deep))}
     <div class="actions" style="margin-top:12px"><button class="btn solid wide" data-act="edgeGo">SEND THEM OUT</button><button class="btn ghost" data-act="close">CANCEL</button></div>`);
@@ -6001,7 +6031,7 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(!t||!["edgeWho","
   box.outerHTML=edgePreviewHTML(edgePreview(w,p.sup,p.len,(edgeS().n+1)%4===0)); });
 function edgeStart(id,len,errand){
   const e=edgeS(), w=S.staff.find(x=>x.id===id&&isHired(x)); if(!w) return;
-  errand=EDGE_ERR[errand]?errand:edgeErrand(w);
+  errand=EDGE_ERR[errand]&&floorUnlocked(errand)?errand:edgeErrand(w);
   const rl=fskLv(w,"run"), mins=Math.max(5,Math.round(len*(1-runSpeed(rl))));
   const left=Object.keys(ROLES).find(sec=>workerFor(sec)===w)||null, deep=(e.n+1)%4===0, seed=(Math.random()*1e9)|0, rnd=edgeRnd(seed), ev=edgePickW(EDGE_EVENTS,rnd,deep,runLuck(rl));
   if(typeof crewDrop==="function") crewDrop(w.id);
@@ -6042,7 +6072,7 @@ function edgeHaul(r,full){
 }
 function edgeApply(h){
   const e=edgeS(), msgs=[];
-  if(h.pantry){ const p=Object.assign({},h.pantry,{id:uid(),exp:addDays(today(),PANTRY_DAYS)}); e.pantry.push(p); msgs.push(`${p.name}: +${Math.round(p.pct*100)}% ${SEC_NAME[p.sec]} tips for ${p.uses} serves`); }
+  if(h.pantry){ const p=Object.assign({},h.pantry,{id:uid(),exp:addDays(today(),PANTRY_DAYS)}); if(floorLocked(p.sec)) p.frozen=PANTRY_DAYS; e.pantry.push(p); msgs.push(`${p.name}: +${Math.round(p.pct*100)}% ${SEC_NAME[p.sec]} tips for ${p.uses} serves`); }
   h.items.forEach(it=>{ const arr=h.kind==="books"?e.shelf:e.rack, max=h.kind==="books"?SHELF_MAX:RACK_MAX;
     const dupe=arr.find(x=>x.t===it.t);
     if(dupe){ if(it.tier>dupe.tier){ dupe.tier=it.tier; it.res="upgraded"; } else it.res="duplicate"; return; }
@@ -6464,6 +6494,10 @@ function vXfer(){
     <textarea class="field" id="saveText"></textarea>
     <div class="actions"><button class="btn" data-act="importSave">RESTORE TEXT</button></div>
   </section>
+  ${typeof floorBackupExists==="function"&&floorBackupExists()?`<section class="panel">
+    <h2><span>ROLL BACK FLOORS</span><span>THIS DEVICE</span></h2>
+    <p style="margin:0 0 10px">A copy of your save from just before the Bar and ${esc(SEC_NAME.club)} were locked. Rolling back replaces your current progress with it and keeps both floors open on this save. Progress since then is lost, so download a full backup first if you want it.</p>
+    <div class="actions" style="margin-top:0"><button class="btn danger" data-floor="rollback">ROLL BACK</button></div></section>`:""}
   <section class="panel">
     <h2><span>ART PACK</span><span>CONTENT ONLY</span></h2>
     ${typeof artPackHTML==="function"?artPackHTML().replace('style="margin:14px 0 6px"','style="margin:0 0 6px"'):""}
@@ -7174,7 +7208,7 @@ function shiftPicker(sec){
   return `<label class="srt" for="shift-${sec}">Who works the ${ROLES[sec].room} counter</label><select class="field shiftsel" id="shift-${sec}" data-shift="${sec}">${team.map(w=>{ const n=fitNote(w,sec);
     return `<option value="${w.id}" ${w===on?"selected":""}>${esc(w.name)} · ${esc(jobTitle(w))}${w.role!==sec?` (${esc(SEC_NAME[w.role])})`:""}${n?` · ${n}`:""}</option>`; }).join("")}</select>`;
 }
-function assignShift(sec,id){ Object.keys(S.shift).forEach(k=>{ if(S.shift[k]===id) delete S.shift[k]; }); S.shift[sec]=id;
+function assignShift(sec,id){ if(floorLocked(sec)){ sec=["cafe","books"].find(f=>!workerFor(f)); if(!sec) return; } Object.keys(S.shift).forEach(k=>{ if(S.shift[k]===id) delete S.shift[k]; }); S.shift[sec]=id;
   const w=S.staff.find(x=>x.id===id); if(w){ placeWorker(w,sec); toast(`${w.name} is at the ${ROLES[sec].room} counter (${fitNote(w,sec)}).`); } }
 function candJobLine(c){ const j=venueJobs(c.role).find(x=>x.id===c.job); if(!j) return ""; const P=PERKS[j.perk]||{}; return `<small><span class="tag">${esc(j.name)}</span> ${esc(P.desc||"")}</small>`; }
 
@@ -7361,7 +7395,7 @@ function placeWorker(w,sec,job){
   const old=Object.values(S.jobs||{}).flat().find(j=>j.id===w.job), same=old&&js.find(j=>j.perk===old.perk);
   w.job=(same||js.find(j=>j.perk==="service")||js[0]).id; }
 function shiftAssign(sec,slot,id){
-  crewInit(); if(!S.shift) S.shift={};
+  crewInit(); if(!S.shift) S.shift={}; if(floorLocked(sec)) return;
   const lead=workerFor(sec), cur=crewHelpers(sec).map(h=>h.id);
   if(slot===0){
     if(!id){ if(lead) S.shift[sec]="-"; return; }
@@ -7376,6 +7410,7 @@ function shiftAssign(sec,slot,id){
 }
 const shiftWhere=w=>{ const s=shiftOf(w); return s?`${s.slot===0?"at the":"helping at the"} ${ROLES[s.sec].room}${s.slot===0?" counter":""}`:"off shift"; };
 function shiftEditor(sec,compact){
+  if(floorLocked(sec)) return compact?"":`<div class="shiftfloor locked"><div class="shifthd"><b>🔒 ${esc(SEC_NAME[sec])}</b><button class="linkbtn" data-floor="sheet" data-id="${sec}">${floorReqLine(sec)} ›</button></div></div>`;
   const cap=shiftCap(), team=S.staff.filter(w=>isHired(w)&&w.id!==edgeOutId()), lead=workerFor(sec), hs=crewHelpers(sec), js=venueJobs(sec);
   const away=edgeAwayMsg(sec);
   let h=`<div class="shiftfloor" data-floor="${sec}"><div class="shifthd"><b>${SIDE_OF[sec]==="day"?"☀":"☾"} ${esc(SEC_NAME[sec])}</b><span class="muted">${(lead?1:0)+hs.length}/${cap} on shift</span></div>${away?`<p class="hint bad" style="margin:0 0 6px">${esc(away)}</p>`:""}`;
@@ -7405,7 +7440,7 @@ function shiftsPanel(){
 /* ---------- skill display ---------- */
 function fskBars(w){ fskFix(w);
   return `<div class="fsk">${FSK_KEYS.map(k=>{ const s=w.fsk[k], max=s.lv>=FSK_MAX, kn=w.knack.includes(k);
-    return `<div class="fskrow ${k==="run"?"run":""}"><span class="fskn">${esc(fskName(k))}${kn?` <span class="tag" title="Knack: +50% XP">KNACK</span>`:""}</span><b class="num">Lv ${s.lv}</b><span class="fskbar"><i style="width:${max?100:Math.round(s.xp/fskNeed(s.lv)*100)}%"></i></span><small class="muted">${max?"MAX":`${Math.floor(s.xp)}/${fskNeed(s.lv)}`}</small></div>`; }).join("")}
+    return `<div class="fskrow ${k==="run"?"run":""}"><span class="fskn">${esc(fskName(k))}${k!=="run"&&floorLocked(k)?" 🔒":""}${kn?` <span class="tag" title="Knack: +50% XP">KNACK</span>`:""}</span><b class="num">Lv ${s.lv}</b><span class="fskbar"><i style="width:${max?100:Math.round(s.xp/fskNeed(s.lv)*100)}%"></i></span><small class="muted">${max?"MAX":`${Math.floor(s.xp)}/${fskNeed(s.lv)}`}</small></div>`; }).join("")}
     <p class="hint" style="margin:4px 0 0">Floor skills grow from shifts there: +4% tips per level, +1 hint at Lv 4, 10% chance to save a Close at Lv 7. Run grows from supply runs.${(()=>{ const got=RUN_PERKS.filter(p=>p[0]<=w.fsk.run.lv); return got.length?` Run perks: ${got.map(p=>p[1]).join("; ")}.`:""; })()}</p></div>`; }
 const fskLine=w=>{ fskFix(w); return FSK_KEYS.map(k=>`${fskName(k)} ${w.fsk[k].lv}`).join(" · "); };
 const bestFloor=w=>{ fskFix(w); return FSK_FLOORS.slice().sort((a,b)=>w.fsk[b].lv-w.fsk[a].lv)[0]; };
@@ -7444,6 +7479,176 @@ function fskEditorRead(){ const base={}; FSK_KEYS.forEach(k=>{ base[k]=Math.max(
 document.addEventListener("change",ev=>{ const t=ev.target; if(t&&t.name==="fskKnack"&&t.checked){ const on=[...document.querySelectorAll("input[name=fskKnack]:checked")]; if(on.length>2){ t.checked=false; toast("A knack covers up to 2 skills.", true); } } });
 function fskApplyEditor(w,ed){ const prev=w.fskBase||{}; w.fskBase=ed.base; w.knack=ed.knack; fskFix(w);
   FSK_KEYS.forEach(k=>{ if(w.fsk[k].lv!==ed.base[k]){ w.fsk[k]={lv:ed.base[k],xp:0}; } }); }
+
+/* ================= FLOORS: the Bar and Lounge are unlocked with creds + rank =================
+   Café and Bookshop are open from the start. Until the Bar opens, they also stay open at night (reduced tips).
+   A locked floor keeps everything it had (upgrades, décor, favors, stored supplies, history) but it all sleeps
+   until the floor is unlocked. Locked floors never have anyone on shift. */
+const FLOOR_LOCKABLE=["bar","club"];
+const FLOOR_DEF={bar:{cost:2500,rank:3,needs:""},club:{cost:6000,rank:5,needs:"bar"}};
+const FLOOR_NIGHT_TIP=.5;
+const FLOOR_BACKUP=LS2+".prefloors";
+const FLOOR_MOD_SEC={BAR:"bar",CLUB:"club"};
+
+/* ---------- state + settings ---------- */
+function floorCfg(sec){ const d=FLOOR_DEF[sec]||{cost:0,rank:1,needs:""}, c=(S&&S.floorCfg&&S.floorCfg[sec])||{};
+  return {cost:c.cost>=0?Math.round(+c.cost):d.cost, rank:c.rank>=1?Math.min(RANK2.length,Math.round(+c.rank)):d.rank, needs:c.needs!==undefined?c.needs:d.needs}; }
+const nightTipPct=()=>{ const v=S&&S.floorCfg&&S.floorCfg.nightTip; return v>=0&&v<=1?+v:FLOOR_NIGHT_TIP; };
+/* a save with no floor record (or one whose pre-migration backup failed) behaves as before: everything open */
+function floorUnlocked(sec){ if(!FLOOR_LOCKABLE.includes(sec)) return true; const f=S&&S.floors; if(!f||!f.v) return true; return !!(f[sec]&&f[sec].open); }
+const floorLocked=sec=>!floorUnlocked(sec);
+const modFloorLocked=id=>{ const m=MODULES[id], sec=m&&FLOOR_MOD_SEC[m.sec]; return !!sec&&floorLocked(sec); };
+/* is a floor open on this side of the clock? café + bookshop cover the night until the Bar opens */
+function floorOpenAt(sec,side){ if(floorLocked(sec)) return false; if((SIDE_OF[sec]||"night")===side) return true; return side==="night"&&(sec==="cafe"||sec==="books")&&floorLocked("bar"); }
+const floorOpenNow=sec=>floorOpenAt(sec,clockSide());
+const nightCover=sec=>(sec==="cafe"||sec==="books")&&clockSide()==="night"&&floorLocked("bar");
+const floorTipMult=sec=>nightCover(sec)?nightTipPct():1;
+const openFloors=()=>["cafe","books","bar","club"].filter(floorUnlocked);
+function hoursText(){ const night=floorLocked("bar")?`the café and bookshop stay open at night too, at ${Math.round(nightTipPct()*100)}% tips, until you unlock the Bar`:`the bar${floorUnlocked("club")?` and ${ROLES.club.room}`:""} after 5 PM`;
+  return `Real time: café and bookshop 6 AM to 5 PM; ${night}. The day rolls over at 4 AM.`; }
+
+/* ---------- unlocking ---------- */
+function floorCheck(sec){ const c=floorCfg(sec), best=crewLv(), out={sec,cost:c.cost,rank:c.rank,needs:c.needs,ok:true,why:[]};
+  if(floorUnlocked(sec)){ out.ok=false; out.why.push("already open"); return out; }
+  if(c.needs&&floorLocked(c.needs)){ out.ok=false; out.why.push(`unlock the ${SEC_NAME[c.needs]} first`); }
+  if(best<c.rank){ out.ok=false; out.why.push(`reach ${rankName(c.rank)} (rank ${c.rank})`); }
+  if(S.credits<c.cost){ out.ok=false; out.why.push(`${(c.cost-S.credits).toLocaleString()}₵ more`); }
+  return out; }
+function floorReqLine(sec){ const c=floorCfg(sec); return `₵${c.cost.toLocaleString()} · ${esc(rankName(c.rank))} (rank ${c.rank})${c.needs?` · needs the ${esc(SEC_NAME[c.needs])}`:""}`; }
+function floorDormant(sec){ const SEC=Object.keys(FLOOR_MOD_SEC).find(k=>FLOOR_MOD_SEC[k]===sec);
+  const mods=Object.keys(MODULES).filter(id=>MODULES[id].sec===SEC&&S.modules[id]).map(id=>MODULES[id].name+(S.modules[id]>1?` (lv ${S.modules[id]})`:""));
+  const pantry=((S.edge&&S.edge.pantry)||[]).filter(p=>p.sec===sec&&p.frozen!=null);
+  const favs=S.favors.deck.filter(f=>f.where&&f.where.length&&f.where.every(w=>FLOOR_LOCKABLE.includes(w))&&f.where.includes(sec)).length;
+  return {mods,pantry,favs}; }
+function floorUnlock(sec,free){
+  const ck=floorCheck(sec); if(!free&&!ck.ok){ toast(`To unlock the ${SEC_NAME[sec]}: ${ck.why.join(", ")}.`, true); return false; }
+  if(!S.floors||!S.floors.v) return false;
+  if(!free) S.credits-=ck.cost;
+  S.floors[sec]={open:true,at:today()};
+  if(!S.shift) S.shift={}; if(!S.shift[sec]) S.shift[sec]="-";   /* opens empty: you choose who works here */
+  /* stored supplies wake up with the days they had left */
+  ((S.edge&&S.edge.pantry)||[]).forEach(p=>{ if(p.sec===sec&&p.frozen!=null){ p.exp=addDays(today(),Math.max(0,p.frozen)); delete p.frozen; } });
+  addLog(`Grand opening: the ${SEC_NAME[sec]} is open${free?"":` (-${ck.cost.toLocaleString()}₵)`}.`,"build");
+  closeSheet(); commit(); if(!free) floorGrandOpening(sec); return true; }
+function floorUnlockSheet(sec){
+  const ck=floorCheck(sec), d=floorDormant(sec);
+  openSheet(`<h3>🔒 ${esc(SEC_NAME[sec].toUpperCase())}</h3>
+    <p class="muted" style="margin:0 0 10px">${sec==="bar"?"A speakeasy under the café. Opens at 5 PM with cocktails, a jukebox and night regulars.":`The ${esc(ROLES.club.room)} under the bar. Opens at 5 PM with a stage and live sets.`}</p>
+    <ul class="floorreq">
+      <li class="${S.credits>=ck.cost?"good":"bad"}">₵${ck.cost.toLocaleString()} <small class="muted">(you have ₵${S.credits.toLocaleString()})</small></li>
+      <li class="${crewLv()>=ck.rank?"good":"bad"}">Rank ${ck.rank}: ${esc(rankName(ck.rank))}</li>
+      ${ck.needs?`<li class="${floorUnlocked(ck.needs)?"good":"bad"}">The ${esc(SEC_NAME[ck.needs])} is open</li>`:""}</ul>
+    ${d.mods.length||d.pantry.length?`<p class="hint" style="margin:8px 0 0">Waiting inside: ${esc([...d.mods,...d.pantry.map(p=>p.name)].join(", "))}. All of it comes back on opening day.</p>`:""}
+    <div class="actions" style="margin-top:12px"><button class="btn solid wide" data-floor="unlock" data-id="${sec}" ${ck.ok?"":"disabled"}>${ck.ok?`UNLOCK · ₵${ck.cost.toLocaleString()}`:"NOT YET"}</button><button class="btn ghost" data-act="close">CLOSE</button></div>
+    ${ck.ok?"":`<p class="hint" style="margin:6px 0 0">Still needed: ${esc(ck.why.join(", "))}.</p>`}`);
+}
+function floorGrandOpening(sec){
+  const d=floorDormant(sec);
+  openSheet(`<div class="grandopen"><p class="go-kicker">GRAND OPENING</p><h3 class="go-title">THE ${esc(SEC_NAME[sec].toUpperCase())}</h3>
+    <p style="margin:6px 0 10px">Doors open at 5 PM. ${d.mods.length?`Your ${esc(d.mods.join(", "))} ${d.mods.length===1?"is":"are"} back in business.`:"Head to Build to fit it out."}</p>
+    <p class="hint" style="margin:0 0 12px">Nobody works here yet. Put someone on the ${esc(SEC_NAME[sec])} in Build › Shifts.</p>
+    <div class="actions"><button class="btn solid" data-floor="shifts">OPEN SHIFTS</button><button class="btn ghost" data-act="close">LATER</button></div></div>`);
+  try{ beep(660); setTimeout(()=>beep(880),120); setTimeout(()=>beep(1180),240); setTimeout(()=>beep(1480),380); }catch(e){}
+}
+
+/* ---------- locking (migration, and Dev › Tools) ---------- */
+function floorLockNow(secs){
+  const moved=[], benched=[];
+  secs.forEach(sec=>{ if(!S.floors[sec]) S.floors[sec]={}; S.floors[sec].open=false; });
+  secs.forEach(sec=>{
+    const ids=[]; const add=id=>{ if(id&&id!=="-"&&!ids.includes(id)) ids.push(id); };
+    add(S.shift&&S.shift[sec]); ((S.crew&&S.crew[sec])||[]).forEach(add); S.staff.filter(w=>isHired(w)&&w.role===sec).forEach(w=>add(w.id));
+    if(!S.shift) S.shift={}; S.shift[sec]="-"; if(S.crew) S.crew[sec]=[];
+    ids.forEach(id=>{ const w=S.staff.find(x=>x.id===id&&isHired(x)); if(!w) return;
+      if(w.id===edgeOutId()){ benched.push(w.name); return; }
+      for(const f of ["cafe","books"]){
+        if(!workerFor(f)){ shiftAssign(f,0,w.id); moved.push(`${w.name} → ${SEC_NAME[f]} counter`); return; }
+        const hs=crewHelpers(f); if(hs.length<shiftCap()-1){ shiftAssign(f,hs.length+1,w.id); moved.push(`${w.name} → ${SEC_NAME[f]} helper`); return; } }
+      benched.push(w.name); });
+    ((S.edge&&S.edge.pantry)||[]).forEach(p=>{ if(p.sec===sec&&p.frozen==null){ p.frozen=Math.max(0,daysBetween(today(),p.exp)); } });
+  });
+  return {moved,benched};
+}
+/* migrate(): runs on every load. Saves from before floors existed get a backup first, then are marked for locking. */
+function floorsMigrate(o){
+  if(o.floors&&o.floors.v) return;
+  try{ localStorage.setItem(FLOOR_BACKUP,JSON.stringify(o)); }catch(e){ return; }   /* no backup = no migration this time */
+  o.floors={v:1,bar:{open:false},club:{open:false},pending:true,notice:true,backupAt:Date.now()};
+}
+/* after S is live: move staff off the locked floors, pause their stored supplies, then show the notice once */
+function floorsSettle(){
+  if(!S||!S.floors||!S.floors.v) return;
+  if(S.floors.pending){ const locked=FLOOR_LOCKABLE.filter(floorLocked); const r=floorLockNow(locked);
+    S.floors.pending=false; S.floors.migr=Object.assign(r,{locked}); addLog(`The ${locked.map(s=>SEC_NAME[s]).join(" and ")} ${locked.length===1?"is":"are"} now locked. Nothing was deleted.`,"build"); save(); }
+  if(S.floors.notice&&$("veil").hidden&&!srv.open){ S.floors.notice=false; save(); floorNotice(); }
+}
+function floorNotice(){ const m=(S.floors&&S.floors.migr)||{moved:[],benched:[]};
+  openSheet(`<h3>THE BAR AND ${esc(SEC_NAME.club.toUpperCase())} ARE NOW UNLOCKABLE</h3>
+    <p style="margin:0 0 8px">The café and bookshop are open from the start. The Bar and ${esc(SEC_NAME.club)} now open with creds and rank, so they're locked for now, including on this save.</p>
+    <ul class="floorreq"><li>Bar: ${floorReqLine("bar")}</li><li>${esc(SEC_NAME.club)}: ${floorReqLine("club")}</li></ul>
+    <p style="margin:8px 0">Until the Bar opens, the café and bookshop also stay open at night, at ${Math.round(nightTipPct()*100)}% tips.</p>
+    <p class="good" style="margin:0 0 6px"><b>Nothing was deleted.</b> Upgrades, décor, favors, stored supplies, history, levels and skills are all kept and come back when you unlock each floor.</p>
+    ${m.moved.length?`<p class="hint" style="margin:0 0 4px">Moved: ${esc(m.moved.join(" · "))}.</p>`:""}
+    ${m.benched.length?`<p class="hint" style="margin:0 0 4px">Still hired, off shift for now: ${esc(m.benched.join(", "))}. Put them on a shift in Build.</p>`:""}
+    <p class="hint" style="margin:0 0 10px">A backup from just before this change is saved on this device. You can roll back in Dev › Import/Export; a rolled-back save keeps both floors open.</p>
+    <div class="actions"><button class="btn solid" data-act="close">GOT IT</button><button class="btn ghost" data-floor="rollback">ROLL BACK</button></div>`); }
+const floorBackupExists=()=>{ try{ return !!localStorage.getItem(FLOOR_BACKUP); }catch(e){ return false; } };
+function floorRollback(){
+  let o; try{ o=JSON.parse(localStorage.getItem(FLOOR_BACKUP)||"null"); }catch(e){ o=null; }
+  if(!o||!Array.isArray(o.habits)){ toast("No rollback backup on this device.", true); return; }
+  o.floors={v:1,keep:true,bar:{open:true,at:today()},club:{open:true,at:today()}};
+  S=migrate(o); applyLines(); if(typeof applyAdult==="function") applyAdult(); closeSheet(); commit();
+  addLog("Rolled back to the save from before floors were locked. Both floors stay open.","build"); toast("Rolled back. The Bar and the "+SEC_NAME.club+" stay open on this save.");
+}
+
+/* ---------- drawing a locked level in the tower ---------- */
+function drawLockedFloor(g,sec,sw,now){
+  const R=(x,y,w,h,c)=>{ g.fillStyle=c; g.fillRect(x,y,w,h); }, H=SCN_H;
+  R(0,0,sw,H,"#09070d");
+  for(let y=0;y<H;y+=12) for(let x=((y/12)%2)*20;x<sw;x+=40){ R(x,y,38,10,"#141018"); R(x,y,38,1,"#1c1622"); }
+  /* boards nailed across */
+  [[40,70,-.05],[0,170,.04],[60,262,-.03]].forEach(([x0,y,a])=>{ g.save(); g.translate(sw/2,y); g.rotate(a); R(-sw/2+x0-40,-14,sw-x0+20,28,"#4a3424"); R(-sw/2+x0-40,-14,sw-x0+20,3,"#6a4a30"); R(-sw/2+x0-40,11,sw-x0+20,3,"#2a1c12");
+    for(let x=-sw/2+x0;x<sw/2-20;x+=110){ R(x,-4,4,4,"#9a9aa8"); R(x+60,-2,4,4,"#9a9aa8"); } g.restore(); });
+  /* padlock */
+  const cx=sw/2, cy=H/2-12, pulse=floorCheck(sec).ok?Math.sin(now/300)*.5+.5:0;
+  R(cx-22,cy-30,6,26,"#b8b8c8"); R(cx+16,cy-30,6,26,"#b8b8c8"); R(cx-22,cy-36,44,8,"#b8b8c8"); R(cx-16,cy-30,32,4,"#09070d");
+  R(cx-30,cy-6,60,46,pulse?`rgba(255,${200+Math.round(pulse*40)},63,1)`:"#d4a63a"); R(cx-30,cy-6,60,4,"#ffe08a"); R(cx-30,cy+36,60,4,"#8a6a20");
+  R(cx-4,cy+8,8,10,"#2a1c08"); R(cx-2,cy+18,4,10,"#2a1c08");
+  const name=pxs(SEC_NAME[sec].toUpperCase())+" - LOCKED", c=floorCfg(sec), price=pxs(`${c.cost.toLocaleString()} CR - RANK ${c.rank}${c.needs&&floorLocked(c.needs)?" - NEEDS "+SEC_NAME[c.needs].toUpperCase():""}`);
+  const tag=(t,y,col,bg)=>{ const w=textW(t,2); g.fillStyle=bg; g.fillRect((sw-w)/2-10,y-6,w+20,24); pixText(g,t,(sw-w)/2,y,col,2); };
+  tag(name,cy+62,"#ece8f7","rgba(10,8,18,.9)"); tag(price,cy+92,"#ffd23f","rgba(10,8,18,.9)");
+  if(floorCheck(sec).ok) tag("TAP TO UNLOCK",cy+122,"#140c1c","#ffd23f");
+}
+
+/* ---------- actions ---------- */
+document.addEventListener("click",ev=>{ const b=ev.target.closest("[data-floor]"); if(!b) return; const a=b.dataset.floor, sec=b.dataset.id;
+  if(a==="unlock") floorUnlock(sec);
+  if(a==="sheet") floorUnlockSheet(sec);
+  if(a==="shifts"){ closeSheet(); tab="upgrade"; render(); setTimeout(()=>{ const p=document.querySelector(".shiftspanel"); if(p) p.scrollIntoView({block:"start"}); },50); }
+  if(a==="rollback"){ if(b.dataset.armed!=="1"){ b.dataset.armed="1"; b.textContent="TAP AGAIN TO ROLL BACK"; return; } floorRollback(); }
+  if(a==="devUnlock"){ floorUnlock(sec,true); toast(`${SEC_NAME[sec]} unlocked (free, dev).`); }
+  if(a==="devLock"){ if(!S.floors||!S.floors.v) S.floors={v:1,bar:{open:true},club:{open:true}}; const r=floorLockNow([sec]); commit(); toast(`${SEC_NAME[sec]} locked.${r.moved.length?" Moved: "+r.moved.join(", ")+".":""}`); }
+  if(a==="devReset"){ if(S.floorCfg){ delete S.floorCfg; } commit(); toast("Floor prices back to defaults."); }
+});
+document.addEventListener("change",ev=>{ const t=ev.target; if(!t||!t.dataset||!t.dataset.floorcfg) return; const [sec,k]=t.dataset.floorcfg.split(":");
+  if(!S.floorCfg) S.floorCfg={};
+  if(sec==="all"&&k==="nightTip"){ S.floorCfg.nightTip=Math.max(0,Math.min(100,+t.value||0))/100; commit(); return; }
+  const c=S.floorCfg[sec]||(S.floorCfg[sec]={});
+  if(k==="cost") c.cost=Math.max(0,Math.round(+t.value||0)); if(k==="rank") c.rank=+t.value||1; if(k==="needs") c.needs=t.checked?"bar":"";
+  commit(); });
+function floorsDevPanel(){
+  return `<section class="panel">
+    <h2><span>FLOORS</span><span>${FLOOR_LOCKABLE.filter(floorUnlocked).length}/${FLOOR_LOCKABLE.length} UNLOCKED</span></h2>
+    <p style="margin:0 0 10px">What the Bar and ${esc(SEC_NAME.club)} cost to unlock. Rank uses the best rank you've reached.</p>
+    ${FLOOR_LOCKABLE.map(sec=>{ const c=floorCfg(sec);
+      return `<div class="floordev"><div class="spread" style="align-items:center"><b>${esc(SEC_NAME[sec])}</b><span class="${floorUnlocked(sec)?"good":"muted"}">${floorUnlocked(sec)?"UNLOCKED":"LOCKED"}</span></div>
+        <div class="formgrid"><div><label class="fl" for="fc-${sec}">Price ₵</label><input class="field num" id="fc-${sec}" type="number" min="0" max="9999999" value="${c.cost}" data-floorcfg="${sec}:cost"></div>
+          <div><label class="fl" for="fr-${sec}">Rank needed</label><select class="field" id="fr-${sec}" data-floorcfg="${sec}:rank">${RANK2.map((r,i)=>`<option value="${i+1}" ${c.rank===i+1?"selected":""}>${i+1} · ${esc(r[1])}</option>`).join("")}</select></div></div>
+        ${sec==="club"?`<label class="checkrow" style="margin-top:6px"><input type="checkbox" data-floorcfg="club:needs" ${c.needs?"checked":""}> Needs the Bar unlocked first</label>`:""}
+        <div class="actions" style="margin-top:6px">${floorUnlocked(sec)?`<button class="btn ghost" data-floor="devLock" data-id="${sec}">LOCK AGAIN</button>`:`<button class="btn ghost" data-floor="devUnlock" data-id="${sec}">UNLOCK NOW (FREE)</button>`}</div></div>`; }).join("")}
+    <div class="spread" style="align-items:center;gap:10px;margin-top:10px"><label for="fNight">Café + bookshop tips at night, before the Bar opens (%)</label><input class="field num" id="fNight" type="number" min="0" max="100" style="width:5em" value="${Math.round(nightTipPct()*100)}" data-floorcfg="all:nightTip"></div>
+    <div class="actions"><button class="btn ghost" data-floor="devReset">RESET TO DEFAULTS</button></div>
+  </section>`; }
 
 /* ---------- boot ---------- */
 let lastDay, lastSide;
