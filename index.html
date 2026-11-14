@@ -248,10 +248,6 @@ body.lowpower .sign{animation:buzz 3.2s steps(1) infinite}
 .shakerrow #glass{width:60px;height:72px}
 .rec.locked b{color:var(--dim)}
 
-.flirt{border:1px solid #ff8cc4;background:color-mix(in srgb,#ff8cc4 8%,var(--panel));padding:10px}
-.flirt .px{color:#ff8cc4}
-.charmbtn{border-color:#ff8cc4;color:#ff8cc4}
-.charmbtn:hover{background:color-mix(in srgb,#ff8cc4 12%,transparent)}
 
 /* savings jar */
 .jarbig{font-size:46px;font-weight:700;color:var(--good);margin:0 0 12px;line-height:1;text-shadow:0 0 18px rgba(62,242,224,.35)}
@@ -365,9 +361,6 @@ textarea.field{min-height:110px;font-size:13px;font-family:"Courier New",monospa
 .bbar i{display:block;background:var(--bc);height:100%}
 .bbar i.pend{background:repeating-linear-gradient(45deg,var(--bc) 0 3px,transparent 3px 6px);opacity:.6}
 .scenewrap{position:relative}
-.cg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:rgba(6,5,10,.82);pointer-events:none}
-.cgbtn{position:absolute;inset:0;border:0;padding:0;background:none;cursor:pointer}
-.cgbtn .cg{pointer-events:none}
 .rooms{display:grid;gap:6px}
 .room,.wmini{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;padding:6px 8px;border:1px solid var(--line);background:#0a0910}
 .wmini{grid-template-columns:48px 1fr auto;border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
@@ -479,7 +472,6 @@ details.sub .actions{margin-top:8px}
 
 
 .scenewrap .layer{position:absolute;left:1px;top:1px;width:calc(100% - 2px);height:calc(100% - 2px);image-rendering:pixelated;pointer-events:none}
-.scenewrap .cg,.scenewrap .cgbtn{z-index:2}
 
 
 .facegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
@@ -537,9 +529,6 @@ details.sub .actions{margin-top:8px}
 .progtable b{font-family:var(--pixel);font-size:10px;color:var(--accent);text-align:center}
 .progtable .field{padding:6px 8px;min-height:0}
 .outfits{display:flex;flex-direction:column;gap:6px}
-.ofslot{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;align-items:center;border:1px solid var(--line);padding:6px;background:#0a0910}
-.ofslot.on{border-color:var(--accent)}
-.ofslot.locked{opacity:.6}
 .ofacts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
 
 .devpick{display:flex;gap:8px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none}
@@ -651,47 +640,7 @@ body.bgxon{overflow:hidden}
 .bgxact{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px}
 .bgxchk input{width:18px;height:18px;accent-color:var(--accent);margin:0;position:static;opacity:1}
 .bgxact .btn{font-size:9px;padding-left:6px;padding-right:6px}
-/* ---------- extra service: card minigame ---------- */
-body.xson{overflow:hidden}
-.xs{position:fixed;inset:0;z-index:80;background:var(--bg);overflow-y:auto;padding:calc(8px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;max-width:620px;margin:0 auto}
-.xstop{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.xstop .px{color:var(--accent)}
-.xsstage{position:relative;aspect-ratio:16/10;border:1px solid var(--line);background:radial-gradient(circle at 50% 30%,#3a1450,#0e0818 70%);background-size:cover;background-position:center;overflow:hidden;flex:none}
-.xsw{position:absolute;left:4%;bottom:0;height:92%;max-width:56%;object-fit:contain;object-position:bottom}
-.xsc{position:absolute;right:5%;bottom:22%;width:26%;image-rendering:pixelated;border:1px solid var(--line)}
-.xscg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
-.xsroom{position:absolute;top:8px;left:10px;opacity:.6}
-.xsline{position:absolute;left:0;right:0;bottom:0;margin:0;padding:8px 10px;background:linear-gradient(transparent,rgba(5,4,10,.92) 35%);font-size:14px;min-height:2.6em}
-.xsmeter{position:relative;height:22px;border:1px solid var(--accent);background:#0a0910;flex:none}
-.xsmeter i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#9a2458,var(--accent));transition:width .3s}
-.xsmeter span{position:relative;display:block;text-align:center;font-family:var(--pixel);font-size:10px;line-height:20px;color:#fff;text-shadow:0 1px 2px #000}
-.xsstats,.xsprefs{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--dim)}
-.xsstats b{color:var(--ink)}
 .tag.good{color:var(--good);border-color:var(--good)} .tag.bad{color:var(--bad);border-color:var(--bad)}
-.xhand{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
-.xhand.picks{flex-wrap:wrap;overflow:visible}
-.xcard{position:relative;flex:none;width:118px;min-height:168px;scroll-snap-align:start;display:flex;flex-direction:column;gap:3px;align-items:stretch;text-align:left;background:#120d1c;border:1px solid var(--line);color:var(--ink);font:inherit;padding:6px;cursor:pointer}
-.xcard img,.xcard .xart{width:100%;height:62px;object-fit:cover;background:#1e1430;display:grid;place-items:center;color:var(--accent);font-size:20px}
-.xcard b{font-size:13px;line-height:1.15}
-.xcard small{font-size:11px;color:var(--accent)}
-.xcard em{font-size:11px;color:var(--dim);font-style:normal;line-height:1.2}
-.xcard .tag{align-self:flex-start;margin-top:auto}
-.xcard.lk{border-color:var(--good)} .xcard.dk{border-color:color-mix(in srgb,var(--bad) 60%,var(--line))}
-.xcard:disabled{opacity:.4;cursor:not-allowed}
-.xcard:not(:disabled):active{transform:translateY(-4px)}
-.xcost{position:absolute;top:2px;right:2px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--bg);font-family:var(--pixel);font-size:10px;display:grid;place-items:center;z-index:1}
-.xsact{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px}
-.xsres{border:1px solid var(--line);padding:10px;text-align:center;display:flex;flex-direction:column;gap:4px}
-.xsres.win b{color:var(--good);font-family:var(--pixel);font-size:11px;letter-spacing:.08em}
-.xsres.lose b{color:var(--bad);font-family:var(--pixel);font-size:11px}
-.xsoffer{border-color:var(--accent)}
-.deckrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
-.deckrow.off{opacity:.55}
-.deckart{flex:none;width:44px;height:52px;border:1px solid var(--line);background:#0a0910;color:var(--dim);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:2px;cursor:pointer;overflow:hidden}
-.deckart img{width:100%;height:34px;object-fit:cover}
-.deckart small{font-family:var(--pixel);font-size:7px;letter-spacing:.08em}
-.deckart.own{border-color:var(--accent);color:var(--accent)}
-.deckrow{gap:10px}
 /* ---------- roster / jobs ---------- */
 .rosterhd{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0 4px}
 .onshift{font-family:var(--pixel);font-size:8px;letter-spacing:.1em;color:var(--good)}
@@ -700,38 +649,12 @@ body.xson{overflow:hidden}
 .jobrow{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin:0 0 6px;align-items:center}
 .jobrow .field{padding:6px 8px;font-size:13px}
 .ctr>div:first-child{flex:1;min-width:0}
-/* ---------- charm moves + gallery ---------- */
-.charmpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;margin-top:8px}
-.cmove{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;background:#140c1c;border:1px solid color-mix(in srgb,#ff8cc4 50%,var(--line));color:var(--ink);font:inherit;cursor:pointer;text-align:center}
-.cmove img,.cmove .ci{width:100%;height:56px;object-fit:cover;background:#1e1430;display:grid;place-items:center;color:#ff8cc4;font-size:20px}
-.cmove b{font-size:13px} .cmove small{font-size:11px;color:#ff8cc4}
-.cmove:disabled{opacity:.4;cursor:not-allowed}
-.cmove:disabled small{color:var(--dim)}
 .cgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
 .cslot{display:flex;flex-direction:column;gap:5px;border:1px solid var(--line);padding:6px;background:#0a0910}
 .cslot b{font-size:13px}
 .cthumb{display:block;width:100%;aspect-ratio:3/4;border:0;padding:0;background:#1e1430;cursor:zoom-in;overflow:hidden}
 .cthumb img{width:100%;height:100%;object-fit:cover}
 .cthumb.empty{display:grid;place-items:center;color:var(--dim);cursor:default}
-.cview{display:block;width:100%;max-height:70vh;object-fit:contain;background:#000;margin:0 0 6px}
-/* ---------- energy bar minigame ---------- */
-.glbar{position:relative;height:20px;border:1px solid var(--accent);background:#0a0910}
-.glbar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#7a5aff,var(--accent));transition:width .4s}
-.glbar span{position:relative;display:block;text-align:center;font-family:var(--pixel);font-size:9px;line-height:18px;color:#fff;text-shadow:0 1px 2px #000}
-.glpanel.glready{border-color:var(--accent);box-shadow:0 0 18px var(--glow)}
-.glpanel.glready .glbar i{animation:glpulse 1.2s ease-in-out infinite}
-@keyframes glpulse{50%{filter:brightness(1.4)}}
-@media (prefers-reduced-motion:reduce){.glpanel.glready .glbar i{animation:none}}
-.glteam{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
-.glpick{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;background:#140c1c;border:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer;text-align:center}
-.glpick img,.glpick .ci{width:100%;height:64px;object-fit:cover;object-position:top;background:#1e1430;display:grid;place-items:center;color:var(--accent)}
-.glpick b{font-size:13px} .glpick small{font-size:11px;color:var(--dim)}
-.glpick:not(:disabled):hover{border-color:var(--accent)}
-.glpick:disabled{opacity:.45;cursor:not-allowed}
-.xsqueue{display:flex;gap:4px;margin-left:auto;font-size:13px}
-.xsqueue span{color:var(--dim)} .xsqueue .cur{color:var(--accent)} .xsqueue .done{color:var(--good)}
-.xcard .price{position:absolute;top:2px;left:2px;background:#0a0910;border:1px solid var(--good);color:var(--good);font-family:var(--pixel);font-size:8px;padding:2px 4px;z-index:1}
-.xcard .lvl{font-family:var(--pixel);font-size:7px;color:#ff8cc4;letter-spacing:.06em}
 /* ---------- upgrades / outfits ---------- */
 .upseg{margin:0 0 10px}
 .wardrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
@@ -997,6 +920,9 @@ body.taskdock main{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
 body.taskdock .tmain{padding-bottom:12px}
 body.taskdock .fab{bottom:calc(84px + env(safe-area-inset-bottom));border-radius:50%}
 body.taskdock .edgepill{bottom:calc(84px + env(safe-area-inset-bottom))}
+/* iPhone home-screen apps put fixed bars at the end of a short page instead of the screen bottom:
+   on Tasks the page is always at least the full screen tall (+1px so it always counts as scrollable) */
+body.taskdock #app{min-height:calc(100vh + 1px);min-height:calc(100lvh + 1px)}
 
 </style>
 </head>
@@ -1046,7 +972,7 @@ const MODULES = {
   sign:    {name:"Neon Sign",       sec:"SHOP", cost:250, amb:6, seats:2, desc:"Your name in hot pink, two storeys tall. People can read it from the train.", line:"Your neon sign buzzes. People on the train can read it now."},
   archive: {name:"Rare Archive",    sec:"BOOKS",cost:260, amb:5, seats:1, desc:"A locked case of pre-net first editions. Collectors cross the city for it.", line:"A collector asks to see the case of pre-net first editions."},
   lounge:  {name:"Rooftop Lounge",  sec:"BAR",  cost:300, amb:5, seats:4, desc:"String lights, a rain canopy and a view of the skyline.", line:"Rain hisses on the rooftop canopy. Nobody wants to leave."},
-  stage:   {name:"Main Stage",      sec:"CLUB", cost:90,  amb:3, seats:3, desc:"A mirrored stage and a chrome pole under one hot-pink spotlight.", line:"The spotlight finds the stage and the whole room goes quiet."},
+  stage:   {name:"Main Stage",      sec:"CLUB", cost:90,  amb:3, seats:3, desc:"A small stage, a mic stand and one hot-pink spotlight. Live music every night.", line:"The spotlight finds the stage and the room goes quiet for the first song."},
   booth:   {name:"DJ Booth",        sec:"CLUB", cost:160, amb:4, seats:1, desc:"Two decks and a crate of bootleg tapes. The DJ takes live requests.", line:"The DJ drops a live remix and the booths start cheering."},
   vip:     {name:"VIP Booths",      sec:"CLUB", cost:240, amb:4, seats:4, desc:"Velvet booths behind a beaded curtain. Bottle service only.", line:"Someone books a VIP booth and orders the whole bottle."},
   lights:  {name:"Laser Rig",       sec:"CLUB", cost:290, amb:5, seats:2, desc:"Lasers, haze and a mirror ball rescued from a dead casino.", line:"The laser rig sweeps the room and every phone comes out."},
@@ -1817,7 +1743,7 @@ function povConfig(sec){
       R(148,11,172,3,"#c8a040");
       const on=Math.sin(t/140)>-.9;
       if(on){ g.globalAlpha=.22; R(58,38,76,26,"#d06aff"); g.globalAlpha=1; }
-      R(62,42,68,18,"#0a0812"); pixText(g,adultOn()?"CLUB":"LIVE",73,45,on?"#f0c8ff":"#3a1a48",2); R(64,64,64,1,on?"#ff3d8b":"#3a1a48");
+      R(62,42,68,18,"#0a0812"); pixText(g,"LIVE",73,45,on?"#f0c8ff":"#3a1a48",2); R(64,64,64,1,on?"#ff3d8b":"#3a1a48");
       if(lv("booth")){ R(8,86,46,38,"#0a0812"); R(9,87,44,36,"#24152e"); R(12,82,40,6,"#4a4860"); R(14,83,12,4,"#1a1424"); R(30,83,12,4,"#1a1424"); const b=Math.floor(t/250);
         for(let i=0;i<6;i++) R(12+i*7,98,4,2,(b+i)%3?"#3ef2e0":"#ff3d8b"); R(12,106,38,1,"#d06aff"); for(let k=0;k<5;k++){ const h=1+((b+k*3)%5); R(40+k*2,80-h,1,h,"#ffd23f"); } }
       if(lv("vip")){ for(let x=4;x<60;x+=3) for(let y=56;y<150;y+=4) if((x+y+((t/220)|0))%5) R(x,y,1,2,y%8?"#c8a040":"#ff8ad8"); }
@@ -1825,7 +1751,6 @@ function povConfig(sec){
     C.counter=(g,t)=>{
       const R=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(a,b,w,h);};
       if(!lv("stage")){ R(160,128,150,4,"#2a1830"); return; }
-      if(adultOn()){ R(235,16,3,114,"#8a88a2"); R(235,16,1,114,"#e6e4f2"); R(232,14,9,3,"#4a4860"); R(232,128,9,3,"#4a4860"); }
       else { R(214,98,1,30,"#8a88a2"); R(210,127,9,2,"#4a4860"); R(212,94,5,5,"#2a2440"); R(213,95,3,3,"#8a88a2"); R(272,108,18,20,"#1a1426"); R(274,110,14,14,"#2a2440"); R(278,114,6,6,"#0a0812"); R(279,115,4,4,"#4a4860"); }
       if(C.open) lampGlow(g,236,18,128,"#ff8ad8",.42);
       R(150,128,165,4,"#3a1a48"); R(150,128,165,1,"#d06aff"); R(150,132,165,12,"#140a1c");
@@ -2475,7 +2400,7 @@ function imgFor(src){ if(!imgCache[src]){ const im=new Image(); im.src=src; imgC
 function resolveArt(v){ if(!v) return null; if(v==="builtin:mika") return MIKA_ART; if(typeof v==="string"&&v.indexOf("builtin:")===0) return BUILTIN[v.slice(8)]||null; if(typeof v==="string"&&v.indexOf("idb:")===0) return ART[v.slice(4)]||null; return v; }
 const artHalf=w=>outfitArt(w)||(w&&w.art==="builtin:mika"?MIKA_HALF:resolveArt(w&&w.art));
 const artSrc=w=>outfitArt(w)||resolveArt(w&&w.art);
-const ROLES={cafe:{title:"Barista",room:"café"},books:{title:"Bookseller",room:"bookshop"},bar:{title:"Bartender",room:"bar"},club:{title:"Dancer",room:"club"}};
+const ROLES={cafe:{title:"Barista",room:"café"},books:{title:"Bookseller",room:"bookshop"},bar:{title:"Bartender",room:"bar"},club:{title:"Performer",room:"lounge"}};
 const TRAITS={
   latte:{name:"Latte Artist",desc:"Sometimes saves a Close café order into a Perfect",save:.4,roles:["cafe"]},
   mixologist:{name:"Mixologist",desc:"Sometimes saves a Close cocktail into a Perfect",save:.4,roles:["bar"]},
@@ -2599,7 +2524,6 @@ function crewPanel(){
             <div class="actions" style="margin-top:8px">${p.skill<5?`<button class="btn" data-act="train" data-id="${p.id}" ${S.credits>=90*p.skill?"":"disabled"}>TRAIN · ${90*p.skill}₵</button>`:""}
               <label class="btn ghost" for="workerArt" style="text-align:center">${p.art?"NEW ART":"LOAD ART"}</label><input type="file" id="workerArt" class="srt" accept="image/*" data-id="${p.id}">
               ${p.art?`<button class="btn ghost" data-act="clearWorkerArt" data-id="${p.id}">CODE ART</button>`:""}
-              ${FEATURES.charm?`<label class="btn ghost charmbtn" for="charmArt" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
               <button class="btn danger" data-act="fire" data-id="${p.id}">LET GO</button></div>`}
       </div></div>`; };
   return `<section class="panel">
@@ -2705,8 +2629,7 @@ function sceneBack(g,sec,t){
     g.globalAlpha=.3; for(let i=0;i<5;i++) R(50+i*32+Math.round(Math.sin(t/900+i)*3),12,5,88,"#9fd0e8"); g.globalAlpha=1;
     for(let x=0;x<40;x+=3) R(x,0,3,104,(x/3)%2?"#7a1040":"#9a2458"); for(let x=200;x<SW;x+=3) R(x,0,3,104,(x/3)%2?"#7a1040":"#9a2458");
     R(0,0,SW,3,"#c8a040");
-    if(adultOn()){ R(158,0,3,104,"#8a88a2"); R(158,0,1,104,"#e6e4f2"); }
-    const on=Math.sin(t/140)>-.9; if(on){ g.globalAlpha=.25; R(204,10,32,14,"#d06aff"); g.globalAlpha=1; } pixText(g,adultOn()?"CLUB":"LIVE",208,14,on?"#f0c8ff":"#3a1a48",1);
+    const on=Math.sin(t/140)>-.9; if(on){ g.globalAlpha=.25; R(204,10,32,14,"#d06aff"); g.globalAlpha=1; } pixText(g,"LIVE",208,14,on?"#f0c8ff":"#3a1a48",1);
     if(S.modules.lights){ const k=Math.floor(t/150)%6; R(12,10,14,14,"#8a88a2"); for(let i=0;i<9;i++) R(13+(i%3)*4,11+((i/3)|0)*4,3,3,(i+k)%4?"#c8c6d8":"#ffffff"); }
   } else {
     R(0,0,SW,SH,"#14222a");
@@ -2746,7 +2669,7 @@ function drawScene(){
   if(frC){ gf.setTransform(1,0,0,1,0,0); gf.clearRect(0,0,frC.width,frC.height); gf.setTransform(frC.width/SW,0,0,frC.height/SH,0,0); gf.imageSmoothingEnabled=false; }
   const typing=L&&srv.typed<L.text.length&&Math.floor(t/110)%2===1;
   const res=srv.result&&srv.step>=srv.lines.length-2?srv.result.grade:null;
-  const mood=res==="perfect"||srv.charmed?"happy":res==="miss"?"sad":"neutral";
+  const mood=res==="perfect"?"happy":res==="miss"?"sad":"neutral";
   const w=srv.worker, wMood=res==="miss"?"sad":res==="perfect"?"happy":(["bubbly","chatty","chill"].includes(w.persona)?"happy":"neutral");
   g.imageSmoothingEnabled=false;
   const nb=!!hiC&&typeof srvBackdrop==="function"&&srvBackdrop(gh,srv.sec,"back");
@@ -2757,23 +2680,21 @@ function drawScene(){
   sceneCones(g,srv.sec);
   backShadow(g,srv.sec,sway);
   g.fillStyle="rgba(0,0,0,.07)"; for(let y=0;y<SH;y+=2) g.fillRect(0,y,SW,1); }
-  const charming=t-(srv.charmFlash||-1e9)<4200;
   const half=artHalf(w), talkingNow=!!(L&&L.who==="w"&&srv.typed<L.text.length);
-  if(drawWorkerSheet(gh,w,t,talkingNow,charming)){}
+  if(drawWorkerSheet(gh,w,t,talkingNow)){}
   else if(half){ const im=imgFor(half);
     if(im.complete&&im.naturalWidth){ gh.save(); gh.translate(sway,0); drawFramedBreath(gh,im,frameOf(w),inBody); gh.restore(); } }
-  else { const p=paintPortrait(w.look,charming?"happy":typing&&L.who==="w"?"neutral":wMood,typing&&L.who==="w",t%3400<130,srv.sec,true);
+  else { const p=paintPortrait(w.look,typing&&L.who==="w"?"neutral":wMood,typing&&L.who==="w",t%3400<130,srv.sec,true);
     gh.drawImage(p,0,50,72,p.height-50,84+sway,56+inBody,72,p.height-50);
     gh.drawImage(p,0,0,72,53,84+sway+(Math.sin(t/3900)>.92?1:0),6+inHead,72,53); }
   sceneAir(gf,srv.sec,t);
-  charmSparkles(gf,t);
   if(!(nb&&frC&&srvBackdrop(gf,srv.sec,"mid"))){ sceneCounter(gf,srv.sec);
   sceneProps(gf,srv.sec,t); }
   sceneDrink(gf,srv.sec);
   const face=$("dface");
   if(face&&L&&L.who!=="n"){
     const fg=face.getContext("2d"), FS=face.width; fg.imageSmoothingEnabled=false; fg.setTransform(1,0,0,1,0,0); fg.clearRect(0,0,FS,FS);
-    if(L.who==="w"){ const fset=faceSet(srv.worker); if(fset){ const ch=t-(srv.charmFlash||-1e9)<4200, k=ch?"charm":typing?"talk":(t%3400<140)?"blink":res==="miss"?"sad":res==="perfect"?"happy":res==="close"?"smile":"neutral"; const fi=imgFor(pickFace(fset,k)); if(fi.complete) fg.drawImage(fi,0,0,FS,FS); } else if(!srv.worker.art) fg.drawImage(paintPortrait(srv.worker.look,typing?"neutral":(res==="miss"?"sad":"happy"),typing,t%3400<130,srv.sec),0,0,FS,FS); }
+    if(L.who==="w"){ const fset=faceSet(srv.worker); if(fset){ const k=typing?"talk":(t%3400<140)?"blink":res==="miss"?"sad":res==="perfect"?"happy":res==="close"?"smile":"neutral"; const fi=imgFor(pickFace(fset,k)); if(fi.complete) fg.drawImage(fi,0,0,FS,FS); } else if(!srv.worker.art) fg.drawImage(paintPortrait(srv.worker.look,typing?"neutral":(res==="miss"?"sad":"happy"),typing,t%3400<130,srv.sec),0,0,FS,FS); }
     else if(typeof srvClientFace==="function"&&srvClientFace(fg,FS,t,typing)){}
     else fg.drawImage(paintPortrait(srv.cust.look,mood,typing,(t+900)%3600<130,srv.sec),0,0,FS,FS);
   }
@@ -2831,73 +2752,6 @@ function recipeText(sec){
   return CAFE_DRINKS.map(d=>{ const r=Object.entries(d.r).map(([k,v])=>`${v} ${({shot:"shot",milk:"steamed milk",foam:"foam",water:"hot water"})[k]}${v>1&&k==="shot"?"s":""}`).join(" · "); return `<div class="rec"><b>${esc(d.name)}</b><span>${r}${d.syrup!=="none"?" · "+d.syrup+" syrup":""}${d.iced?" · iced":""}</span><small>${d.tags.join(", ")}</small></div>`; }).join("")+`<div class="rec"><small>Oat milk: only when they ask for it.</small></div>`;
 }
 
-/* ---------- CAFÉ CHARM: flirty customers + charm move (PG-13) ---------- */
-const FLIRTS=[
-  "Also... do you come with the coffee? Kidding. Mostly.",
-  "You make it look good. The coffee, I mean. Also you.",
-  "If I tip extra, do I get your number? Asking for a friend. The friend is me.",
-  "Is it warm in here, or is that just the espresso machine?",
-  "I'd come here even if the coffee was bad. It isn't. But I would.",
-  "Write your name on the cup? I'll keep it forever. Normal amount of forever."
-];
-const FLIRT_REPLY={
-  play:{bubbly:"Hehe, maybe if you come back tomorrow!",deadpan:"Tip well and we'll see.",chill:"Smooth. I'll allow it.",gruff:"...Fine. That one was good.",chatty:"Oh stop it, you're gonna make me spill something!"},
-  playFail:{bubbly:"Oh! Um. Haha. Coffee! Right!",deadpan:"...Anyway.",chill:"Heh. Okay then.",gruff:"Don't push it.",chatty:"Ha, okay, wow, so, anyway, the coffee!"},
-  laugh:{bubbly:"Haha, nice try! Coffee first.",deadpan:"Cute. Next.",chill:"Ha. Let's start with the coffee.",gruff:"Keep dreaming, pal.",chatty:"Ha! You're funny. Okay, one sec!"},
-  shut:{bubbly:"Just the coffee today, okay?",deadpan:"No.",chill:"I'm gonna stick to coffee.",gruff:"Not happening. Sit down.",chatty:"Oh, nope, I'm just here for the coffee part!"}
-};
-const FLIRT_REACT={play:["Worth a shot. Worth every shot.","I'm coming back tomorrow. Just so you know."],playFail:["Yeah... that came out weird. Sorry."],laugh:["Ha. Fair enough.","Can't blame me for trying."],shut:["Okay, okay. Message received.","Right. Coffee. Got it."]};
-const CHARM_ACT=["{w} leans on the counter and gives {c} a slow smile.","{w} winks and slides a little heart onto the cup sleeve.","{w} tucks a strand of hair back and says, \"Anything else I can do for you?\""];
-const CHARM_REACT=["I... um. Wow. Okay. Hi.","I forgot what I was going to say.","Is it just me or did the lights get brighter?"];
-function charmMax(w){ const t=w.trait; return 1+Math.floor(w.charm/2)+((t==="smooth"||t==="favorite")?1:0); }
-function charmUsed(w){ const d=S.serves[today()]; return (d&&d.charm&&d.charm[w.id])||0; }
-function flirtChance(w){ const t=w.trait; return Math.min(.9,.25+.12*w.charm+((t==="smooth"||t==="favorite")?.1:0)); }
-function flirtBlock(){
-  if(!srv.flirt||!srv.flirt.pending||srv.result) return "";
-  const w=srv.worker, C=srv.cust, pc=Math.round(flirtChance(w)*100);
-  return `<div class="flirt"><span class="px">${esc(C.name)} is flirting. How does ${esc(w.name)} respond?</span>
-    <div class="povtabs" style="grid-template-columns:repeat(3,1fr);margin:8px 0 0">
-      <button class="povtab" data-act="flirt" data-id="play">PLAY ALONG</button><button class="povtab" data-act="flirt" data-id="laugh">LAUGH IT OFF</button><button class="povtab" data-act="flirt" data-id="shut">SHUT IT DOWN</button></div>
-    <p class="hint">Play along: ${pc}% chance of +40% tip (Charm helps), or it gets awkward. Laugh it off: +10%. Shut it down: no change.</p></div>`;
-}
-function handleCharm(act,id,ev){
-  if(!srv.open) return false;
-  if(act==="charmPick"){ if(!srv.charmed&&!srv.result){ srv.charmPick=!srv.charmPick; renderServe(); } return true; }
-  if(act==="charmMove"){ doCharmMove(id,ev); return true; }
-  const w=srv.worker, C=srv.cust, P=w.persona||"chill";
-  if(act==="flirt"){
-    if(!srv.flirt||!srv.flirt.pending) return true;
-    srv.flirt.pending=false;
-    let key=id;
-    if(id==="play"){ if(Math.random()<flirtChance(w)){ srv.tipMod+=.4; } else { key="playFail"; srv.tipMod-=.1; } }
-    if(id==="laugh") srv.tipMod+=.1;
-    srv.step=srv.lines.length-1; srv.typed=srv.lines[srv.step].text.length;
-    pushLines([{who:"w",text:FLIRT_REPLY[key][P]||FLIRT_REPLY[key].chill},{who:"c",text:pk(FLIRT_REACT[key])}]);
-    if(key==="play") srv.charmFlash=performance.now();
-    beep(key==="play"?1100:key==="playFail"?300:700); renderServe(); return true;
-  }
-  if(act==="charm"){
-    if(srv.charmed||srv.result) return true;
-    if(charmUsed(w)>=charmMax(w)){ toast(`${w.name} is out of charm for today.`, true); return true; }
-    const d=serveDay(); d.charm=d.charm||{}; d.charm[w.id]=(d.charm[w.id]||0)+1; save();
-    srv.charmed=true; srv.tipMod+=.5; srv.charmFlash=performance.now();
-    srv.step=srv.lines.length-1; srv.typed=srv.lines[srv.step].text.length;
-    pushLines([{who:"n",text:fillT(pk(CHARM_ACT),{w:w.name,c:C.name})},{who:"c",text:pk(CHARM_REACT)}]);
-    pop(ev,"✦ +50% TIP","#ff8cc4"); beep(1320); setTimeout(()=>beep(1760),110);
-    renderServe(); return true;
-  }
-  return false;
-}
-function charmSparkles(g,t){
-  const age=t-(srv.charmFlash||-1e9); if(age>4200) return false;
-  const k=Math.max(0,1-age/4200);
-  g.save(); g.globalCompositeOperation="lighter";
-  const gr=g.createRadialGradient(120,50,0,120,50,90); gr.addColorStop(0,"rgba(255,120,180,"+(.35*k)+")"); gr.addColorStop(1,"rgba(0,0,0,0)"); g.fillStyle=gr; g.fillRect(0,0,240,135);
-  g.restore();
-  for(let i=0;i<10;i++){ const p=((t/30)+i*37)%120, x=60+((i*53)%120)+Math.round(Math.sin((t/300)+i)*4), y=100-p*.7;
-    g.globalAlpha=k*(1-p/120); g.fillStyle=i%2?"#ff8cc4":"#ffffff"; g.fillRect(x,y-2,1,5); g.fillRect(x-2,y,5,1); }
-  g.globalAlpha=1; return true;
-}
 /* robust image upload: decode, shrink, store as data URL */
 function readImage(file){
   return new Promise((res,rej)=>{
@@ -2930,18 +2784,9 @@ function shrinkArt(file,max,done){
    Favors are a data-driven deck you write or import yourself.
    ===================================================================== */
 const LS2="nightkettle.v2";
-/* features switched off for now (code and saved art stay; flip to true to bring them back) */
-const FEATURES={charm:false,deckBuilding:false};
-/* adult content switch (Dev › Tools). Off: progression stat + outfits, the energy-bar minigame and adult favors are hidden, and the club runs as a music lounge. Nothing is deleted. */
-const adultOn=()=>!!(S&&S.adult);
-function applyAdult(){
-  const on=adultOn(); SEC_NAME.club=on?"Club":"Lounge"; ROLES.club.title=on?"Dancer":"Performer"; ROLES.club.room=on?"club":"lounge"; ROOM_LABEL.club=on?"CLUB":"LOUNGE";
-  const a=AREAS.find(x=>x[0]==="club"); if(a) a[3]=SEC_NAME.club;
-  MODULES.stage.desc=on?"A mirrored stage and a chrome pole under one hot-pink spotlight.":"A small stage, a mic stand and one hot-pink spotlight. Live music every night.";
-  MODULES.stage.line=on?"The spotlight finds the stage and the whole room goes quiet.":"The spotlight finds the stage and the room goes quiet for the first song.";
-  if(typeof PERKS!=="undefined") PERKS.entertain.desc=on?"Clients ask favors twice as often, and favors give +1 extra progression":"Clients ask favors twice as often";
-  const js=S&&S.jobs&&S.jobs.club; if(js) js.forEach(j=>{ const sw=on?{Performer:"Dancer","VIP Host":"VIP Entertainer"}:{Dancer:"Performer","VIP Entertainer":"VIP Host"}; if(sw[j.name]) j.name=sw[j.name]; });
-}
+/* Adult and adult-adjacent features were removed from this app (progression stat + outfits, favor art and level gates,
+   the energy-bar minigame, charm/flirting, the club variant). Any of that data already in a save is left untouched,
+   just unused, so a separate app can pick it up later. */
 const FRAMED=(()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
 let S=null, peek=null, armed=null, tab="shop", taskView="today", showDoneTasks=false, favFilter="all";
 const viewSide=()=>peek||clockSide();
@@ -2962,7 +2807,7 @@ const ambMult=amb=>1+3*amb/(amb+120);
 function rankInfo(){ let i=0; RANK2.forEach((r,k)=>{ if(S.rep>=r[0]) i=k; }); const nxt=RANK2[i+1]; return {name:RANK2[i][1],lv:i+1,lo:RANK2[i][0],hi:nxt?nxt[0]:RANK2[i][0]+1,next:nxt&&nxt[1]}; }
 const SEC_ROOMS={cafe:["espresso","pastry","roaster","booths"],books:["shelves","nook","press","archive"],bar:["counter","still","jukebox","lounge"],club:["stage","booth","vip","lights"]};
 const SEC_OF_ROLE={cafe:"CAFE",books:"BOOKS",bar:"BAR",club:"CLUB"};
-const SEC_NAME={cafe:"Café",books:"Bookshop",bar:"Bar",club:"Club"};
+const SEC_NAME={cafe:"Café",books:"Bookshop",bar:"Bar",club:"Lounge"};
 
 /* ---------- favors: data model + starter deck ---------- */
 function blankFavor(){ return {id:uid(),title:"New favor",on:true,where:["cafe","books","bar","club"],when:"any",weight:2,ask:"",accept:"",outcome:"",thanks:"",decline:"",declined:"",reward:20,tipMult:1,rep:1,repDecline:0,minCharm:0,worker:"any",art:null,needLw:0,lwGain:0}; }
@@ -2977,35 +2822,23 @@ function defaultFavors(){
     F({title:"Charge a cyberdeck",where:["cafe"],when:"day",ask:"Mind if I charge my deck behind the counter? It's at three percent.",accept:"Plug it in by the grinder.",outcome:"{w} finds an outlet behind the espresso machine.",thanks:"You just saved my whole afternoon.",decline:"Outlets are staff only, sorry.",declined:"No problem, I'll find a kiosk.",reward:10,rep:1})
   ];
 }
-/* ---------- worker progression stat + outfit tiers ---------- */
-function defaultProg(){ return {label:"Corruption",need:[0,3,8,15,25],bonus:[0,10,20,35,50],names:["Base outfit","Outfit 2","Outfit 3","Outfit 4","Outfit 5"]}; }
-const PL=()=>(S&&S.prog&&S.prog.label)||"Corruption";
-function progLevel(w){ const n=S.prog.need; let l=1; for(let i=1;i<5;i++) if((w.lw||0)>=n[i]) l=i+1; return l; }
-function progNext(w){ const l=progLevel(w); return l>=5?null:S.prog.need[l]; }
-function outfitArt(w){ return lewdOutfitArt(w)||wardArt(w); }
-function lewdOutfitArt(w){ if(!w||!adultOn()) return null; const t=w.outfit||1; if(t<2||progLevel(w)<t) return null; const o=w.outfits&&w.outfits[t]; return o&&o.art?resolveArt(o.art):null; }
-function outfitBonus(w){ return wardBonus(w)+lewdBonus(w); }
-function lewdBonus(w){ if(!w||!adultOn()) return 0; const t=Math.min(w&&w.outfit||1,progLevel(w)); return (S.prog.bonus[t-1]||0)/100; }
-function gainProg(w,n){
-  if(!w||!n||!adultOn()) return; const before=progLevel(w); w.lw=Math.max(0,(w.lw||0)+n); const after=progLevel(w);
-  if(after>before){ const nm=S.prog.names[after-1]||("Outfit "+after); const o=w.outfits&&w.outfits[after];
-    if(o&&o.art) w.outfit=after;
-    addLog(`${w.name} reached ${PL()} ${after}. ${nm} unlocked${o&&o.art?" and equipped":""}.`,"build");
-    setTimeout(()=>toast(`${w.name} reached ${PL()} ${after}. ${nm} unlocked.`),400); }
-}
+function outfitArt(w){ return wardArt(w); }
+function outfitBonus(w){ return wardBonus(w); }
+/* favors that used the removed adult features (level gates, progression, art/animation) are set aside, not shown */
+const favHasMedia=x=>!!(x&&(x.art||(x.anim&&x.anim.ref)));
+const favAdult=f=>!!f&&((f.needLw||0)>1||(f.lwGain||0)>0||!!f.art||!!(f.anim&&f.anim.ref));
 function favorEligible(f,sec){
   if(!f.on||floorLocked(sec)) return false;
   if(f.where&&f.where.length&&!f.where.includes(sec)) return false;
   if(f.when==="day"&&clockSide()!=="day") return false;
   if(f.when==="night"&&clockSide()!=="night") return false;
   if(f.worker&&f.worker!=="any"){ const w=workerFor(sec); if(!w||w.id!==f.worker) return false; }
-  if(!adultOn()&&((f.needLw||0)>1||(f.lwGain||0)>0||f.art||(f.anim&&f.anim.ref))) return false;
-  if(f.needLw&&adultOn()){ const w=workerFor(sec); if(!w||progLevel(w)<f.needLw) return false; }
+  if(favAdult(f)) return false;
   return true;
 }
 function pickFavor(sec){
   const list=S.favors.deck.filter(f=>favorEligible(f,sec)); if(!list.length) return null;
-  const lv=progLevel(workerFor(sec)||{}), wt=f=>Math.max(1,f.weight||1)*(f.needLw&&f.needLw===lv?2:1);
+  const wt=f=>Math.max(1,f.weight||1);
   const tot=list.reduce((a,f)=>a+wt(f),0); let r=Math.random()*tot;
   for(const f of list){ r-=wt(f); if(r<=0) return f; } return list[0];
 }
@@ -3015,7 +2848,7 @@ function freshState(){
   return {v:3,updatedAt:0,shopName:"NIGHT KETTLE",credits:150,xp:0,rep:0,sound:true,clockMode:undefined,
     habits:[],tasks:[],clients:{waiting:1,vip:0},lastWalk:today(),stats:{served:0,perfect:0,favors:0,tips:0},
     modules:{},sprites:{},staff:[starterWorker()],board:null,boardRoll:0,serves:{},
-    buckets:[],cadence:"weekly",lists:[],wins:[],taskLog:[],bads:[],missLog:[],miss:{on:true,rep:1,since:today(),last:addDays(today(),-1)},prog:defaultProg(),
+    buckets:[],cadence:"weekly",lists:[],wins:[],taskLog:[],bads:[],missLog:[],miss:{on:true,rep:1,since:today(),last:addDays(today(),-1)},
     favors:{on:true,chance:.25,deck:defaultFavors()},
     lines:null, floors:{v:1,bar:{open:false},club:{open:false}},
     log:[{t:Date.now(),k:"sys",m:"Welcome to Night Kettle. Finish tasks and habits to bring clients in, then serve them at the counter to earn creds."}]};
@@ -3034,12 +2867,11 @@ function migrate(o){
   if(!o.miss||typeof o.miss!=="object") o.miss={on:true,rep:1,since:today(),last:addDays(today(),-1)};
   if(!Array.isArray(o.taskLog)){ o.taskLog=[]; o.tasks.forEach(t=>{ if(t.repeat&&t.repeat.type&&t.repeat.type!=="none") (t.doneLog||[]).forEach(d=>o.taskLog.push({id:uid(),d,tid:t.id,title:t.title})); else if(t.done&&t.doneOn) o.taskLog.push({id:uid(),d:t.doneOn,tid:t.id,title:t.title}); }); }
   if(!o.favors||!Array.isArray(o.favors.deck)) o.favors=b.favors;
-  o.prog=Object.assign(defaultProg(),o.prog||{}); if(!o.prog.label||o.prog.label==="Lewdness") o.prog.label="Corruption"; ["need","bonus","names"].forEach(k=>{ if(!Array.isArray(o.prog[k])||o.prog[k].length!==5) o.prog[k]=defaultProg()[k]; });
   o.staff.forEach(w=>{ w.lw=+w.lw||0; w.outfits=w.outfits||{}; w.outfit=w.outfit||1; });
   o.staff.forEach(w=>{ if(w.anim) ["fidle","fwalk"].forEach(k=>{ const r=w.anim[k]&&w.anim[k].ref; if(typeof r==="string"&&r.indexOf("builtin:mika")===0) delete w.anim[k]; }); });
   o.habits.forEach(h=>{ h.hist=h.hist||{}; h.days=Array.isArray(h.days)?h.days:[]; h.created=h.created||today(); });
   o.buckets.forEach(x=>{ x.entries=x.entries||[]; x.deposits=x.deposits||[]; });
-  jobsMigrate(o); charmMigrate(o); xsMigrate(o); wardMigrate(o); rosterMigrate(o); skillsMigrate(o); scnMigrate(o); habits2Migrate(o);
+  jobsMigrate(o); clubMigrate(o); wardMigrate(o); rosterMigrate(o); skillsMigrate(o); scnMigrate(o); habits2Migrate(o);
   return o;
 }
 function loadState(){ try{ const raw=localStorage.getItem(LS2); S=migrate(raw?JSON.parse(raw):freshState()); }catch(e){ S=migrate(freshState()); } }
@@ -3051,10 +2883,6 @@ function save(){
 }
 function commit(){ save(); render(); }
 function addLog(m,k){ S.log.unshift({t:Date.now(),k:k||"sys",m}); if(S.log.length>150) S.log.length=150; }
-function applyLines(){
-  const L=S.lines; if(!L) return;
-  [["flirts",FLIRTS],["charmAct",CHARM_ACT],["charmReact",CHARM_REACT]].forEach(([k,arr])=>{ if(Array.isArray(L[k])&&L[k].length){ arr.length=0; arr.push(...L[k]); } });
-}
 
 /* ---------- built-in pixel sprites ---------- */
 const BUILTIN={};
@@ -3133,8 +2961,8 @@ const bucketById=id=>S.buckets.find(b=>b.id===id);
 function toggleHabit(id,ev){
   const h=S.habits.find(x=>x.id===id); if(!h) return; const k=today();
   if(isCounted(h)){ habitPlus(h,ev); return; }
-  if(h.hist[k]){ delete h.hist[k]; takeReward(h,false); glGain(-Math.round(S.xs.meter.habit*dOf(h).e)); const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); } addLog("Habit un-checked: "+h.name+"."); beep(330); }
-  else { h.hist[k]=1; streakReward(h,ev); giveReward(h,false,h.name); glGain(Math.round(S.xs.meter.habit*dOf(h).e)); const b=bucketById(h.bucket); if(b&&h.save){ b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id}); setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(h.save),"var(--good)"),200); }
+  if(h.hist[k]){ delete h.hist[k]; takeReward(h,false); const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); } addLog("Habit un-checked: "+h.name+"."); beep(330); }
+  else { h.hist[k]=1; streakReward(h,ev); giveReward(h,false,h.name); const b=bucketById(h.bucket); if(b&&h.save){ b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id}); setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(h.save),"var(--good)"),200); }
     pop(ev,rewardPop(h,false),"var(--good)"); addLog("Habit done: "+h.name+". "+(dOf(h).c>1?dOf(h).c+" clients walked in.":"A client walked in.")+(b&&h.save?" "+money(h.save)+" to "+b.name+".":""),"gain"); }
   commit();
 }
@@ -3182,22 +3010,22 @@ function unlogTask(t){ for(let i=S.taskLog.length-1;i>=0;i--){ const l=S.taskLog
 /* end of day: finished one-off tasks are cleared out; repeating ones are already waiting on their next date */
 function rollTasks(){ const k=today(), n=S.tasks.length; S.tasks=S.tasks.filter(t=>isRec(t)||!t.done||t.doneOn===k); if(S.tasks.length!==n){ addLog(`Cleared ${n-S.tasks.length} finished task${n-S.tasks.length===1?"":"s"} from yesterday.`); save(); } }
 function againUndo(id){ const t=S.tasks.find(x=>x.id===id); if(!t||!isAgain(t)) return; const k=today(), i=(t.doneLog||[]).lastIndexOf(k); if(i<0) return;
-  t.doneLog.splice(i,1); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; const vip=t.pri===3; takeReward(t,vip); if(S.xs) glGain(-Math.round((vip?S.xs.meter.vip:S.xs.meter.task)*dOf(t).e)); taskSaveOut(t,k); unlogTask(t); addLog("Undid one "+t.title+"."); commit(); }
+  t.doneLog.splice(i,1); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; const vip=t.pri===3; takeReward(t,vip); taskSaveOut(t,k); unlogTask(t); addLog("Undid one "+t.title+"."); commit(); }
 function toggleTask(id,ev){
-  const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3, eg=()=>S.xs?Math.round((vip?S.xs.meter.vip:S.xs.meter.task)*dOf(t).e):0;
+  const t=S.tasks.find(x=>x.id===id); if(!t) return; const vip=t.pri===3;
   if(againShut(t)){ if(t.lastDone===today()) againUndo(id); return; }
   if(isAgain(t)){ const k=today(); t.doneLog=(t.doneLog||[]).concat(k).slice(-400); t.lastDone=k; ckReset(t);
-    logTask(t); giveReward(t,vip,t.title); glGain(eg()); const sv=taskSaveIn(t,k,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)");
+    logTask(t); giveReward(t,vip,t.title); const sv=taskSaveIn(t,k,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)");
     const n=againCount(t), g=t.repeat.goal; addLog(`Done: ${t.title} (${againLabel(t)}). ${vip?"A VIP":"A client"} walked in.${sv}`,"gain");
     if(g&&n===g) setTimeout(()=>toast(t.repeat.hide?`${t.title}: done for the ${t.repeat.per==="month"?"month":"week"}. It comes back ${t.repeat.per==="month"?"on the 1st":"Monday"}.`:`Goal reached: ${t.title} ${n}/${g} ${t.repeat.per==="month"?"this month":"this week"}.`),500);
     commit(); return; }
   if(isRec(t)){ const k=today();
-    if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; takeReward(t,vip); glGain(-eg()); taskSaveOut(t,k); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
+    if(t.lastDone===k){ t.due=t.prevDue||t.due; t.doneLog=(t.doneLog||[]).filter((d,i,arr)=>!(d===k&&i===arr.lastIndexOf(k))); t.lastDone=t.doneLog.length?t.doneLog[t.doneLog.length-1]:""; takeReward(t,vip); taskSaveOut(t,k); unlogTask(t); addLog("Undid today's "+t.title+"."); beep(330); }
     else { t.prevDue=t.due; t.doneLog=(t.doneLog||[]).concat(k).slice(-120); t.lastDone=k; ckReset(t); const base=t.due&&t.due>k?t.due:k; t.due=nextOcc(t.repeat,base)||t.due;
-      logTask(t); giveReward(t,vip,t.title); glGain(eg()); const sv=taskSaveIn(t,k,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.${sv}`,"gain"); }
+      logTask(t); giveReward(t,vip,t.title); const sv=taskSaveIn(t,k,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)"); addLog(`Done: ${t.title}. Next one ${shortDate(t.due)}. ${vip?"A VIP":"A client"} walked in.${sv}`,"gain"); }
     commit(); return; }
-  if(t.done){ taskSaveOut(t,t.doneOn||today()); t.done=false; t.doneOn=""; unlogTask(t); takeReward(t,vip); glGain(-eg()); addLog("Task reopened: "+t.title+"."); beep(330); }
-  else { t.done=true; t.doneOn=today(); logTask(t); giveReward(t,vip,t.title); glGain(eg()); const sv=taskSaveIn(t,t.doneOn,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)"); addLog("Task done: "+t.title+". "+(vip?"A VIP":"A client")+" walked in."+sv,"gain"); }
+  if(t.done){ taskSaveOut(t,t.doneOn||today()); t.done=false; t.doneOn=""; unlogTask(t); takeReward(t,vip); addLog("Task reopened: "+t.title+"."); beep(330); }
+  else { t.done=true; t.doneOn=today(); logTask(t); giveReward(t,vip,t.title); const sv=taskSaveIn(t,t.doneOn,ev); pop(ev,rewardPop(t,vip),vip?"#ffd23f":"var(--good)"); addLog("Task done: "+t.title+". "+(vip?"A VIP":"A client")+" walked in."+sv,"gain"); }
   commit();
 }
 
@@ -3232,21 +3060,18 @@ function srvNewCustomer(){
   const vip=S.clients.vip>0, P=PERSONAS[w.persona]||PERSONAS.chill;
   Object.assign(srv,{worker:w,cust:{look,name,job,req,vip},choices,result:null,mix:freshMix(srv.sec),recipes:false,hinted:false,
     lines:[{who:"w",text:fillT(pk(P.greet),{shop:prettyShop()})},{who:"c",text:req.line},{who:"w",text:pk(srv.sec==="books"||srv.sec==="club"?P.book:P.ack)}],
-    step:0,typed:0,wait:0,tipMod:0,charmed:false,charmFlash:0,flirt:null,favor:null,favLines:null,favorState:null,favorMult:1,showFavorArt:false,charmPick:false,charmMove:null,showCharmArt:false});
+    step:0,typed:0,wait:0,tipMod:0,favor:null,favLines:null,favorState:null,favorMult:1});
   if(typeof scnAssignPatron==="function") scnAssignPatron(srv.sec,srv.cust);
   if(S.favors.on&&Math.random()<Math.min(.95,S.favors.chance*(perkOf(w)==="entertain"?2:1)*crewFavorMult(srv.sec))){ const f=pickFavor(srv.sec); if(f){ srv.favor=f; srv.favorState="ask"; srv.favLines=favResolve(f,w); srv.lines.push({who:"c",text:favText(srv.favLines.ask)||"Can I ask you a favor?"}); } }
-  if(FEATURES.charm&&!srv.favor&&(srv.sec==="cafe"||srv.sec==="club")&&Math.random()<.3){ const f=pk(FLIRTS); srv.lines.splice(2,0,{who:"c",text:f}); srv.lines.pop(); srv.flirt={line:f,pending:true}; }
 }
 function favText(s){ return s?fillT(s,{w:srv.worker.name,c:srv.cust.name,shop:prettyShop()}):""; }
-/* dialogue variants: per worker and per level range; several options per line (one per row) */
+/* dialogue variants: per worker; several options per line (one per row). Variants that needed a level are set aside. */
 const FAV_KEYS=["ask","accept","outcome","thanks","decline","declined"];
 function favPickLine(s){ if(!s) return ""; const o=String(s).split("\n").map(x=>x.trim()).filter(Boolean); return o.length?o[Math.floor(Math.random()*o.length)]:""; }
-function favVarMatches(f,w){ const lvl=adultOn()?progLevel(w):1;
-  return (f.vars||[]).filter(v=>(v.who==="any"||v.who===w.id)&&lvl>=(v.lo||1)&&lvl<=(v.hi||5)&&(adultOn()||(v.lo||1)<=1))
-    .sort((a,b)=>((b.who!=="any")-(a.who!=="any"))||(((a.hi||5)-(a.lo||1))-((b.hi||5)-(b.lo||1)))); }
-const favHasMedia=x=>!!(x&&(x.art||(x.anim&&x.anim.ref)));
-function favResolve(f,w){ const m=favVarMatches(f,w), o={}; FAV_KEYS.forEach(k=>{ const v=m.find(x=>x[k]&&x[k].trim()); o[k]=favPickLine(v?v[k]:f[k]); });
-  const mv=adultOn()?m.find(favHasMedia):null, src=mv||f; o.art=src.art||null; o.anim=src.anim&&src.anim.ref?src.anim:null; return o; }
+const favVarAdult=v=>(v.lo||1)>1;
+function favVarMatches(f,w){
+  return (f.vars||[]).filter(v=>(v.who==="any"||v.who===w.id)&&!favVarAdult(v)).sort((a,b)=>(b.who!=="any")-(a.who!=="any")); }
+function favResolve(f,w){ const m=favVarMatches(f,w), o={}; FAV_KEYS.forEach(k=>{ const v=m.find(x=>x[k]&&x[k].trim()); o[k]=favPickLine(v?v[k]:f[k]); }); return o; }
 function serveOpen(sec){
   const st=counterState(sec);
   if(!st.w){ const am=edgeAwayMsg(sec); toast(am||`Hire someone for the ${ROLES[sec].room} first, in the Upgrade tab.`, true); return; }
@@ -3263,8 +3088,6 @@ function srvTick(){
     if(srv.typed<L.text.length){ srv.typed=Math.min(L.text.length,srv.typed+2); const el=$("curLine"); if(el) el.textContent=L.text.slice(0,srv.typed); if(srv.typed>=L.text.length) srv.wait=performance.now(); }
     else if(srv.step<srv.lines.length-1&&srv.wait&&performance.now()-srv.wait>450){ srv.step++; srv.typed=0; srv.wait=0; renderChat(); }
   }
-  const fa=$("favAnim"); if(fa&&srv.favor) drawSheetFit(fa,(srv.favLines||srv.favor).anim,srv.favAnimT,performance.now());
-  const cc=$("cgCharm"); if(cc) cc.style.display=performance.now()-(srv.charmFlash||-1e9)<4200?"block":"none";
   drawScene();
 }
 function srvFinish(res,ev){
@@ -3297,10 +3120,10 @@ function handleFavor(act,ev){
   const f=srv.favor, w=srv.worker;
   if(act==="favAccept"){
     if((w.charm||0)<(f.minCharm||0)){ toast(`${w.name} needs Charm ${f.minCharm} for this one.`, true); return true; }
-    srv.favorState="done"; srv.favorMult=Math.max(.1,f.tipMult||1); srv.showFavorArt=favHasMedia(srv.favLines||f); srv.favAnimT=performance.now();
+    srv.favorState="done"; srv.favorMult=Math.max(.1,f.tipMult||1);
     if(f.reward){ S.credits+=f.reward; S.xp+=f.reward; pop(ev,"+"+f.reward+"₵","#ffd23f"); }
     { const dd=serveDay(); dd.favors=(dd.favors||0)+1; dd.favorCreds=(dd.favorCreds||0)+(f.reward||0); }
-    S.rep+=f.rep||0; S.stats.favors++; { const lg=(f.lwGain||0)+(perkOf(w)==="entertain"?1:0); if(lg) gainProg(w,lg); }
+    S.rep+=f.rep||0; S.stats.favors++;
     srv.step=srv.lines.length-1; srv.typed=srv.lines[srv.step].text.length;
     const L=srv.favLines||favResolve(f,w), al=[{who:"w",text:favText(L.accept)},{who:"n",text:favText(L.outcome)},{who:"c",text:favText(L.thanks)}].filter(l=>l.text);
     pushLines(al.length?al:[{who:"n",text:`${w.name} agrees to help.`}]);
@@ -3319,7 +3142,7 @@ function handleFavor(act,ev){
 function favorBlock(){
   if(!srv.favor||srv.favorState!=="ask"||srv.result) return "";
   const f=srv.favor, w=srv.worker, short=(w.charm||0)<(f.minCharm||0);
-  const bits=[f.reward?`+${f.reward}₵ now`:"", (f.tipMult||1)!==1?`tip ×${f.tipMult}`:"", f.rep?`+${f.rep} rep`:"", f.repDecline?`decline costs ${f.repDecline} rep`:"", f.lwGain&&adultOn()?`+${f.lwGain} ${PL()}`:""].filter(Boolean).join(" · ");
+  const bits=[f.reward?`+${f.reward}₵ now`:"", (f.tipMult||1)!==1?`tip ×${f.tipMult}`:"", f.rep?`+${f.rep} rep`:"", f.repDecline?`decline costs ${f.repDecline} rep`:""].filter(Boolean).join(" · ");
   return `<div class="favbox"><span class="px">FAVOR · ${esc(f.title.toUpperCase())}</span>
     <p class="muted" style="margin:6px 0 0">${esc(bits||"No reward set")}${f.minCharm?` · needs Charm ${f.minCharm}`:""}</p>
     <div class="actions" style="margin-top:8px"><button class="btn solid" data-act="favAccept" ${short?"disabled":""}>ACCEPT</button><button class="btn ghost" data-act="favDecline">DECLINE</button></div>
@@ -3334,30 +3157,23 @@ function renderServe(){
   if(done){
     const r=srv.result, col=r.grade==="perfect"?"var(--good)":r.grade==="close"?"var(--accent)":"var(--bad)";
     station=`<div class="station"><div class="result" style="border-color:${col};color:${col}">${r.grade.toUpperCase()} · +${r.tip}₵</div>
-      <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":sec==="club"?(adultOn()?"danced to":"performed"):"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>${r.pick?`<p class="${r.pick.sold?"good":"muted"}" style="margin:4px 0 0">★ Staff pick ${esc(r.pick.t)}: ${r.pick.sold?`sold · +${r.pick.price}₵${r.pick.fit?" · +1 rep":""}`:"they passed. It's back on the shelf."}</p>`:""}
+      <p class="muted" style="margin:0">${esc(w.name)} ${sec==="books"?"recommended":sec==="club"?"performed":"served"} ${esc(r.made)}.${C.vip?" VIP tip ×1.5.":""}</p>${r.pick?`<p class="${r.pick.sold?"good":"muted"}" style="margin:4px 0 0">★ Staff pick ${esc(r.pick.t)}: ${r.pick.sold?`sold · +${r.pick.price}₵${r.pick.fit?" · +1 rep":""}`:"they passed. It's back on the shelf."}</p>`:""}
       <div class="actions">${left>0?`<button class="btn solid" data-act="srvNext">NEXT CLIENT · ${left}</button>`:`<p class="hint" style="margin:0;flex-basis:100%">That's everyone. Finish a task or habit to bring in the next client.</p>`}<button class="btn ghost" data-act="srvClose">BACK TO THE SHOP</button></div></div>`;
   } else station=sec==="bar"?stationBar():sec==="cafe"?stationCafe():stationBooks();
-  const FM=srv.favor?(srv.favLines||srv.favor):null, favAnim=srv.showFavorArt&&FM&&FM.anim&&FM.anim.ref&&resolveArt(FM.anim.ref);
-  const favArt=!favAnim&&srv.showFavorArt&&FM&&resolveArt(FM.art);
-  const charmArt=w.charmArt&&resolveArt(w.charmArt);
   el.innerHTML=`<div class="srv-in wide">
     <div class="srv-top"><span class="px">${title} · ${esc(w.name.toUpperCase())} ON SHIFT</span><span class="px acc">${left} WAITING · ₵ ${S.credits.toLocaleString()}</span><button class="modechip" data-act="srvClose" aria-label="Close the counter">✕</button></div>
     <div class="vn">
       <div class="vnleft">
         <div class="scenewrap"><canvas id="scene" width="${SW}" height="${SH}" role="img" aria-label="${esc(w.name)} behind the ${ROLES[sec].room} counter, talking with ${esc(C.name)}"></canvas><canvas id="sceneHi" class="layer" width="${SW*6}" height="${SH*6}" aria-hidden="true"></canvas><canvas id="sceneFront" class="layer" width="${SW*6}" height="${SH*6}" aria-hidden="true"></canvas>
-          ${charmArt?`<img class="cg" id="cgCharm" src="${charmArt}" alt="" style="display:none">`:""}
-          ${charmCG()}
-          ${favArt?`<button class="cgbtn" data-act="hideFavArt" aria-label="Hide favor art"><img class="cg" src="${favArt}" alt=""></button>`:""}
-          ${favAnim?`<button class="cgbtn" data-act="hideFavArt" aria-label="Hide favor animation"><canvas id="favAnim" class="cg" width="960" height="540"></canvas></button>`:""}</div>
+</div>
         <div class="dbox" id="dbox" data-act="dlgNext" role="button" tabindex="0" aria-label="Next line"></div>
       </div>
       <div class="vnright">
         <div class="custtag"><span class="px">CLIENT</span> <b>${esc(C.name)}</b> <span class="muted">${esc(C.job)}</span>${C.vip?` <span class="viptag">VIP</span>`:""}</div>
         ${srv.step>=1?`<p class="orderchip"><span class="px">ORDER</span> ${esc(C.req.line)}</p>`:""}
         ${favorBlock()}
-        ${flirtBlock()}
         ${station}
-        ${!done?`<div class="rowflex">${charmButton()}<button class="btn" data-act="hint" style="flex:1" ${srv.hinted||hl<=0?"disabled":""}>ASK ${esc(w.name.toUpperCase())} · ${Math.max(0,hl)} LEFT</button>${sec!=="books"&&sec!=="club"?`<button class="btn ghost" style="flex:1" data-act="recipes" aria-expanded="${srv.recipes}">${sec==="bar"?"RECIPES":"MENU"}</button>`:""}</div>${charmPicker()}${srv.recipes&&sec!=="books"?`<div class="recipes">${recipeText(sec)}</div>`:""}`:""}
+        ${!done?`<div class="rowflex"><button class="btn" data-act="hint" style="flex:1" ${srv.hinted||hl<=0?"disabled":""}>ASK ${esc(w.name.toUpperCase())} · ${Math.max(0,hl)} LEFT</button>${sec!=="books"&&sec!=="club"?`<button class="btn ghost" style="flex:1" data-act="recipes" aria-expanded="${srv.recipes}">${sec==="bar"?"RECIPES":"MENU"}</button>`:""}</div>${srv.recipes&&sec!=="books"?`<div class="recipes">${recipeText(sec)}</div>`:""}`:""}
       </div>
     </div>
   </div>`;
@@ -3366,38 +3182,13 @@ function renderServe(){
 
 /* ---------- uploads ---------- */
 function workerArtUpload(file,id){ const w=S.staff.find(x=>x.id===id); if(!w) return; bigArt(file,600,async data=>{ dropArt(w.art); w.art=await storeArt(data); w.frame={s:1,x:0,y:0}; manageOpen=w.id; addLog(`New art for ${w.name}.`,"build"); commit(); toast("Art loaded. Use Size and Height to frame them behind the counter."); }); }
-function charmArtUpload(file,id){ const w=S.staff.find(x=>x.id===id); if(!w) return; bigArt(file,480,async data=>{ dropArt(w.charmArt); w.charmArt=await storeArt(data); addLog(`New charm art for ${w.name}.`,"build"); commit(); toast("Charm art loaded. It shows during Charm moves."); }); }
 let favDraft=null;
-function favAnimUpload(file){
-  if(!favDraft||!file) return;
-  const cols=Math.max(1,Math.min(16,+($("faCols")||{}).value||4)), rows=Math.max(1,Math.min(8,+($("faRows")||{}).value||1)), fps=Math.max(1,Math.min(30,+($("faFps")||{}).value||8)), loop=!!($("faLoop")||{}).checked;
-  readImage(file).then(img=>{
-    const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/cols, fh=H/rows, sc=Math.min(1,640/fw,640/fh,Math.sqrt(16e6/(W*H)));
-    const cv=document.createElement("canvas"); cv.width=Math.max(1,Math.round(W*sc)); cv.height=Math.max(1,Math.round(H*sc));
-    const g=cv.getContext("2d"); g.imageSmoothingEnabled=sc<1; g.imageSmoothingQuality="high"; g.drawImage(img,0,0,cv.width,cv.height);
-    let data=cv.toDataURL("image/png"); if(data.length>2.5e6) data=cv.toDataURL("image/webp",.9);
-    return storeArt(data).then(ref=>{ const old=favDraft.anim&&favDraft.anim.ref; if(old&&old!==(favDraft._origAnim||{}).ref) dropArt(old);
-      favDraft.anim={ref,cols,rows,fps,loop}; toast(`${cols*rows} frames loaded. Save the favor to keep them.`); });
-  }).catch(()=>toast(imgErr(file), true));
-}
 function drawSheetFit(cv,a,t0,now){
   if(!cv||!a||!a.ref) return; const src=resolveArt(a.ref); if(!src) return; const im=imgFor(src); if(!(im.complete&&im.naturalWidth)) return;
   const {c,r,n}=sheetFrames(a), fps=Math.max(1,+a.fps||8); let k=Math.floor((now-(t0||0))/(1000/fps)); k=a.loop===false?Math.min(n-1,k):k%n;
   const fw=im.naturalWidth/c, fh=im.naturalHeight/r, g=cv.getContext("2d"), s=Math.min(cv.width/fw,cv.height/fh), dw=fw*s, dh=fh*s;
   g.clearRect(0,0,cv.width,cv.height); g.imageSmoothingEnabled=s<1; g.drawImage(im,(k%c)*fw,Math.floor(k/c)*fh,fw,fh,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);
 }
-setInterval(()=>{ if(!favDraft) return; document.querySelectorAll("canvas[data-fvprev]").forEach(cv=>{ const v=(favDraft.vars||[]).find(x=>x.id===cv.dataset.fvprev); if(v&&v.anim&&v.anim.ref){ const i=cv.dataset.i, n=id=>+($("fv"+i+id)||{}).value; drawSheetFit(cv,Object.assign({},v.anim,{cols:n("cols")||v.anim.cols,rows:n("rows")||v.anim.rows,fps:n("fps")||v.anim.fps,loop:true}),0,performance.now()); } }); },70);
-setInterval(()=>{ const pv=$("favAnimPrev"); if(pv&&favDraft&&favDraft.anim){ favDraft.anim.cols=+($("faCols")||{}).value||favDraft.anim.cols; favDraft.anim.rows=+($("faRows")||{}).value||favDraft.anim.rows; favDraft.anim.fps=+($("faFps")||{}).value||favDraft.anim.fps; favDraft.anim.loop=!!($("faLoop")||{}).checked; drawSheetFit(pv,Object.assign({},favDraft.anim,{loop:true}),0,performance.now()); } },70);
-function favVarArtUpload(file,vid){ if(!favDraft||!file) return; favDraft.vars=favVarsRead(); bigArt(file,900,async data=>{ const v=favDraft.vars.find(x=>x.id===vid); if(!v) return; v.art=await storeArt(data); v.open=true; favVarsRefresh(); toast("Variant art loaded. Save the favor to keep it."); }); }
-function favVarAnimUpload(file,vid){ if(!favDraft||!file) return; favDraft.vars=favVarsRead(); const v0=favDraft.vars.find(x=>x.id===vid); if(!v0) return;
-  const i=favDraft.vars.indexOf(v0), n=(id,d,lo,hi)=>Math.max(lo,Math.min(hi,+($("fv"+i+id)||{}).value||d)), cols=n("cols",4,1,16), rows=n("rows",1,1,8), fps=n("fps",8,1,30), loop=!!(($("fv"+i+"loop")||{checked:true}).checked);
-  readImage(file).then(img=>{ const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/cols, fh=H/rows, sc=Math.min(1,640/fw,640/fh,Math.sqrt(16e6/(W*H)));
-    const cv=document.createElement("canvas"); cv.width=Math.max(1,Math.round(W*sc)); cv.height=Math.max(1,Math.round(H*sc)); const g=cv.getContext("2d"); g.imageSmoothingEnabled=sc<1; g.imageSmoothingQuality="high"; g.drawImage(img,0,0,cv.width,cv.height);
-    let data=cv.toDataURL("image/png"); if(data.length>2.5e6) data=cv.toDataURL("image/webp",.9);
-    return storeArt(data).then(ref=>{ const v=favDraft.vars.find(x=>x.id===vid); if(!v) return; v.anim={ref,cols,rows,fps,loop}; v.open=true; favVarsRefresh(); toast(`${cols*rows} frames loaded. Save the favor to keep them.`); });
-  }).catch(()=>toast(imgErr(file), true)); }
-function favArtUpload(file){ if(!favDraft) return; bigArt(file,900,async data=>{ if(favDraft.art&&favDraft.art!==favDraft._origArt) dropArt(favDraft.art); favDraft.art=await storeArt(data); refreshFavArtPreview(); toast("Favor art loaded. Save the favor to keep it."); }); }
-
 /* ---------- favor packs ---------- */
 function exportPack(){
   const favors=S.favors.deck.map(f=>{ const o=Object.assign({},f); delete o._origArt; if(o.art) o.art=resolveArt(o.art); if(o.anim&&o.anim.ref) o.anim=Object.assign({},o.anim,{ref:resolveArt(o.anim.ref)}); if(o.vars) o.vars=o.vars.map(v=>{ const x=Object.assign({},v); if(x.art) x.art=resolveArt(x.art); if(x.anim&&x.anim.ref) x.anim=Object.assign({},x.anim,{ref:resolveArt(x.anim.ref)}); return x; }); return o; });
@@ -3411,7 +3202,7 @@ async function importPack(text){
     if(f.anim&&typeof f.anim.ref==="string"&&f.anim.ref.indexOf("data:image")===0) f.anim=Object.assign({},f.anim,{ref:await storeArt(f.anim.ref)}); else if(f.anim&&!(typeof f.anim.ref==="string"&&f.anim.ref.indexOf("idb:")===0)) f.anim=null; if(typeof f.art==="string"&&f.art.indexOf("data:image")===0) f.art=await storeArt(f.art); else if(f.art&&f.art.indexOf("idb:")!==0) f.art=null; if(!Array.isArray(f.where)) f.where=["cafe","bar","books"];
     if(Array.isArray(f.vars)) for(const v of f.vars){ v.id=uid(); if(typeof v.art==="string"&&v.art.indexOf("data:image")===0) v.art=await storeArt(v.art); else if(v.art&&String(v.art).indexOf("idb:")!==0) delete v.art; if(v.anim&&typeof v.anim.ref==="string"&&v.anim.ref.indexOf("data:image")===0) v.anim=Object.assign({},v.anim,{ref:await storeArt(v.anim.ref)}); else if(v.anim&&!(typeof v.anim.ref==="string"&&v.anim.ref.indexOf("idb:")===0)) delete v.anim; } else f.vars=[];
     S.favors.deck.push(f); n++; }
-  if(o.lines&&typeof o.lines==="object"){ S.lines=o.lines; applyLines(); }
+  if(o.lines&&typeof o.lines==="object") S.lines=o.lines;   /* kept as data only */
   addLog(`Imported ${n} favor${n===1?"":"s"}.`,"build"); commit(); toast(`Imported ${n} favor${n===1?"":"s"}.`);
 }
 function downloadText(name,text){
@@ -3455,7 +3246,7 @@ function vShop(){
     <div class="blockfoot">${meter("RANK",(S.rep-r.lo)/Math.max(1,r.hi-r.lo),r.next?`${S.rep}/${r.hi}`:"MAX")}
       <p class="hint" style="margin:6px 0 0">${(d.tips||0)}₵ tips today · ${d.n||0} served today${r.next?` · next rank: ${r.next}`:""}</p>${rankRewardsHTML()}</div>
   </section>
-  ${glPanel()}`;
+`;
 }
 function dueRail(){
   const k=today(), items=[
@@ -3681,7 +3472,7 @@ const winNet=(w,from,to)=>w.log.filter(l=>l.d>=from&&l.d<=(to||from)).reduce((a,
 function logWin(id,c,ev){
   const w=winById(id); if(!w) return; const k=today(), n=winCount(w,k);
   const lg={id:uid(),d:k,s:1,c:c||0,client:n<WIN_CLIENT_CAP}; w.log.push(lg);
-  if(lg.client) giveReward(w,false,w.name); glGain(Math.round(S.xs.meter.win*dOf(w).e)); lg.diff=(w.diff||2);
+  if(lg.client) giveReward(w,false,w.name); lg.diff=(w.diff||2);
   const b=bucketById(w.bucket); if(b&&lg.c>0) b.entries.push({id:uid(),d:k,c:lg.c,label:w.name,win:w.id,logId:lg.id});
   pop(ev,lg.client?rewardPop(w,false):"LOGGED","var(--good)");
   if(b&&lg.c>0) setTimeout(()=>pop(ev&&ev.clientX?{clientX:ev.clientX+30,clientY:ev.clientY-20}:null,"+"+money(lg.c),"var(--good)"),200);
@@ -3692,7 +3483,7 @@ function logWin(id,c,ev){
 function undoWin(wid,lid){
   const w=winById(wid); if(!w) return; const i=w.log.findIndex(l=>l.id===lid); if(i<0) return; const lg=w.log[i]; w.log.splice(i,1);
   if(lg.s===-1) S.rep+=lg.rep||0;
-  else { if(lg.client&&lg.d===today()) takeReward({diff:lg.diff||2},false); if(lg.d===today()) glGain(-Math.round(S.xs.meter.win*dOf({diff:lg.diff||2}).e)); }
+  else { if(lg.client&&lg.d===today()) takeReward({diff:lg.diff||2},false); }
   S.buckets.forEach(b=>{ b.entries=b.entries.filter(e=>e.logId!==lid); });
   addLog(`Removed a ${w.name} entry.`); commit();
 }
@@ -4015,7 +3806,7 @@ function workerMini(p){
   return `<div class="wmini">
     <div class="cport sm">${portHTML(p,"")}</div>
     <div class="rinfo"><b>${esc(p.name)}</b> <span class="muted">LV ${p.lv} · ${PERSONAS[p.persona].label}</span>
-      <small>Skill <span class="pip">${pips(p.skill)}</span> Charm <span class="pip">${pips(p.charm)}</span> ${esc(PL())} <span class="pip">${pips(progLevel(p))}</span></small>
+      <small>Skill <span class="pip">${pips(p.skill)}</span> Charm <span class="pip">${pips(p.charm)}</span></small>
       <small><span class="tag">${esc(t.name)}</span> ${esc(t.desc)}</small><small class="muted">${esc(jobTitle(p))}: ${esc((PERKS[perkOf(p)]||{}).desc||"")}</small></div>
     ${p.skill<5?`<button class="btn ${S.credits>=cost?"solid":""} rbtn" data-act="train" data-id="${p.id}" ${S.credits>=cost?"":"disabled"}>TRAIN<br>${cost}₵</button>`:`<span class="px muted">MAX</span>`}
   </div>
@@ -4034,12 +3825,10 @@ function workerStudio(p){
     <div class="actions">
       <label class="btn ghost" for="workerArt-${p.id}" style="text-align:center">${p.art?"NEW ART":"LOAD ART"}</label><input type="file" id="workerArt-${p.id}" data-up="worker" class="srt" accept="image/*" data-id="${p.id}">
       ${p.art?`<button class="btn ghost" data-act="clearWorkerArt" data-id="${p.id}">CODE ART</button>`:""}
-      ${FEATURES.charm?`<label class="btn ghost charmbtn" for="charmArt-${p.id}" style="text-align:center">${p.charmArt?"NEW CHARM ART":"✦ CHARM ART"}</label><input type="file" id="charmArt-${p.id}" data-up="charm" class="srt" accept="image/*" data-id="${p.id}">${p.charmArt?`<button class="btn ghost" data-act="clearCharmArt" data-id="${p.id}">NO CHARM ART</button>`:""}`:""}
     </div>
     <details class="sub" ${p.anim&&Object.values(p.anim).some(x=>x&&x.ref)?"open":""}><summary>Animations · sprite sheets</summary>
       <p class="hint" style="margin:4px 0 8px">One image with every frame the same size, side by side or in a grid. Set how many frames go across and down before loading. Animated workers skip the automatic breathing.</p>
       ${sheetRows(p)}</details>
-    <details class="sub" ${outfitOpen===p.id?"open":""} ${adultOn()?"":"hidden"}><summary>${esc(PL())} ${progLevel(p)} · Outfits</summary>${outfitRows(p)}</details>
     <details class="sub" ${faceOpen===p.id?"open":""}><summary>Dialogue expressions</summary>
       <p class="hint" style="margin:4px 0 8px">Faces for the portrait in the dialogue box. Square head-and-shoulders crops work best; wider images are cropped to a square from the top. Only Neutral is needed, the rest fall back to it.${p.art==="builtin:mika"?" Loading any face here replaces Mika's built-in set.":""}</p>
       ${faceRows(p)}</details>
@@ -4094,7 +3883,7 @@ function drawPorts(){
 }
 document.addEventListener("toggle",ev=>{ const d=ev.target; if(!d.dataset||!d.dataset.area||!openAreas) return; if(d.open) openAreas.add(d.dataset.area); else openAreas.delete(d.dataset.area); },true);
 function vFavors(){
-  const deck=S.favors.deck, show=deck.filter(f=>favFilter==="all"||f.where.includes(favFilter));
+  const setAside=S.favors.deck.filter(favAdult).length, deck=S.favors.deck.filter(f=>!favAdult(f)), show=deck.filter(f=>favFilter==="all"||f.where.includes(favFilter));
   return `
   <section class="panel">
     <h2><span>FAVORS</span><span>${deck.filter(f=>f.on).length}/${deck.length} ON</span></h2>
@@ -4107,32 +3896,14 @@ function vFavors(){
   <section class="panel">
     <h2><span>FAVOR DECK</span><span>${show.length}</span></h2>
     <div class="povtabs" style="grid-template-columns:repeat(5,1fr)">${[["all","ALL"],["cafe","CAFÉ"],["books","BOOKS"],["bar","BAR"],["club",SEC_NAME.club.toUpperCase()]].map(([v,l])=>`<button class="povtab ${favFilter===v?"on":""}" data-act="favFilter" data-id="${v}">${floorLocked(v)?"🔒 ":""}${l}</button>`).join("")}</div>
-    <div class="list">${show.map(f=>{ const a=resolveArt(f.art); return `<div class="favrow ${f.on?"":"off"}">
-      <div class="favthumb">${a?`<img src="${a}" alt="">`:`<span>${f.anim&&f.anim.ref?"▶":"✦"}</span>`}</div>
-      <button class="info" data-act="editFavor" data-id="${f.id}"><span class="nm">${esc(f.title)}</span><span class="meta"><span class="tag">${f.where.map(x=>x==="cafe"?"CAFÉ":x.toUpperCase()).join(" ")}</span><span>${f.when==="any"?"any time":f.when}</span><span>${f.reward?"+"+f.reward+"₵":""}${(f.tipMult||1)!==1?" tip ×"+f.tipMult:""}</span>${f.needLw?`<span class="acc">Lv ${f.needLw}+</span>`:""}${f.lwGain?`<span class="good">+${f.lwGain} ${esc(PL())}</span>`:""}</span></button>
+    <div class="list">${show.map(f=>{ return `<div class="favrow ${f.on?"":"off"}">
+      <div class="favthumb"><span>✦</span></div>
+      <button class="info" data-act="editFavor" data-id="${f.id}"><span class="nm">${esc(f.title)}</span><span class="meta"><span class="tag">${f.where.map(x=>x==="cafe"?"CAFÉ":x.toUpperCase()).join(" ")}</span><span>${f.when==="any"?"any time":f.when}</span><span>${f.reward?"+"+f.reward+"₵":""}${(f.tipMult||1)!==1?" tip ×"+f.tipMult:""}</span></span></button>
       <button class="btn ${f.on?"":"ghost"} smallbtn" data-act="favOn" data-id="${f.id}" aria-pressed="${f.on}">${f.on?"ON":"OFF"}</button></div>`; }).join("")||`<p class="empty">No favors here.</p>`}</div>
     <div class="actions"><button class="btn solid" data-act="newFavor">+ NEW FAVOR</button></div>
+    ${setAside?`<p class="hint" style="margin:8px 0 0">${setAside} favor${setAside===1?"":"s"} that used removed features (art, levels or progression) ${setAside===1?"is":"are"} set aside. ${setAside===1?"It's":"They're"} kept in your save but never come up.</p>`:""}
   </section>
-  <section class="panel" ${adultOn()?"":"hidden"}>
-    <h2><span>${esc(PL().toUpperCase())} · OUTFITS</span><span>PROGRESSION</span></h2>
-    <p style="margin:0 0 10px">Each worker has their own ${esc(PL())} level. Favors raise it. Each level unlocks the next outfit slot, and the outfit a worker wears adds its tip bonus. Load the outfit art per worker under Upgrade › Manage.</p>
-    <form data-form="prog" class="stack">
-      <div><label class="fl" for="pgLabel">Stat name</label><input class="field" id="pgLabel" maxlength="20" value="${esc(PL())}"></div>
-      <div class="progtable"><span class="fl">Level</span><span class="fl">Outfit name</span><span class="fl">Points</span><span class="fl">Tip +%</span>
-        ${[0,1,2,3,4].map(i=>`<b>${i+1}</b><input class="field" id="pgN${i}" maxlength="24" value="${esc(S.prog.names[i])}" aria-label="Level ${i+1} outfit name"><input class="field num" id="pgP${i}" type="number" min="0" max="999" value="${S.prog.need[i]}" ${i===0?"disabled":""} aria-label="Points for level ${i+1}"><input class="field num" id="pgB${i}" type="number" min="0" max="300" value="${S.prog.bonus[i]}" aria-label="Tip bonus for level ${i+1}">`).join("")}</div>
-      <button class="btn solid" type="submit">SAVE PROGRESSION</button>
-    </form>
-  </section>
-  <section class="panel">
-    <h2><span>CHARM + FLIRT LINES</span><span>CAFÉ</span></h2>
-    <p style="margin:0 0 10px">One line per row. Use {w} for your worker's name and {c} for the client's.</p>
-    <form data-form="lines" class="stack">
-      <div><label class="fl" for="lnFlirt">Client flirts</label><textarea class="field" id="lnFlirt">${esc(FLIRTS.join("\n"))}</textarea></div>
-      <div><label class="fl" for="lnAct">Charm move (narration)</label><textarea class="field" id="lnAct">${esc(CHARM_ACT.join("\n"))}</textarea></div>
-      <div><label class="fl" for="lnReact">Client reaction to charm</label><textarea class="field" id="lnReact">${esc(CHARM_REACT.join("\n"))}</textarea></div>
-      <button class="btn solid" type="submit">SAVE LINES</button>
-    </form>
-  </section>`;
+`;
 }
 
 /* ---------- SPRITE STUDIO: draw pixel sprites, save them into floor slots ---------- */
@@ -4318,17 +4089,16 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(!t.id||t.id.index
 
 let devSub="workers", devWorker=null;
 function vDev(){
-  const subs=[["workers","WORKERS"],["sprites","SPRITES"],["scene","SCENES"],["favors","FAVORS"],["edge","EDGE"],...(adultOn()?[["service","GAME"]]:[]),["transfer","IMPORT/EXPORT"],["tools","TOOLS"]]; if(devSub==="service"&&!adultOn()) devSub="workers";
+  const subs=[["workers","WORKERS"],["sprites","SPRITES"],["scene","SCENES"],["favors","FAVORS"],["edge","EDGE"],["transfer","IMPORT/EXPORT"],["tools","TOOLS"]]; if(devSub==="service") devSub="workers";
   let body="";
   if(devSub==="workers"){
     if(!S.staff.length) body=empPanel()+`<section class="panel"><p class="empty">No staff yet. Hire someone in the Upgrade tab, or create one above.</p></section>`;
     else { if(!S.staff.some(w=>w.id===devWorker)) devWorker=S.staff[0].id; const p=S.staff.find(w=>w.id===devWorker);
-      body=`${empPanel()}<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${portHTML(w,"")}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}${isHired(w)?"":" · not hired"}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${wardDevPanel(p)}${FEATURES.charm?charmGallery(p)+charmMovesPanel():""}`; }
+      body=`${empPanel()}<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===devWorker?"on":""}" data-act="devWorker" data-id="${w.id}" aria-pressed="${w.id===devWorker}"><span class="cport xs">${portHTML(w,"")}</span><span><b>${esc(w.name)}</b><small>${esc(SEC_NAME[w.role])} · ${esc(jobTitle(w))}${isHired(w)?"":" · not hired"}</small></span></button>`).join("")}</div>${empStudioBar(p)}${workerStudio(p)}${wardDevPanel(p)}`; }
   } else if(devSub==="sprites") body=S.staff.length?vSprites():`<section class="panel"><p class="empty">Hire someone first, then draw their sprites here.</p></section>`;
   else if(devSub==="scene") body=scnDevPanel();
   else if(devSub==="favors") body=vFavors();
   else if(devSub==="edge") body=edgeDevPanel();
-  else if(devSub==="service") body=vService();
   else if(devSub==="transfer") body=vXfer();
   else body=devTools();
   const about={workers:"Create and edit employees: counter art, jobs and outfits.",sprites:"The sprites staff use in the tower, and how big they appear.",scene:"Patrons and venue backdrops.",favors:"Special requests clients can make at the counter.",service:"The energy-bar minigame.",transfer:"Every backup, pack and art-import setting in one place.",tools:"Hiring, storage, cheats and reset."}[devSub]||"";
@@ -4345,11 +4115,6 @@ function devTools(){
     <div class="spread" style="align-items:center"><span>Random applicants</span><button class="btn ${S.hireRandom?"solid":"ghost"}" data-act="hireRandom" aria-pressed="${!!S.hireRandom}">${S.hireRandom?"ON":"OFF"}</button></div>
   </section>
   <section class="panel">
-    <h2><span>ADULT CONTENT</span><span>${adultOn()?"ON":"OFF"}</span></h2>
-    <p style="margin:0 0 10px">${adultOn()?"On: the progression stat and outfits, the energy-bar minigame and all favors are active, and the night venue is the club.":"Off: the progression stat and outfits, the energy-bar minigame and favors with art or progression are hidden, and the night venue is a music lounge. Nothing is deleted."}</p>
-    <div class="spread" style="align-items:center"><span>Adult content</span><button class="btn ${adultOn()?"solid":"ghost"}" data-act="adultToggle" aria-pressed="${adultOn()}">${adultOn()?"ON":"OFF"}</button></div>
-  </section>
-  <section class="panel">
     <h2><span>ART STORAGE</span><span>${Object.keys(ART).length} IMAGES · ${kb} KB</span></h2>
     <p style="margin:0 0 10px">Uploaded art stays in this browser's storage, never inside the app file.</p>
     <p class="hint" style="margin:0 0 10px"><button class="linkbtn" style="padding:0" data-act="devGo" data-id="transfer">Import size and background removal are in Dev › Import/Export ›</button></p>
@@ -4358,7 +4123,7 @@ function devTools(){
   ${floorsDevPanel()}
   <section class="panel">
     <h2><span>TEST TOOLS · CHEATS</span><span>₵ ${S.credits.toLocaleString()}</span></h2>
-    <div class="actions" style="margin-top:0"><button class="btn" data-act="testCreds" data-id="500">+500₵</button><button class="btn" data-act="testCreds" data-id="5000">+5,000₵</button><button class="btn" data-act="testCreds" data-id="50000">+50,000₵</button><button class="btn ghost" data-act="zeroCreds">SET CREDS TO 0</button><button class="btn" data-act="testClients">+10 CLIENTS</button><button class="btn" data-act="testProg" ${adultOn()?"":"hidden"}>+5 ${esc(PL().toUpperCase())} ALL STAFF</button><button class="btn ghost" data-act="testBoard">NEW HIRING BOARD</button></div>
+    <div class="actions" style="margin-top:0"><button class="btn" data-act="testCreds" data-id="500">+500₵</button><button class="btn" data-act="testCreds" data-id="5000">+5,000₵</button><button class="btn" data-act="testCreds" data-id="50000">+50,000₵</button><button class="btn ghost" data-act="zeroCreds">SET CREDS TO 0</button><button class="btn" data-act="testClients">+10 CLIENTS</button><button class="btn ghost" data-act="testBoard">NEW HIRING BOARD</button></div>
   </section>
 
   <section class="panel">
@@ -4380,7 +4145,7 @@ document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==
 function badgeMenuHTML(){ return `<section class="panel"><h2><span>HOME SCREEN BADGE</span><span>${S.badgeOn?"ON":"OFF"}</span></h2>
   <div class="spread" style="align-items:center"><span>Show what's due today on the app icon${S.badgeOn?` <b class="acc">(${badgeCount()} now)</b>`:""}</span><button class="btn ${S.badgeOn?"":"ghost"}" data-act="badgeToggle" aria-pressed="${!!S.badgeOn}">${S.badgeOn?"ON":"OFF"}</button></div>
   <p class="hint" style="margin:6px 0 0">Counts open tasks and dailies due today, plus 1 on deposit day. It updates whenever you open or leave the app. Only works in the installed home-screen app; iOS asks for notification permission the first time.</p></section>`; }
-function devMenuHTML(){ const subs=[["workers","Workers","Create and edit staff"],["sprites","Sprites","Draw and fit sprite sheets"],["scene","Scenes","Backdrops and patrons"],["favors","Favors","Favor deck"],["edge","Edge","Running the Edge art"],...(adultOn()?[["service","Game","Service minigame"]]:[]),["transfer","Import / Export","Backups, art packs, favors, characters"],["tools","Tools","Hiring, storage, test cheats"]];
+function devMenuHTML(){ const subs=[["workers","Workers","Create and edit staff"],["sprites","Sprites","Draw and fit sprite sheets"],["scene","Scenes","Backdrops and patrons"],["favors","Favors","Favor deck"],["edge","Edge","Running the Edge art"],["transfer","Import / Export","Backups, art packs, favors, characters"],["tools","Tools","Hiring, storage, test cheats"]];
   return `<section class="panel"><h2><span>DEV TOOLS</span><span></span></h2>
     <div class="spread" style="align-items:center"><span>Show dev tools</span><button class="btn ${S.devOn?"":"ghost"}" data-act="devOn" aria-pressed="${!!S.devOn}">${S.devOn?"ON":"OFF"}</button></div>
     ${S.devOn?`<div class="devmenu">${subs.map(([v,l,d])=>`<button class="devlink" data-act="devGo" data-id="${v}"><b>${l}</b><small>${d}</small><span aria-hidden="true">›</span></button>`).join("")}</div>`:`<p class="hint" style="margin:6px 0 0">Editors for staff, sprites, scenes and test tools.</p>`}</section>`; }
@@ -4498,9 +4263,7 @@ function favorSheet(f){
       <div><label class="fl" for="fWeight">How often (1–5)</label><input class="field num" id="fWeight" type="number" min="1" max="5" value="${d.weight||2}"></div>
       <div><label class="fl" for="fWorker">Only for</label><select class="field" id="fWorker"><option value="any">Any worker</option>${S.staff.map(w=>`<option value="${w.id}" ${d.worker===w.id?"selected":""}>${esc(w.name)} (${ROLES[w.role].title})</option>`).join("")}</select></div>
       <div><label class="fl" for="fMinCharm">Needs Charm</label><input class="field num" id="fMinCharm" type="number" min="0" max="5" value="${d.minCharm||0}"></div>
-      <div ${adultOn()?"":"hidden"}><label class="fl" for="fNeedLw">Needs ${esc(PL())} level</label><input class="field num" id="fNeedLw" type="number" min="0" max="5" value="${d.needLw||0}"></div>
-      <div ${adultOn()?"":"hidden"}><label class="fl" for="fLwGain">Raises ${esc(PL())} by</label><input class="field num" id="fLwGain" type="number" min="0" max="20" value="${d.lwGain||0}"></div></div>
-    <p class="hint" style="margin:0">Only workers at or above the needed level get asked. Favors at a worker's current level come up twice as often, so the deck escalates as they level.</p>
+</div>
     ${T("fAsk","Client asks",d.ask,"What the client asks for",1)}
     ${T("fAccept","Worker accepts",d.accept,"Your worker's reply",1)}
     ${T("fOutcome","What happens",d.outcome,"Narration. Use {w} and {c} for names.",1)}
@@ -4509,58 +4272,29 @@ function favorSheet(f){
     ${T("fDeclined","Client after decline",d.declined,"Their reaction",1)}
     <p class="hint" style="margin:0">Put several options on separate rows and one is picked at random each time.</p>
     <div><span class="fl">Dialogue variants · ${(d.vars||[]).length}</span>
-      <p class="hint" style="margin:2px 0 6px">Different lines for one worker or a level range. Blank lines fall back to the lines above. Most specific wins: this worker at this level, then this worker, then this level, then the base lines.</p>
+      <p class="hint" style="margin:2px 0 6px">Different lines for one worker. Blank lines fall back to the lines above.</p>
       <div id="favVars">${favVarsHTML(d)}</div>
       <button type="button" class="btn ghost wide" data-act="favVarAdd">+ ADD VARIANT</button></div>
     <div class="formgrid"><div><label class="fl" for="fReward">Bonus creds</label><input class="field num" id="fReward" type="number" min="0" max="5000" value="${d.reward||0}"></div>
       <div><label class="fl" for="fTip">Tip multiplier</label><input class="field num" id="fTip" type="number" min="0.1" max="10" step="any" value="${d.tipMult||1}"></div>
       <div><label class="fl" for="fRep">Rep for accepting</label><input class="field num" id="fRep" type="number" min="0" max="50" value="${d.rep||0}"></div>
       <div><label class="fl" for="fRepD">Rep lost if declined</label><input class="field num" id="fRepD" type="number" min="0" max="50" value="${d.repDecline||0}"></div></div>
-    <div><span class="fl">Scene art (shows when accepted)</span>
-      <div class="rowflex"><div class="favthumb big" id="favArtPrev">${resolveArt(d.art)?`<img src="${resolveArt(d.art)}" alt="">`:`<span>✦</span>`}</div>
-        <label class="btn ghost" for="favArt" style="text-align:center">${d.art?"REPLACE ART":"LOAD ART"}</label><input type="file" id="favArt" class="srt" accept="image/*">
-        <button type="button" class="btn ghost" data-act="favArtClear">NO ART</button></div></div>
-    <div><span class="fl">Scene animation (plays when accepted, instead of the art)</span>
-      <div class="sheetnums">
-        <label>Across<input class="field num" type="number" min="1" max="16" id="faCols" value="${(d.anim&&d.anim.cols)||4}"></label>
-        <label>Down<input class="field num" type="number" min="1" max="8" id="faRows" value="${(d.anim&&d.anim.rows)||1}"></label>
-        <label>Speed (fps)<input class="field num" type="number" min="1" max="30" id="faFps" value="${(d.anim&&d.anim.fps)||8}"></label></div>
-      <label class="checkrow" style="margin-top:6px"><input type="checkbox" id="faLoop" ${!d.anim||d.anim.loop!==false?"checked":""}> Loop (off = play once and hold the last frame)</label>
-      <div class="rowflex" style="margin-top:6px"><canvas id="favAnimPrev" class="favthumb big" width="160" height="90" aria-label="Animation preview"></canvas>
-        <label class="btn ghost" for="favAnimFile" style="text-align:center">${d.anim&&d.anim.ref?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="favAnimFile" class="srt" accept="image/*">
-        ${d.anim&&d.anim.ref?`<button type="button" class="btn ghost" data-act="favAnimClear">NO ANIMATION</button>`:""}</div>
-      <p class="hint" style="margin:4px 0 0">One image with every frame the same size, side by side or in a grid. Set Across and Down before loading. Wide frames (16:9) fill the counter scene best.</p></div>
     <div class="actions">${d._isNew?"":`<button type="button" class="btn danger" data-act="delFavor" data-id="${d.id}">DELETE</button><button type="button" class="btn ghost" data-act="dupFavor" data-id="${d.id}">DUPLICATE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">SAVE FAVOR</button></div>
   </form>`);
 }
-function favVarLabel(v){ const w=v.who==="any"?null:S.staff.find(x=>x.id===v.who); const lv=(v.lo||1)===1&&(v.hi||5)===5?"any level":(v.lo===v.hi?"level "+v.lo:"levels "+v.lo+"–"+v.hi); const n=FAV_KEYS.filter(k=>v[k]&&v[k].trim()).length; return `${w?esc(w.name):"Any worker"} · ${lv} · ${n} line${n===1?"":"s"}${favHasMedia(v)?` <span class="tag acc">ART</span>`:""}`; }
-function favVarsHTML(d){ const vs=d.vars||[], adult=adultOn(), LAB={ask:"Client asks",accept:"Worker accepts",outcome:"What happens",thanks:"Client after",decline:"Worker declines",declined:"Client after decline"};
+function favVarLabel(v){ const w=v.who==="any"?null:S.staff.find(x=>x.id===v.who); const n=FAV_KEYS.filter(k=>v[k]&&v[k].trim()).length; return `${w?esc(w.name):"Any worker"} · ${n} line${n===1?"":"s"}`; }
+function favVarsHTML(d){ const vs=(d.vars||[]).filter(v=>!favVarAdult(v)), LAB={ask:"Client asks",accept:"Worker accepts",outcome:"What happens",thanks:"Client after",decline:"Worker declines",declined:"Client after decline"};
   if(!vs.length) return `<p class="empty" style="margin:0 0 6px">No variants. Everyone uses the lines above.</p>`;
   return vs.map((v,i)=>`<details class="sub favvar" data-vid="${v.id}" ${v.open?"open":""}><summary>${favVarLabel(v)}</summary><div class="stack" style="margin-top:6px">
-    <div class="formgrid"><div><label class="fl" for="fv${i}who">Worker</label><select class="field" id="fv${i}who"><option value="any">Any worker</option>${S.staff.map(w=>`<option value="${w.id}" ${v.who===w.id?"selected":""}>${esc(w.name)}</option>`).join("")}</select></div>
-      <div ${adult?"":"hidden"}><label class="fl" for="fv${i}lo">From level</label><input class="field num" id="fv${i}lo" type="number" min="1" max="5" value="${v.lo||1}"></div>
-      <div ${adult?"":"hidden"}><label class="fl" for="fv${i}hi">To level</label><input class="field num" id="fv${i}hi" type="number" min="1" max="5" value="${v.hi||5}"></div></div>
+    <div><label class="fl" for="fv${i}who">Worker</label><select class="field" id="fv${i}who"><option value="any">Any worker</option>${S.staff.map(w=>`<option value="${w.id}" ${v.who===w.id?"selected":""}>${esc(w.name)}</option>`).join("")}</select></div>
     ${FAV_KEYS.map(k=>`<div><label class="fl" for="fv${i}${k}">${LAB[k]}</label><textarea class="field" id="fv${i}${k}" placeholder="Blank = use the base line" style="min-height:52px">${esc(v[k]||"")}</textarea></div>`).join("")}
-    <div ${adult?"":"hidden"}><span class="fl">Scene art for this variant</span>
-      <div class="rowflex"><div class="favthumb big">${resolveArt(v.art)?`<img src="${resolveArt(v.art)}" alt="">`:`<span>✦</span>`}</div>
-        <label class="btn ghost" for="fv${i}artf" style="text-align:center">${v.art?"REPLACE ART":"LOAD ART"}</label><input type="file" id="fv${i}artf" class="srt" accept="image/*" data-up="fvart" data-id="${v.id}">
-        ${v.art?`<button type="button" class="btn ghost" data-act="favVarArtClear" data-id="${v.id}">NO ART</button>`:""}</div>
-      <span class="fl" style="margin-top:8px;display:block">Scene animation (plays instead of the art)</span>
-      <div class="sheetnums"><label>Across<input class="field num" type="number" min="1" max="16" id="fv${i}cols" value="${(v.anim&&v.anim.cols)||4}"></label>
-        <label>Down<input class="field num" type="number" min="1" max="8" id="fv${i}rows" value="${(v.anim&&v.anim.rows)||1}"></label>
-        <label>Speed (fps)<input class="field num" type="number" min="1" max="30" id="fv${i}fps" value="${(v.anim&&v.anim.fps)||8}"></label></div>
-      <label class="checkrow" style="margin-top:6px"><input type="checkbox" id="fv${i}loop" ${!v.anim||v.anim.loop!==false?"checked":""}> Loop</label>
-      <div class="rowflex" style="margin-top:6px">${v.anim&&v.anim.ref?`<canvas class="favthumb big" width="160" height="90" data-fvprev="${v.id}" data-i="${i}" aria-label="Animation preview"></canvas>`:""}
-        <label class="btn ghost" for="fv${i}animf" style="text-align:center">${v.anim&&v.anim.ref?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="fv${i}animf" class="srt" accept="image/*" data-up="fvanim" data-id="${v.id}">
-        ${v.anim&&v.anim.ref?`<button type="button" class="btn ghost" data-act="favVarAnimClear" data-id="${v.id}">NO ANIMATION</button>`:""}</div>
-      <p class="hint" style="margin:4px 0 0">Leave empty to use the art from a broader variant, then the favor's own art. Set Across and Down before loading a sheet.</p></div>
-    <div class="actions" style="margin-top:0"><button type="button" class="btn danger smallbtn" data-act="favVarDel" data-id="${v.id}">REMOVE</button><button type="button" class="btn ghost smallbtn" data-act="favVarDup" data-id="${v.id}">DUPLICATE</button></div></div></details>`).join(""); }
+    <div class="actions" style="margin-top:0"><button type="button" class="btn ghost smallbtn" data-act="favVarDup" data-id="${v.id}">DUPLICATE</button><button type="button" class="btn ghost smallbtn" data-act="favVarDel" data-id="${v.id}">REMOVE</button></div>
+  </div></details>`).join(""); }
 function favVarsRead(){ const box=$("favVars"); if(!box||!favDraft) return (favDraft&&favDraft.vars)||[];
-  return [...box.querySelectorAll(".favvar")].map((el,i)=>{ const old=(favDraft.vars||[]).find(v=>v.id===el.dataset.vid)||{}, g=s=>{ const e=$("fv"+i+s); return e?e.value:""; };
-    let lo=Math.max(1,Math.min(5,Math.round(+g("lo")||old.lo||1))), hi=Math.max(1,Math.min(5,Math.round(+g("hi")||old.hi||5))); if(lo>hi){ const t=lo; lo=hi; hi=t; }
-    const v={id:el.dataset.vid,who:g("who")||"any",lo,hi,open:el.open}; FAV_KEYS.forEach(k=>v[k]=g(k).trim());
-    if(old.art) v.art=old.art; if(old.anim&&old.anim.ref){ const n=(s,d,a,b)=>Math.max(a,Math.min(b,Math.round(+g(s)||d))); const lp=$("fv"+i+"loop"); v.anim={ref:old.anim.ref,cols:n("cols",old.anim.cols,1,16),rows:n("rows",old.anim.rows,1,8),fps:n("fps",old.anim.fps,1,30),loop:lp?lp.checked:old.anim.loop!==false}; }
-    return v; }); }
+  const shown=[...box.querySelectorAll(".favvar")].map((el,i)=>{ const old=(favDraft.vars||[]).find(v=>v.id===el.dataset.vid)||{}, g=s=>{ const e=$("fv"+i+s); return e?e.value:""; };
+    const v=Object.assign({},old,{id:el.dataset.vid,who:g("who")||"any",lo:old.lo||1,hi:old.hi||5,open:el.open}); FAV_KEYS.forEach(k=>v[k]=g(k).trim());
+    return v; });
+  return [...shown,...(favDraft.vars||[]).filter(favVarAdult)]; }
 function favVarRefs(f){ const r=[]; (f&&f.vars||[]).forEach(v=>{ if(v.art) r.push(v.art); if(v.anim&&v.anim.ref) r.push(v.anim.ref); }); return r; }
 function favVarsRefresh(){ const box=$("favVars"); if(box) box.innerHTML=favVarsHTML(favDraft); const lab=box&&box.parentElement.querySelector(".fl"); if(lab) lab.textContent="Dialogue variants · "+favDraft.vars.length; }
 function refreshFavArtPreview(){ const el=$("favArtPrev"); if(!el||!favDraft) return; const a=resolveArt(favDraft.art); el.innerHTML=a?`<img src="${a}" alt="">`:`<span>✦</span>`; }
@@ -4571,7 +4305,7 @@ function refreshFavArtPreview(){ const el=$("favArtPrev"); if(!el||!favDraft) re
 const FW=336, CROP=30, RH=150, SLAB=10, STREET=22, FH=RH*3+SLAB*2+STREET;
 /* the interior is drawn at FS× resolution: pixel-art rooms stay crisp, loaded sprites keep their detail */
 const FS=3;
-const ROOM_LABEL={cafe:"CAFE",bar:"BAR",books:"BOOKS",club:"CLUB",roof:"ROOF"};
+const ROOM_LABEL={cafe:"CAFE",bar:"BAR",books:"BOOKS",club:"LOUNGE",roof:"ROOF"};
 let floorPov={}, floorOff={}, floorCap={s:"",sec:""}, floorRAF=0, floorLast=0, shopView="scene";
 function setCaption(s){
   if(pov) pov.caption=s;
@@ -4702,11 +4436,10 @@ function sceneProps(g,sec,t){
     [[204,"#3ef2e0"],[216,"#ff3d8b"]].forEach(([x,c],i)=>{ R(x,top-10,6,10,"#9ab8c8"); R(x+1,top-6,4,6,c); g.save(); g.globalAlpha=.6; R(x,top-10,1,10,"#dff2ff"); g.restore(); if(Math.floor((t+i*700)/1300)%4===0) R(x+4,top-9,1,1,"#ffffff"); });
     const rx=(t/25)%(SW+60)-30; g.save(); g.globalAlpha=.35; R(Math.round(rx),104,24,1,"#ff8cc4"); R(Math.round(rx)+6,105,12,1,"#ff3d8b"); g.restore();
   } else if(sec==="club"){
-    /* champagne bucket, tip jar, a feather boa draped along the stage lip */
+    /* champagne bucket, tip jar, two little stage monitors */
     R(24,top-12,12,12,"#8a88a2"); R(25,top-11,10,10,"#c8c6d8"); R(27,top-20,3,9,"#2a5a3a"); R(28,top-22,1,2,"#ffd23f"); R(31,top-18,3,7,"#2a5a3a"); g.save(); g.globalAlpha=.5; R(25,top-11,2,10,"#ffffff"); g.restore();
     R(200,top-11,10,11,"#9fd0e8"); g.save(); g.globalAlpha=.4; R(201,top-10,8,9,"#dff2ff"); g.restore(); R(201,top-5,8,5,"#3fbf6a"); R(203,top-7,4,2,"#7fe0a0"); pixText(g,"TIPS",197,top-17,"#f0c8ff",1);
-    if(adultOn()){ for(let x=60;x<180;x+=3){ const y=top-1+Math.round(Math.sin(x/6+t/700)); R(x,y,2,1,(x/3|0)%2?"#ff8ad8":"#ffb0e0"); } }
-    else { R(70,top-3,22,3,"#2a2440"); R(72,top-2,4,1,"#3ef2e0"); R(84,top-2,4,1,"#ff3d8b"); R(150,top-3,22,3,"#2a2440"); R(152,top-2,4,1,"#ff3d8b"); R(164,top-2,4,1,"#3ef2e0"); }
+    { R(70,top-3,22,3,"#2a2440"); R(72,top-2,4,1,"#3ef2e0"); R(84,top-2,4,1,"#ff3d8b"); R(150,top-3,22,3,"#2a2440"); R(152,top-2,4,1,"#ff3d8b"); R(164,top-2,4,1,"#3ef2e0"); }
   } else {
     /* book stack, tea mug with steam, reading lamp pool on the counter */
     ["#3ef2e0","#ff3d8b","#ffd23f","#7a5aff"].forEach((c,i)=>{ R(20+(i%2),top-4-i*4,18-i*2,4,c); R(20+(i%2),top-1-i*4,18-i*2,1,"rgba(0,0,0,.3)"); });
@@ -4767,24 +4500,8 @@ function outfitAnimBlock(p,pre){
       <p class="alabel">COUNTER</p>${sheetRows(p,SHEETS,slot)}<p class="alabel">FLOOR · SHOP VIEW</p>${sheetRows(p,FSHEETS,slot)}</details>`; }).join("");
 }
 /* ---------- outfit slots (per worker) ---------- */
-let outfitOpen=null;
-function outfitRows(p){
-  const lv=progLevel(p), nx=progNext(p), cur=Math.min(p.outfit||1,lv);
-  const prev=S.prog.need[lv-1]||0, frac=nx==null?1:((p.lw||0)-prev)/Math.max(1,nx-prev);
-  return `${meter(PL().toUpperCase(),frac,nx==null?"MAX":`${p.lw||0}/${nx}`)}
-    <p class="hint" style="margin:4px 0 8px">${nx==null?"Top level reached.":`${nx-(p.lw||0)} more to reach level ${lv+1}.`} Favors with a "Raises ${esc(PL())}" value level them up.</p>
-    <div class="outfits">${[1,2,3,4,5].map(t=>{ const o=(p.outfits||{})[t]||{}, src=t===1?artHalf(p):resolveArt(o.art), open=lv>=t, on=cur===t;
-      return `<div class="ofslot ${open?"":"locked"} ${on?"on":""}"><div class="facethumb">${src?`<img src="${src}" alt="">`:`<span>${t}</span>`}</div>
-        <div class="rinfo"><b>${esc(S.prog.names[t-1])}</b><small>Level ${t} · ${S.prog.bonus[t-1]?"+"+S.prog.bonus[t-1]+"% tips":"no tip bonus"}${open?"":" · locked"}</small>
-          <div class="ofacts">${t===1?`<span class="muted" style="font-size:12px">Uses ${esc(p.name)}'s main art</span>`:`<label class="btn ghost smallbtn" for="of-${t}-${p.id}" style="text-align:center">${o.art?"REPLACE":"LOAD ART"}</label><input type="file" id="of-${t}-${p.id}" class="srt" accept="image/*" data-up="outfit" data-kind="${t}" data-id="${p.id}">${o.art?`<button class="linkbtn" data-act="clearOutfit" data-id="${p.id}:${t}">remove</button>`:""}`}
-          ${open?(on?`<span class="viptag">WEARING</span>`:`<button class="btn smallbtn" data-act="equipOutfit" data-id="${p.id}:${t}" ${t>1&&!o.art?"disabled":""}>WEAR</button>`):""}</div></div></div>`; }).join("")}</div>
-    <p class="hint">Outfit art uses the same position sliders as the main art, so make each outfit from the same base pose. Locked slots can be loaded ahead of time.</p>
-    ${outfitAnimBlock(p,"l")}`;
-}
-function outfitUpload(file,id,t){ const w=S.staff.find(x=>x.id===id); if(!w) return; t=+t;
-  bigArt(file,600,async data=>{ w.outfits=w.outfits||{}; const o=w.outfits[t]||(w.outfits[t]={}); dropArt(o.art); o.art=await storeArt(data); if(progLevel(w)>=t) w.outfit=t; manageOpen=w.id; outfitOpen=w.id; addLog(`${S.prog.names[t-1]} art loaded for ${w.name}.`,"build"); commit(); toast(progLevel(w)>=t?"Outfit loaded and equipped.":`Outfit loaded. It unlocks at ${PL()} ${t}.`); }); }
 /* ---------- dialogue expressions: per-worker face set ---------- */
-const FACES=[["neutral","Neutral","Default face"],["talk","Talking","Swaps with Neutral while they speak"],["blink","Blink","Shown for a moment every few seconds"],["happy","Happy","Perfect serve"],["smile","Pleased","Close serve"],["sad","Upset","Missed order"],["charm","Charm","During a Charm move"]];
+const FACES=[["neutral","Neutral","Default face"],["talk","Talking","Swaps with Neutral while they speak"],["blink","Blink","Shown for a moment every few seconds"],["happy","Happy","Perfect serve"],["smile","Pleased","Close serve"],["sad","Upset","Missed order"]];
 function faceSet(w){
   if(!w) return null;
   if(w.art==="builtin:mika"&&!(w.faces&&Object.values(w.faces).some(Boolean))) return MIKA_FACES;
@@ -4811,7 +4528,7 @@ function faceRows(p){
       ${s?`<button class="linkbtn" data-act="clearFace" data-id="${p.id}:${k}">remove</button>`:""}</div>`; }).join("")}</div>`;
 }
 /* ---------- sprite sheets: idle / talk / charm loops ---------- */
-const SHEETS=[["idle","Idle","Loops while they stand at the counter"],["talk","Talk","Plays while they're speaking"],["charm","Charm","Plays during a Charm move"]];
+const SHEETS=[["idle","Idle","Loops while they stand at the counter"],["talk","Talk","Plays while they're speaking"]];
 const FSHEETS=[["fidle","Standing","Loops while they wait behind the counter on the floor"],["fwalk","Walking","Plays while they move to take an order"]];
 function drawFloorSheet(g,w,x,base,dir,moving,t){
   const s=(moving&&sheetFor(w,"fwalk"))||sheetFor(w,"fidle"); if(!s) return false;
@@ -4830,12 +4547,11 @@ function drawFloorSheet(g,w,x,base,dir,moving,t){
 function animBag(w,slot,mk){ if(!w) return null; if(!slot){ if(mk&&!w.anim) w.anim={}; return w.anim||null; }
   const n=+slot.slice(1), key=slot[0]==="w"?"ward":"outfits"; if(!w[key]){ if(!mk) return null; w[key]={}; } let it=w[key][n]; if(!it){ if(!mk) return null; it=w[key][n]={}; } if(!it.anim){ if(!mk) return null; it.anim={}; } return it.anim; }
 function animSlotFor(w){ if(!w) return "";
-  if(adultOn()){ const t=Math.min(w.outfit||1,progLevel(w)); if(t>=2&&animBag(w,"l"+t)) return "l"+t; }
   const t=w.wear||1; if(t>=2&&wardOwned(w,t)&&animBag(w,"w"+t)) return "w"+t; return ""; }
 function sheetFor(w,kind){ if(!w) return null; const sl=animSlotFor(w); let a=sl&&(animBag(w,sl)||{})[kind]; if(!a||!a.ref) a=w.anim&&w.anim[kind]; if(!a||!a.ref) return null; const src=resolveArt(a.ref); return src?{a,src}:null; }
 function sheetFrames(a){ const c=Math.max(1,a.cols|0||1), r=Math.max(1,a.rows|0||1); return {c,r,n:Math.max(1,Math.min(c*r,a.n|0||c*r))}; }
 function drawWorkerSheet(g,w,t,talking,charming){
-  const s=(charming&&sheetFor(w,"charm"))||(talking&&sheetFor(w,"talk"))||sheetFor(w,"idle"); if(!s) return false;
+  const s=(talking&&sheetFor(w,"talk"))||sheetFor(w,"idle"); if(!s) return false;
   const im=imgFor(s.src); if(!(im.complete&&im.naturalWidth)) return true;
   const {c,r,n}=sheetFrames(s.a), fps=Math.max(1,Math.min(30,+s.a.fps||8)), k=Math.floor(t/(1000/fps))%n;
   const fw=im.naturalWidth/c, fh=im.naturalHeight/r;
@@ -4866,10 +4582,10 @@ function sheetUploadNoBox(file,id,kind,opts){
       w.anim[kind]=Object.assign({flip:false},opts,{ref}); addLog(`Uploaded a ${kind==="fidle"?"standing":"walking"} sprite for ${w.name}.`,"build"); commit(); toast(`Saved ${opts.cols*opts.rows} frame${opts.cols*opts.rows===1?"":"s"} to ${w.name} at full detail${fw>128||fh>128?" (too big for the pixel editor)":""}. They're shown under In the slot.`); });
   }).catch(()=>toast(imgErr(file), true));
 }
-function slotName(slot){ if(!slot) return "base"; const n=+slot.slice(1); return slot[0]==="w"?(S.wardrobe.names[n-1]||"Outfit "+n):(S.prog.names[n-1]||"Outfit "+n); }
+function slotName(slot){ if(!slot) return "base"; const n=+slot.slice(1); return S.wardrobe.names[n-1]||"Outfit "+n; }
 function sheetRows(p,list,slot){
   const floor=list===FSHEETS; slot=slot||""; const sx=slot?"-"+slot:"", bag=animBag(p,slot)||{}, ds=`data-slot="${slot}"`;
-  return (list||SHEETS).filter(([k])=>k!=="charm"||FEATURES.charm).map(([k,l,d])=>{ const a=bag[k]||{cols:4,rows:1,fps:8}, has=!!(a.ref&&resolveArt(a.ref)), fr=has?sheetFrames(a).n:0;
+  return (list||SHEETS).map(([k,l,d])=>{ const a=bag[k]||{cols:4,rows:1,fps:8}, has=!!(a.ref&&resolveArt(a.ref)), fr=has?sheetFrames(a).n:0;
     return `<div class="sheetrow" id="sh-${k}-${p.id}${sx}"><div class="spread"><b>${l}</b><span class="muted">${has?fr+" frames":"none"}</span></div><p class="hint" style="margin:2px 0 6px">${d}</p>
       <div class="sheetnums"><label>Across<input class="field num" type="number" min="1" max="16" data-anim="cols" data-kind="${k}" data-id="${p.id}" ${ds} value="${a.cols||4}"></label>
         <label>Down<input class="field num" type="number" min="1" max="8" data-anim="rows" data-kind="${k}" data-id="${p.id}" ${ds} value="${a.rows||1}"></label>
@@ -4901,7 +4617,7 @@ document.addEventListener("click",ev=>{
   if(!["delCharmMove","delBad","undoBad","ssClear","ssDel","ssNew","zeroCreds","undoWin","delWin","delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
   const twoTap=(label)=>{ if(armed!==act+id){ armed=act+id; el.textContent=label||"TAP AGAIN"; return false; } armed=null; return true; };
   switch(act){
-    case "tab": if(id==="favors"){ devSub="favors"; tab="dev"; render(); window.scrollTo(0,0); break; } if(id==="today") taskView="today"; if(id==="save") taskView="savings"; tab=id==="today"||id==="save"?"tasks":id==="build"?"upgrade":id; peek=null; render(); window.scrollTo(0,0); break;
+    case "tab": if(id==="favors"){ devSub="favors"; tab="dev"; render(); window.scrollTo(0,0); break; } if(id==="today") taskView="today"; if(id==="save") taskView="savings"; tab=id==="today"||id==="save"?"tasks":id==="build"?"upgrade":id; peek=null; window.scrollTo(0,0); render(); break;
     case "habit": toggleHabit(id,ev); break;
     case "task": toggleTask(id,ev); break;
     case "newHabit": habitSheet(null); break;
@@ -4916,10 +4632,9 @@ document.addEventListener("click",ev=>{
     case "editTask": taskSheet(S.tasks.find(t=>t.id===id)); break;
     case "delHabit": if(!twoTap()) return; S.habits=S.habits.filter(h=>h.id!==id); closeSheet(); commit(); break;
     case "delTask": if(!twoTap()) return; S.tasks=S.tasks.filter(t=>t.id!==id); closeSheet(); commit(); break;
-    case "taskView": taskView=id; render(); window.scrollTo(0,0); break;
+    case "taskView": window.scrollTo(0,0); taskView=id; render(); break;   /* scroll first: on iPhone, shrinking the page while scrolled leaves fixed bars drawn too high */
     case "taskFilter": taskFilter=id; render(); break;
     case "hireRandom": S.hireRandom=!S.hireRandom; commit(); break;
-    case "adultToggle": S.adult=!adultOn(); applyAdult(); peek=null; commit(); toast(adultOn()?"Adult content is on.":"Adult content is off."); break;
     case "bgOffer": S.bgOffer=S.bgOffer===false; commit(); toast(S.bgOffer?"Background removal will open on import.":"Images import as-is now."); break;
     case "fab": if(taskView==="habits") addSheetHabits(); else quickSheet({today:taskView==="today",list:taskFilter.indexOf("list:")===0?taskFilter.slice(5):""}); break;
     case "bad": tapBad(id,ev); break;
@@ -4953,22 +4668,12 @@ document.addEventListener("click",ev=>{
     case "rename": renameSheet(); break;
     case "peek": peek=viewSide()==="day"?"night":"day"; if(peek===clockSide()) peek=null; render(); break;
     case "clearWorkerArt": { const w=S.staff.find(x=>x.id===id); if(w){ dropArt(w.art); w.art=null; commit(); } break; }
-    case "clearCharmArt": { const w=S.staff.find(x=>x.id===id); if(w){ dropArt(w.charmArt); w.charmArt=null; commit(); } break; }
     case "autoFit": { const [wid,mode]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w) autoFit(w,mode); break; }
     case "resetFrame": { const w=S.staff.find(x=>x.id===id); if(w){ delete w.frame; manageOpen=w.id; commit(); } break; }
-    case "equipOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&progLevel(w)>=+t){ w.outfit=+t; manageOpen=wid; outfitOpen=wid; commit(); } break; }
-    case "clearOutfit": { const [wid,t]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.outfits&&w.outfits[t]){ dropArt(w.outfits[t].art); delete w.outfits[t]; if(w.outfit===+t) w.outfit=1; manageOpen=wid; outfitOpen=wid; commit(); } break; }
-    case "testProg": S.staff.forEach(w=>gainProg(w,5)); addLog("Test: +5 "+PL()+" for all staff."); commit(); break;
     case "clearPort": { const w=S.staff.find(x=>x.id===id); if(w){ dropArt(w.port); dropArt(w.portOrig); delete w.port; delete w.portOrig; delete w.portCrop; commit(); } break; }
     case "clearFace": { const [wid,k]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(w&&w.faces){ dropArt(w.faces[k]); delete w.faces[k]; faceOpen=wid; manageOpen=wid; commit(); } break; }
     case "clearSheet": { const [wid,k,slot]=id.split(":"), w=S.staff.find(x=>x.id===wid), bag=w&&animBag(w,slot||""); if(bag&&bag[k]){ dropArt(bag[k].ref); delete bag[k].ref; commit(); } break; }
-    case "hideFavArt": srv.showFavorArt=false; renderServe(); break;
     case "hideCharmArt": srv.showCharmArt=false; renderServe(); break;
-    case "viewCharm": { const [w,s]=id.split(":"); charmView(w,s); break; }
-    case "clearCharmSlot": { const [wid,s]=id.split(":"), w=S.staff.find(x=>x.id===wid); if(!w) return; if(s==="general"){ dropArt(w.charmArt); w.charmArt=null; } else if(w.charmArts){ dropArt(w.charmArts[s]); delete w.charmArts[s]; } commit(); break; }
-    case "newCharmMove": charmMoveSheet(null); break;
-    case "editCharmMove": charmMoveSheet(charmMove(id)); break;
-    case "delCharmMove": { if(!twoTap()) return; if(S.charm.moves.length<2){ toast("Keep at least one move.", true); return; } S.charm.moves=S.charm.moves.filter(m=>m.id!==id); S.staff.forEach(w=>{ if(w.charmArts&&w.charmArts[id]){ dropArt(w.charmArts[id]); delete w.charmArts[id]; } }); closeSheet(); commit(); break; }
     case "favToggleAll": S.favors.on=!S.favors.on; commit(); break;
     case "favFilter": favFilter=id; render(); break;
     case "favOn": { const f=S.favors.deck.find(x=>x.id===id); if(f){ f.on=!f.on; commit(); } break; }
@@ -4976,11 +4681,7 @@ document.addEventListener("click",ev=>{
     case "editFavor": favorSheet(S.favors.deck.find(x=>x.id===id)); break;
     case "dupFavor": { const f=S.favors.deck.find(x=>x.id===id); if(f){ const c=Object.assign({},f,{id:uid(),title:f.title+" (copy)",where:[...f.where]}); S.favors.deck.push(c); closeSheet(); commit(); toast("Duplicated. The copy shares the same art."); } break; }
     case "delFavor": { if(!twoTap()) return; const f=S.favors.deck.find(x=>x.id===id); S.favors.deck=S.favors.deck.filter(x=>x.id!==id); if(f&&f.art&&!S.favors.deck.some(x=>x.art===f.art)) dropArt(f.art); if(f){ const all=JSON.stringify(S); favVarRefs(f).forEach(r=>{ if(all.indexOf('"'+r+'"')<0) dropArt(r); }); } closeSheet(); commit(); break; }
-    case "favAnimClear": if(favDraft){ favDraft.anim=null; const pv=$("favAnimPrev"); if(pv) pv.getContext("2d").clearRect(0,0,pv.width,pv.height); el.remove(); } break;
-    case "favArtClear": if(favDraft){ favDraft.art=null; refreshFavArtPreview(); } break;
     case "favVarAdd": if(favDraft){ favDraft.vars=favVarsRead(); const v={id:uid(),who:"any",lo:1,hi:5,open:true}; FAV_KEYS.forEach(k=>v[k]=""); favDraft.vars.forEach(x=>x.open=false); favDraft.vars.push(v); favVarsRefresh(); } break;
-    case "favVarArtClear": if(favDraft){ favDraft.vars=favVarsRead(); const v=favDraft.vars.find(x=>x.id===id); if(v){ delete v.art; v.open=true; } favVarsRefresh(); } break;
-    case "favVarAnimClear": if(favDraft){ favDraft.vars=favVarsRead(); const v=favDraft.vars.find(x=>x.id===id); if(v){ delete v.anim; v.open=true; } favVarsRefresh(); } break;
     case "favVarDel": if(favDraft){ favDraft.vars=favVarsRead().filter(v=>v.id!==id); favVarsRefresh(); } break;
     case "favVarDup": if(favDraft){ favDraft.vars=favVarsRead(); const i=favDraft.vars.findIndex(v=>v.id===id); if(i>=0){ favDraft.vars.forEach(x=>x.open=false); favDraft.vars.splice(i+1,0,Object.assign({},favDraft.vars[i],{id:uid(),open:true})); favVarsRefresh(); } } break;
     case "exportPack": if(!downloadText("nightkettle-favors.json",exportPack())) toast("Downloads are blocked here. Use Copy as text.", true); break;
@@ -5005,7 +4706,7 @@ document.addEventListener("click",ev=>{
     default:
       if(handleSprite(act,id,ev,el)) return;
       if(act==="hire"&&el.dataset.role) crewRole=el.dataset.role;
-      if(!handleCrew(act,id,ev,el)&&!handleCharm(act,id,ev)&&!handleFavor(act,ev)) handleServe(act,id,ev);
+      if(!handleCrew(act,id,ev,el)&&!handleFavor(act,ev)) handleServe(act,id,ev);
   }
 });
 $("veil").addEventListener("click",ev=>{ if(ev.target===$("veil")) closeSheet(); });
@@ -5019,7 +4720,7 @@ function restoreSave(text){
   try{ let o=JSON.parse(text), nArt=0;
     if(o&&o.nk==="art"&&typeof importArtPack==="function"){ importArtPack(o); return; }
     if(o&&o.nk==="full"&&o.save){ Object.entries(o.art||{}).forEach(([k,v])=>{ if(typeof v==="string"&&v.indexOf("data:image/")===0){ ART[k]=v; ArtDB.put(k,v).catch(()=>{}); nArt++; } }); o=o.save; }
-    if(!o||!Array.isArray(o.habits)) throw 0; S=migrate(o); applyLines(); if(typeof applyAdult==="function") applyAdult(); commit(); toast(nArt?`Backup restored with ${nArt} image${nArt===1?"":"s"}.`:"Save restored."); }
+    if(!o||!Array.isArray(o.habits)) throw 0; S=migrate(o); commit(); toast(nArt?`Backup restored with ${nArt} image${nArt===1?"":"s"}.`:"Save restored."); }
   catch(e){ toast("That isn't a Night Kettle save. Use the file or text from Backup.", true); }
 }
 document.addEventListener("submit",ev=>{
@@ -5055,10 +4756,6 @@ document.addEventListener("submit",ev=>{
   if(k==="list"){ const name=val("lName").slice(0,24); if(!name) return; const id=f.dataset.id; if(id){ const l=listById(id); if(l) l.name=name; } else { const l={id:uid(),name}; S.lists.push(l); taskView="tasks"; taskFilter="list:"+l.id; } closeSheet(); commit(); }
   if(k==="rename"||k==="rename2"){ const n=val(k==="rename"?"shopName":"shopName2").toUpperCase().slice(0,22); if(n){ S.shopName=n; closeSheet(); commit(); toast("Shop renamed."); } }
   if(k==="renameWorker"){ const w=S.staff.find(x=>x.id===f.dataset.id), n=val("wName").slice(0,16); if(w&&n){ w.name=n; closeSheet(); commit(); } }
-  if(k==="prog"){ const nm=val("pgLabel").slice(0,20)||"Corruption"; const need=[0], bonus=[], names=[];
-    for(let i=0;i<5;i++){ names.push(val("pgN"+i).slice(0,24)||(i?"Outfit "+(i+1):"Base outfit")); bonus.push(Math.max(0,Math.min(300,Math.round(+val("pgB"+i)||0)))); if(i) need.push(Math.max(need[i-1]+1,Math.round(+val("pgP"+i)||0))); }
-    S.prog={label:nm,need,bonus,names}; commit(); toast("Progression saved."); }
-  if(k==="lines"){ const split=id=>val(id).split("\n").map(s=>s.trim()).filter(Boolean); S.lines={flirts:split("lnFlirt"),charmAct:split("lnAct"),charmReact:split("lnReact")}; applyLines(); commit(); toast("Lines saved."); }
   if(k==="favor"){
     if(!favDraft) return; const d=favDraft;
     const where=[...f.querySelectorAll('input[name="fwhere"]:checked')].map(i=>i.value);
@@ -5066,7 +4763,7 @@ document.addEventListener("submit",ev=>{
     const num=(id,min,max,def)=>{ const n=parseFloat(val(id)); return isFinite(n)?Math.max(min,Math.min(max,n)):def; };
     Object.assign(d,{title:val("fTitle")||"Untitled favor",where,when:val("fWhen"),weight:Math.round(num("fWeight",1,5,2)),worker:val("fWorker")||"any",minCharm:Math.round(num("fMinCharm",0,5,0)),
       ask:val("fAsk"),accept:val("fAccept"),outcome:val("fOutcome"),thanks:val("fThanks"),decline:val("fDecline"),declined:val("fDeclined"),
-      vars:favVarsRead().map(v=>{ const o=Object.assign({},v); delete o.open; return o; }).filter(v=>FAV_KEYS.some(k=>v[k])||favHasMedia(v)),needLw:Math.round(num("fNeedLw",0,5,0)),lwGain:Math.round(num("fLwGain",0,20,0)),reward:Math.round(num("fReward",0,5000,0)),tipMult:num("fTip",.1,10,1),rep:Math.round(num("fRep",0,50,0)),repDecline:Math.round(num("fRepD",0,50,0))});
+      vars:favVarsRead().map(v=>{ const o=Object.assign({},v); delete o.open; return o; }).filter(v=>FAV_KEYS.some(k=>v[k])||favHasMedia(v)),reward:Math.round(num("fReward",0,5000,0)),tipMult:num("fTip",.1,10,1),rep:Math.round(num("fRep",0,50,0)),repDecline:Math.round(num("fRepD",0,50,0))});
     if(d._origArt&&d._origArt!==d.art&&!S.favors.deck.some(x=>x.id!==d.id&&x.art===d._origArt)) dropArt(d._origArt);
     const oa=d._origAnim&&d._origAnim.ref; if(oa&&oa!==(d.anim&&d.anim.ref)&&!S.favors.deck.some(x=>x.id!==d.id&&x.anim&&x.anim.ref===oa)) dropArt(oa);
     if(d.anim){ d.anim.cols=Math.max(1,Math.min(16,+val("faCols")||d.anim.cols)); d.anim.rows=Math.max(1,Math.min(8,+val("faRows")||d.anim.rows)); d.anim.fps=Math.max(1,Math.min(30,+val("faFps")||d.anim.fps)); d.anim.loop=$("faLoop").checked; }
@@ -5082,18 +4779,10 @@ function routeUpload(t){
   const file=t.files&&t.files[0];
   if(t.id==="workerArt"||t.dataset.up==="worker") return workerArtUpload(file,t.dataset.id);
   if(t.dataset.up==="port") return portraitUpload(file,t.dataset.id);
-  if(t.id==="charmArt"||t.dataset.up==="charm") return charmArtUpload(file,t.dataset.id);
-  if(t.dataset&&t.dataset.up==="charmslot") return charmSlotUpload(file,t.dataset.id,t.dataset.kind);
-  if(t.id==="favArt") return favArtUpload(file);
-  if(t.dataset&&t.dataset.up==="fvart") return favVarArtUpload(file,t.dataset.id);
-  if(t.dataset&&t.dataset.up==="fvanim") return favVarAnimUpload(file,t.dataset.id);
-  if(t.id==="favAnimFile") return favAnimUpload(file);
   if(t.dataset&&t.dataset.up==="sheet") return sheetUpload(file,t.dataset.id,t.dataset.kind,t.dataset.slot||"");
-  if(t.dataset&&t.dataset.up==="outfit") return outfitUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="face") return faceUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="ward") return wardUpload(file,t.dataset.id,t.dataset.kind);
   if(t.dataset&&t.dataset.up==="empart") return empArtUpload(file);
-  if(t.dataset&&t.dataset.up&&t.dataset.up.indexOf("xs")===0) return xsUpload(t,file);
   if(t.dataset&&t.dataset.up&&t.dataset.up.indexOf("scn")===0) return scnUpload(t,file);
   if(t.id==="artFile") return shrinkArt(file,96,data=>{ S.sprites[t.dataset.id]=data; delete spriteCache[t.dataset.id]; commit(); toast("Room art loaded."); });
   if(t.id==="packFile"&&file){ const r=new FileReader(); r.onload=()=>importPack(String(r.result)); r.readAsText(file); return; }
@@ -5735,7 +5424,7 @@ function countBar(h){ const f=Math.min(1,habitCount(h)/h.target); return `<span 
 function habitPlus(h,ev){
   const k=today(); h.counts=h.counts||{}; const before=habitCount(h,k), n=before+1; h.counts[k]=n;
   if(before<h.target&&n>=h.target){
-    h.hist[k]=1; streakReward(h,ev); giveReward(h,false,h.name); glGain(Math.round(S.xs.meter.habit*dOf(h).e));
+    h.hist[k]=1; streakReward(h,ev); giveReward(h,false,h.name); 
     const b=bucketById(h.bucket); if(b&&h.save) b.entries.push({id:uid(),d:k,c:h.save,label:h.name,habit:h.id});
     pop(ev,rewardPop(h,false),"var(--good)"); beep(1180);
     addLog(`Habit done: ${h.name} (${n}/${h.target}${h.unit?" "+h.unit:""}). `+(dOf(h).c>1?dOf(h).c+" clients walked in.":"A client walked in.")+(b&&h.save?" "+money(h.save)+" to "+b.name+".":""),"gain");
@@ -5745,7 +5434,7 @@ function habitPlus(h,ev){
 function habitMinus(h){
   const k=today(), before=habitCount(h,k); if(!before) return; const n=before-1;
   if(n) h.counts[k]=n; else delete h.counts[k];
-  if(before>=h.target&&n<h.target){ delete h.hist[k]; takeReward(h,false); glGain(-Math.round(S.xs.meter.habit*dOf(h).e));
+  if(before>=h.target&&n<h.target){ delete h.hist[k]; takeReward(h,false); 
     const b=bucketById(h.bucket); if(b){ const i=b.entries.findIndex(e=>e.habit===h.id&&e.d===k); if(i>=0) b.entries.splice(i,1); }
     addLog(`Habit un-done: ${h.name} is back to ${n}/${h.target}.`); }
   beep(330); commit();
@@ -5818,7 +5507,6 @@ function devFold(){
   if(tab!=="dev") return; let drawing=false; try{ drawing=typeof ssUsed==="function"&&ssUsed().length>0; }catch(e){}
   document.querySelectorAll("#screen > section.panel").forEach(p=>{ if(p.classList.contains("devhead")) return; const h=p.querySelector(":scope > h2"); if(!h) return;
     const title=((h.querySelector("span")||h).textContent||"").trim(); if(!title) return;
-    if(title==="CHARM + FLIRT LINES"&&!FEATURES.charm){ p.remove(); return; }
     const key=devSub+":"+title, shut=key in devFoldState?!!devFoldState[key]:(DEV_SHUT.has(title)&&!(drawing&&DEV_EDITOR.has(title)));
     p.classList.add("fold"); p.classList.toggle("shut",shut); p.dataset.fold=key; h.setAttribute("role","button"); h.setAttribute("tabindex","0"); h.setAttribute("aria-expanded",String(!shut)); });
 }
@@ -6515,7 +6203,7 @@ function importArtPack(text){
   const remap=id=>id&&idMap[id]?idMap[id]:id;
   const fixFav=f=>{ const g=JSON.parse(JSON.stringify(f)); if(g.worker&&g.worker!=="any") g.worker=remap(g.worker); (g.vars||[]).forEach(v=>{ if(v.who&&v.who!=="any") v.who=remap(v.who); }); return g; };
   const nFav=(c.favors||[]).length; S.favors.deck=apMergeById(S.favors.deck,c.favors,fixFav);
-  if(c.prog) S.prog=c.prog; if(c.wardrobe) S.wardrobe=c.wardrobe; if(c.lines){ S.lines=c.lines; applyLines(); }
+  if(c.prog) S.prog=c.prog; if(c.wardrobe) S.wardrobe=c.wardrobe; if(c.lines) S.lines=c.lines;
   if(c.sprites) S.sprites=Object.assign(S.sprites||{},c.sprites);
   if(c.scenes) S.scenes=Object.assign(S.scenes||{},c.scenes);
   if(c.scnStaffH) S.scnStaffH=c.scnStaffH;
@@ -6525,7 +6213,7 @@ function importArtPack(text){
   if(c.charmMoves&&S.charm) S.charm.moves=apMergeById(S.charm.moves,c.charmMoves);
   if(c.edgeArt&&S.edge) S.edge.art=Object.assign(S.edge.art||{},c.edgeArt);
   if(c.edgeScenes&&S.edge) S.edge.scenes=apMergeById(S.edge.scenes,c.edgeScenes);
-  S=migrate(S); if(typeof applyAdult==="function") applyAdult(); commit();
+  S=migrate(S); commit();
   setTimeout(()=>{ try{ cleanArt(); }catch(e){} },500);
   const parts=[upd&&`${upd} worker${upd===1?"":"s"} updated`,add&&`${add} new on the hiring board`,nFav&&`${nFav} favor${nFav===1?"":"s"}`,`${nArt} new image${nArt===1?"":"s"}`].filter(Boolean);
   addLog("Art Pack imported: "+parts.join(", ")+".","build"); toast("Art Pack imported: "+parts.join(", ")+".");
@@ -6544,7 +6232,6 @@ document.addEventListener("change",ev=>{ const t=ev.target; if(t.id!=="artPackFi
 /* ================= DEV › IMPORT/EXPORT: every backup, pack and art-import setting in one tab ================= */
 function xferLink(what){ return `<p class="hint" style="margin:8px 0 0"><button class="linkbtn" style="padding:0" data-act="devGo" data-id="transfer">${what} are in Dev › Import/Export ›</button></p>`; }
 function vXfer(){
-  const adult=adultOn();
   return `
   <section class="panel">
     <h2><span>BACKUP &amp; RESTORE</span><span>EVERYTHING</span></h2>
@@ -6593,14 +6280,7 @@ function vXfer(){
     <textarea class="field" id="packText" placeholder='{"type":"nightkettle-favors","favors":[...]}'></textarea>
     <div class="actions"><button class="btn" data-act="importText">IMPORT TEXT</button></div>
   </section>
-  ${adult&&typeof xsExport==="function"?`<section class="panel">
-    <h2><span>SERVICE PACKS</span><span>MINIGAME</span></h2>
-    <p style="margin:0 0 10px">Rooms, cards and their art in one file, to back up or move to another device.</p>
-    <div class="actions" style="margin-top:0">${FRAMED?"":`<button class="btn" data-xs="export">DOWNLOAD PACK</button>`}<button class="btn ghost" data-xs="copyPack">COPY AS TEXT</button>
-      <label class="btn" for="xsPackFile" style="text-align:center">IMPORT FILE</label><input type="file" id="xsPackFile" class="srt" accept=".json,application/json,text/plain"></div>
-    <label class="fl" for="xsPackText" style="margin-top:10px">Or paste a pack</label><textarea class="field" id="xsPackText" rows="3" placeholder='{"type":"nightkettle-service",...}'></textarea>
-    <div class="actions"><button class="btn ghost" data-xs="importText">IMPORT PASTED</button></div>
-  </section>`:""}`;
+`;
 }
 
 /* ================= SKILLS, COVERING OTHER VENUES, AND HIRING YOUR OWN CHARACTERS ================= */
@@ -6614,7 +6294,7 @@ const SKILLS={
 const PERSONA_FIT={cafe:["bubbly","chatty"],books:["deadpan","chill"],bar:["gruff","chill"],club:["bubbly","chatty"]};
 const isHired=w=>!!w&&w.hired!==false;
 const hasSkill=(w,k)=>!!w&&Array.isArray(w.skills)&&w.skills.includes(k);
-const skillName=k=>{ const s=SKILLS[k]; if(!s) return k; return k==="stage"&&!adultOn()?"Stage Presence":s.name; };
+const skillName=k=>{ const s=SKILLS[k]; if(!s) return k; return s.name; };
 function skillCost(w,k){ return Math.round((SKILLS[k].cost||500)*SLOT_MULT[Math.min(SKILL_SLOTS-1,(w.skills||[]).length)]); }
 /* how an employee does at a counter: home venue, trained for it, personality fits, or out of their depth */
 /* no home floor any more: how well someone does on a floor comes from their floor skill */
@@ -6726,529 +6406,20 @@ document.addEventListener("click",ev=>{
 document.addEventListener("change",ev=>{ const k=ev.target.dataset&&ev.target.dataset.wcfg; if(!k) return; const [f,i]=k.split(":"), C=WCFG();
   if(f==="names") C.names[+i]=ev.target.value.trim().slice(0,20)||C.names[+i]; else C[f][+i]=Math.max(f==="needLv"?1:0,Math.round(+ev.target.value||0)); commit(); });
 
-/* ================= SIDE ROOM: energy-bar card / deck-builder minigame =================
-   Finishing tasks and habits fills an energy bar. When it's full, pick an employee to work a round.
-   After a good serve, a client may ask for extra service. If the worker's progression level
-   meets the room's gate, you can offer it or turn it down. The round is a small deck-builder:
-   energy per turn, a hand of cards, a satisfaction target, limited turns, client likes/dislikes.
-   Every name, line, card and piece of art is editable in Dev › Service. */
-const XS_SECS=["cafe","books","bar","club"];
-function xsDefault(){
-  const room={name:"Back Room",needLv:1,art:null,rounds:3,baseTurns:2,clientsMin:1,clientsMax:3,targetMin:8,targetMax:16,perClient:30,bonus:60,lwGain:1,
-    intro:"{w} heads into the {room}. A client is waiting.",win:"{c} leaves very satisfied, with a generous tip.",lose:"{c} shrugs. Maybe next time."};
-  const C=(o)=>Object.assign({id:uid(),name:"New card",text:"",line:"",cost:1,pl:0,heat:0,draw:0,en:0,pat:0,tag:"",needLv:1,starter:0,exhaust:false,rooms:[],art:null,anim:null},o);
-  return {on:true,energy:3,hand:5,tags:["soft","sweet","playful","bold"],room,
-    meter:{val:0,max:100,task:10,vip:20,habit:10,win:5},
-    cards:[
-      C({name:"Warm Up",cost:1,pl:3,tag:"soft",starter:4,line:"{w} takes it slow."}),
-      C({name:"Sweet Talk",cost:1,pl:2,heat:1,tag:"sweet",starter:3,line:"{w} says something that makes {c} blush."}),
-      C({name:"Catch Your Breath",cost:0,en:1,exhaust:true,starter:1,line:"{w} pauses and smiles."}),
-      C({name:"Tease",cost:1,pl:1,heat:2,tag:"playful",line:"{w} plays coy."}),
-      C({name:"Keep Going",cost:1,pl:2,draw:2,tag:"soft",line:"{w} doesn't stop."}),
-      C({name:"Bold Move",cost:2,pl:7,tag:"bold",needLv:2,line:"{w} takes charge."}),
-      C({name:"Slow Burn",cost:2,pl:3,heat:3,tag:"soft",needLv:2,line:"{w} draws it out."}),
-      C({name:"Take Your Time",cost:1,pat:1,exhaust:true,tag:"sweet",needLv:2,line:"{w} lets the moment last."}),
-      C({name:"Second Wind",cost:0,en:2,exhaust:true,needLv:3,line:"{w} finds a second wind."}),
-      C({name:"Grand Finale",cost:3,pl:10,tag:"bold",needLv:3,line:"{w} pulls out all the stops."})
-    ]};
-}
-function xsMigrate(o){
-  const d=xsDefault(); if(!o.xs||typeof o.xs!=="object"){ o.xs=d; return; }
-  const x=o.xs; ["on","energy","hand","tags"].forEach(k=>{ if(x[k]==null) x[k]=d[k]; });
-  if(!x.room){ const old=x.rooms&&(x.rooms.club||x.rooms.cafe); x.room=Object.assign({},d.room,old?{art:old.art||null}:{}); }
-  x.room=Object.assign({},d.room,x.room); x.meter=Object.assign({},d.meter,x.meter||{});
-  if(!Array.isArray(x.cards)) x.cards=d.cards;
-}
-const xsCard=id=>S.xs.cards.find(c=>c.id===id);
-const xsFill=(s,o)=>String(s||"").replace(/\{w\}/g,o.w||"").replace(/\{c\}/g,o.c||"").replace(/\{room\}/g,o.room||"").replace(/\{shop\}/g,prettyShop());
-const xsFor=(c,w)=>!c.worker||c.worker==="any"||(w&&c.worker===w.id);
-function xsStarter(w){ const d=[]; S.xs.cards.forEach(c=>{ if(xsFor(c,w)) for(let i=0;i<(c.starter|0);i++) d.push(c.id); }); return d; }
-function xsAutoDeck(w){ const lv=progLevel(w), d=[]; S.xs.cards.forEach(c=>{ if(xsFor(c,w)&&(c.needLv||1)<=lv&&(!c.rooms||!c.rooms.length||c.rooms.includes(w.role))) for(let i=0;i<Math.max(1,c.starter|0);i++) d.push(c.id); }); return d.length?d:S.xs.cards.slice(0,1).map(c=>c.id); }
-function xsDeck(w){ if(!FEATURES.deckBuilding) return xsAutoDeck(w); if(!Array.isArray(w.deck)) w.deck=xsStarter(w); w.deck=w.deck.filter(xsCard); if(!w.deck.length) w.deck=xsStarter(w); return w.deck; }
-/* a worker's own version of a card: their art, animation, name and line, falling back to the library card */
-function xsView(c,w){ const o=(w&&w.xsArt&&w.xsArt[c.id])||{}; return {name:o.name||c.name,line:o.line||c.line,art:o.art||c.art,anim:o.anim&&o.anim.ref?o.anim:c.anim,own:!!(o.art||(o.anim&&o.anim.ref)||o.name||o.line)}; }
-function xsEffects(c){ const b=[]; if(c.pl) b.push(`+${c.pl} ♥`); if(c.heat) b.push(`+${c.heat} heat`); if(c.draw) b.push(`draw ${c.draw}`); if(c.en) b.push(`+${c.en} energy`); if(c.pat) b.push(`+${c.pat} turn`); if(c.exhaust) b.push("once"); return b.join(" · ")||"no effect"; }
-
-/* ---------- energy bar ---------- */
-const glName=()=>(S.xs.room.name||"Back Room");
-function glGain(n,why){
-  if(!S.xs||!S.xs.on||!n||!adultOn()) return; const M=S.xs.meter, was=M.val>=M.max; M.val=Math.max(0,Math.min(M.max,M.val+n));
-  if(!was&&M.val>=M.max) setTimeout(()=>{ toast(`⚡ The ${glName()} is ready. Pick someone to work it on the Shop page.`); beep(1320); setTimeout(()=>beep(1760),120); },700);
-}
-function glReady(){ return S.xs.on&&S.xs.meter.val>=S.xs.meter.max; }
-function glPanel(){
-  if(!S.xs.on||!adultOn()) return ""; const M=S.xs.meter, r=S.xs.room, pct=Math.round(M.val/M.max*100), ready=glReady();
-  const team=S.staff.filter(isHired).map(w=>{ const ok=progLevel(w)>=r.needLv, a=artSrc(w);
-    return `<button class="glpick" data-xs="work" data-id="${w.id}" ${ok&&ready?"":"disabled"}>${a?`<img src="${a}" alt="">`:`<span class="ci" aria-hidden="true">✦</span>`}<b>${esc(w.name)}</b><small>${ok?esc(jobTitle(w)):`${esc(PL())} ${r.needLv} needed`}</small></button>`; }).join("");
-  return `<section class="panel glpanel ${ready?"glready":""}"><h2><span>⚡ ${esc(glName().toUpperCase())}</span><span>${ready?"READY":pct+"%"}</span></h2>
-    <div class="glbar" role="img" aria-label="Energy ${M.val} of ${M.max}"><i style="width:${pct}%"></i><span>${M.val} / ${M.max}</span></div>
-    ${ready?`<p style="margin:8px 0 6px">Pick who works the ${esc(r.name)}: ${r.rounds} rounds, ${r.perClient}₵+ per client, ${r.bonus}₵ bonus for clearing them all.</p><div class="glteam">${team||`<p class="hint">Hire someone first.</p>`}</div>`
-      :`<p class="hint" style="margin:6px 0 0">Tasks +${M.task} · high-priority +${M.vip} · habits +${M.habit}${M.win?` · anytime +${M.win}`:""}. Fill it to open the ${esc(r.name)}.</p>`}
-  </section>`;
-}
-/* ---------- the run: several rounds, a random line of clients each, a card shop in between ---------- */
-let XG=null;
-const shuffle=a=>{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
-const rint=(a,b)=>a+Math.floor(Math.random()*(Math.max(a,b)-a+1));
-function xsPrice(c){ return c.price>0?c.price:20+15*(c.needLv||1)+10*(c.cost|0); }
-function xsStart(w,test){
-  const r=S.xs.room;
-  XG={w,test:!!test,room:r,round:0,rounds:Math.max(1,r.rounds|0),purse:0,pleased:0,spent:0,phase:"play",over:null,line:"",show:null,showT:0,shop:[],bought:[]};
-  xsNewRound(); XG.line=xsFill(r.intro,{w:w.name,c:XG.clients[0].name,room:r.name}); xsRender(); beep(660);
-}
-function xsNewRound(){
-  const G=XG, r=G.room, tags=S.xs.tags.filter(Boolean); G.round++; G.phase="play";
-  const n=Math.max(1,Math.min(8,rint(r.clientsMin|0||1,r.clientsMax|0||1)+Math.floor((G.round-1)/2))), mult=1+.2*(G.round-1);
-  G.clients=Array.from({length:n},()=>{ const look=makeLook(), likes=tags.length?pk(tags):"", dislikes=tags.length>1?pk(tags.filter(t=>t!==likes)):""; let port=null; try{ port=paintPortrait(look,"happy",false,false,G.w.role).toDataURL(); }catch(e){}
-    return {name:pk(NAMES),look,port,likes,dislikes,sat:0,done:false,target:Math.max(1,Math.round(rint(r.targetMin|0||5,r.targetMax|0||10)*mult))}; });
-  G.ci=0; G.turns=Math.max(1,(r.baseTurns|0)+n); G.turn=1; G.heat=0; G.draw=shuffle(xsDeck(G.w).slice()); G.disc=[]; G.gone=[]; G.hand=[];
-  if(G.round>1) G.line=`Round ${G.round}: ${n} client${n===1?"":"s"}, ${G.turns} turns.`;
-  xsNewTurn();
-}
-function xsDrawN(n){ for(let i=0;i<n;i++){ if(!XG.draw.length){ if(!XG.disc.length) break; XG.draw=shuffle(XG.disc); XG.disc=[]; } XG.hand.push(XG.draw.pop()); } }
-function xsNewTurn(){ XG.energy=Math.max(0,S.xs.energy|0); xsDrawN(Math.max(1,S.xs.hand|0)); }
-const xsCur=()=>XG&&XG.clients[XG.ci];
-function xsGain(c,cl){ if(!c.pl||!cl) return 0; let m=1; if(c.tag&&c.tag===cl.likes) m=1.5; else if(c.tag&&c.tag===cl.dislikes) m=.5; return Math.max(0,Math.round((c.pl+XG.heat)*m)); }
-const xsPay=()=>Math.round((XG.room.perClient|0)*(1+.25*(XG.round-1)));
-function xsPlay(i,ev){
-  const G=XG; if(!G||G.phase!=="play") return; const id=G.hand[i], c=xsCard(id); if(!c) return;
-  if((c.cost|0)>G.energy){ toast(`Needs ${c.cost} energy.`, true); return; }
-  G.energy-=c.cost|0; G.hand.splice(i,1); let g=xsGain(c,xsCur()), shown=g; G.heat+=c.heat|0; G.energy+=c.en|0; G.turns+=c.pat|0;
-  (c.exhaust?G.gone:G.disc).push(id); if(c.draw) xsDrawN(c.draw);
-  const V=xsView(c,G.w), cl=xsCur();
-  G.line=V.line?xsFill(V.line,{w:G.w.name,c:cl.name,room:G.room.name}):`${G.w.name} plays ${V.name}.`;
-  if(V.art||(V.anim&&V.anim.ref)){ G.show=c.id; G.showT=performance.now(); }
-  /* ♥ fills the current client; anything past their target spills onto the next one in line */
-  while(g>0&&xsCur()){ const k=xsCur(), need=k.target-k.sat, use=Math.min(need,g); k.sat+=use; g-=use;
-    if(k.sat>=k.target){ k.done=true; G.pleased++; const p=xsPay(); G.purse+=p; G.line+=` ${k.name} is satisfied. +${p}₵`; G.ci++; } }
-  if(shown) pop(ev,`+${shown} ♥`,c.tag&&cl&&c.tag===cl.likes?"var(--good)":"var(--accent)"); beep(shown?700+Math.min(800,shown*40):520);
-  if(!xsCur()) return xsRoundClear();
-  xsRender();
-}
-function xsEndTurn(){
-  const G=XG; if(!G||G.phase!=="play") return; G.disc.push(...G.hand); G.hand=[]; G.heat=Math.floor(G.heat/2);
-  if(G.turn>=G.turns) return xsFinish(false);
-  G.turn++; xsNewTurn(); G.line=`Turn ${G.turn} of ${G.turns}.`; beep(440); xsRender();
-}
-function xsRoundClear(){
-  const G=XG; beep(1046); setTimeout(()=>beep(1568),120);
-  if(G.round>=G.rounds) return xsFinish(true);
-  if(!FEATURES.deckBuilding){ G.shop=[]; G.phase="shop"; G.line=`Round ${G.round} cleared. ${G.rounds-G.round} to go.`; return xsRender(); }
-  const lv=progLevel(G.w), pool=S.xs.cards.filter(c=>xsFor(c,G.w)&&(c.needLv||1)<=lv&&(!c.rooms||!c.rooms.length||c.rooms.includes(G.w.role)));
-  /* the shop leans toward the riskiest cards this employee has unlocked */
-  const weighted=[]; pool.forEach(c=>{ for(let i=0;i<(c.needLv||1);i++) weighted.push(c.id); });
-  const offers=[]; shuffle(weighted).forEach(id=>{ if(offers.length<3&&!offers.includes(id)) offers.push(id); });
-  G.shop=offers; G.bought=[]; G.phase="shop"; G.line=`Round ${G.round} cleared. Spend tips on new cards, or save them for the payout.`; xsRender();
-}
-function xsBuy(id){ const G=XG, c=xsCard(id); if(!G||G.phase!=="shop"||!c||G.bought.includes(id)) return; const p=xsPrice(c);
-  if(G.purse<p){ toast(`Needs ${p}₵. You have ${G.purse}₵.`, true); return; } const d=xsDeck(G.w); if(d.length>=40){ toast("That deck is full (40).", true); return; }
-  G.purse-=p; G.spent+=p; G.bought.push(id); d.push(id); save(); beep(990); toast(`${xsView(c,G.w).name} added to ${G.w.name}'s deck.`); xsRender(); }
-const xsRemoveCost=()=>15+10*(XG?XG.round:1);
-function xsRemove(id){ const G=XG; if(!G||G.phase!=="remove") return; const d=xsDeck(G.w), c=xsRemoveCost();
-  if(d.length<=5){ toast("A deck needs at least 5 cards.", true); return; } if(G.purse<c){ toast(`Removing costs ${c}₵.`, true); return; }
-  const i=d.indexOf(id); if(i<0) return; d.splice(i,1); G.purse-=c; G.spent+=c; G.removed=true; G.phase="shop"; save(); toast("Card removed."); xsRender(); }
-function xsFinish(win){
-  const G=XG, w=G.w, r=G.room; G.phase="over"; G.over=win?"win":"lose";
-  const cl=xsCur()||G.clients[G.clients.length-1];
-  G.line=xsFill(win?r.win:r.lose,{w:w.name,c:cl?cl.name:"",room:r.name});
-  G.payout=Math.round((G.purse+(win?(r.bonus|0):0))*(1+outfitBonus(w)));
-  if(!G.test){ if(G.payout){ S.credits+=G.payout; S.xp+=G.payout; w.tips+=G.payout; const d=serveDay(); d.tips=(d.tips||0)+G.payout; }
-    S.stats.xs=(S.stats.xs||0)+1; if(win){ S.rep+=1; if(r.lwGain) gainProg(w,r.lwGain); }
-    addLog(`${w.name} worked the ${r.name}: ${G.pleased} client${G.pleased===1?"":"s"} pleased${win?", every round cleared":""}. +${G.payout}₵`,"gain"); }
-  win?(beep(1046),setTimeout(()=>beep(1568),120)):beep(300); save(); renderTop(); xsRender();
-}
-function xsClose(){
-  const G=XG; if(G&&G.phase!=="over"){ xsFinish(false); return; }
-  XG=null; const el=$("xs"); if(el) el.remove(); document.body.classList.remove("xson"); render();
-}
-function xsCardHTML(c0,i,dis,act,extra){
-  const c=Object.assign({},c0,xsView(c0,XG&&XG.w)), a=c.art&&resolveArt(c.art), cl=xsCur(), lk=c.tag&&cl&&c.tag===cl.likes, dk=c.tag&&cl&&c.tag===cl.dislikes;
-  return `<button class="xcard ${lk?"lk":""} ${dk?"dk":""}" data-xa="${act||"play"}" data-i="${i==null?"":i}" data-id="${c0.id}" ${dis?"disabled":""} aria-label="${esc(c.name)}, costs ${c.cost}: ${esc(xsEffects(c))}">
-    <span class="xcost">${c.cost|0}</span>${a?`<img src="${a}" alt="">`:`<span class="xart" aria-hidden="true">${c.anim&&c.anim.ref?"▶":"✦"}</span>`}
-    <b>${esc(c.name)}</b><small>${esc(xsEffects(c))}</small>${c.text?`<em>${esc(c.text)}</em>`:""}${c.tag?`<span class="tag">${esc(c.tag)}</span>`:""}${(c.needLv||1)>1?`<span class="lvl">${esc(PL())} ${c.needLv}</span>`:""}${extra||""}</button>`;
-}
-function xsRender(){
-  let el=$("xs"); if(!XG){ if(el) el.remove(); return; }
-  if(!el){ el=document.createElement("div"); el.id="xs"; el.className="xs"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label",XG.room.name); document.body.appendChild(el); document.body.classList.add("xson"); el.addEventListener("click",xsClick); }
-  const G=XG, r=G.room, bg=r.art&&resolveArt(r.art), wa=artSrc(G.w), cl=xsCur(), sc=G.show&&xsCard(G.show)&&xsView(xsCard(G.show),G.w), sa=sc&&sc.anim&&sc.anim.ref&&resolveArt(sc.anim.ref), si=!sa&&sc&&sc.art&&resolveArt(sc.art);
-  const queue=`<div class="xsqueue" aria-label="Clients this round">${G.clients.map((k,i)=>`<span class="${k.done?"done":i===G.ci?"cur":""}" title="${esc(k.name)}">${k.done?"♥":i===G.ci?"●":"○"}</span>`).join("")}</div>`;
-  let mid="", bottom="";
-  if(G.phase==="play"){
-    const pct=Math.min(100,Math.round(cl.sat/cl.target*100));
-    mid=`<div class="xsmeter" role="img" aria-label="${esc(cl.name)}: ${cl.sat} of ${cl.target}"><i style="width:${pct}%"></i><span>${esc(cl.name)} · ♥ ${cl.sat} / ${cl.target}</span></div>
-      <div class="xsstats"><span>⚡ <b>${G.energy}</b> energy</span><span>🔥 <b>${G.heat}</b> heat</span><span>⏳ turn <b>${G.turn}/${G.turns}</b></span>${queue}</div>
-      ${cl.likes?`<div class="xsprefs"><span>Likes <span class="tag good">${esc(cl.likes)}</span></span>${cl.dislikes?`<span>Not into <span class="tag bad">${esc(cl.dislikes)}</span></span>`:""}</div>`:""}`;
-    bottom=`<div class="xhand">${G.hand.map((id,i)=>{ const c=xsCard(id); return c?xsCardHTML(c,i,(c.cost|0)>G.energy):""; }).join("")||`<p class="muted">No cards left in hand.</p>`}</div>
-      <div class="xsact"><span class="muted">Draw ${G.draw.length} · Discard ${G.disc.length}${G.gone.length?` · Used ${G.gone.length}`:""}</span><button class="btn solid" data-xa="end">${G.turn>=G.turns?"LAST TURN · END":"END TURN"}</button></div>`;
-  } else if(G.phase==="shop"||G.phase==="remove"){
-    const d=xsDeck(G.w);
-    mid=`<div class="xsres win"><b>ROUND ${G.round} OF ${G.rounds} CLEARED</b><span class="muted">Tips this run: <b class="good">${G.purse}₵</b>. Whatever you don't spend is paid out at the end.</span></div>`;
-    if(!FEATURES.deckBuilding){ mid=`<div class="xsres win"><b>ROUND ${G.round} OF ${G.rounds} CLEARED</b><span class="muted">Tips so far: <b class="good">${G.purse}₵</b></span></div>`; bottom=`<div class="actions"><button class="btn solid wide" data-xa="next">NEXT ROUND ›</button></div>`; }
-    else bottom=G.phase==="shop"?`<p class="px" style="margin:8px 0 6px">CARD SHOP · ${esc(G.w.name.toUpperCase())}'S DECK (${d.length})</p>
-      <div class="xhand picks">${G.shop.map(id=>{ const c=xsCard(id); if(!c) return ""; const p=xsPrice(c), got=G.bought.includes(id); return xsCardHTML(c,null,got||G.purse<p,"buy",`<span class="price">${got?"BOUGHT":p+"₵"}</span>`); }).join("")||`<p class="muted">Nothing for sale. Raise ${esc(G.w.name)}'s ${esc(PL())} to unlock more cards.</p>`}</div>
-      <div class="actions"><button class="btn ghost" data-xa="removeMode" ${G.removed||d.length<=5?"disabled":""}>REMOVE A CARD · ${xsRemoveCost()}₵</button><button class="btn solid" data-xa="next">NEXT ROUND ›</button></div>`
-      :`<p class="px" style="margin:8px 0 6px">TAP A CARD TO REMOVE IT · ${xsRemoveCost()}₵</p>
-      <div class="xhand picks">${[...new Set(d)].map(id=>{ const c=xsCard(id); if(!c) return ""; const n=d.filter(x=>x===id).length; return xsCardHTML(c,null,false,"remove",n>1?`<span class="price">×${n}</span>`:""); }).join("")}</div>
-      <div class="actions"><button class="btn ghost" data-xa="backShop">‹ BACK TO SHOP</button></div>`;
-  } else {
-    mid=`<div class="xsres ${G.over}"><b>${G.over==="win"?`ALL ${G.rounds} ROUNDS CLEARED`:`ENDED IN ROUND ${G.round}`}</b>
-      <span>${G.pleased} client${G.pleased===1?"":"s"} pleased · paid out <b class="good">+${G.payout}₵</b>${G.over==="win"&&G.room.bonus?` (incl. ${G.room.bonus}₵ bonus)`:""}</span>${G.test?`<span class="muted">Test run: no rewards.</span>`:""}</div>`;
-    bottom=`<div class="actions"><button class="btn solid wide" data-xa="close">DONE</button></div>`;
-  }
-  const showCl=G.phase==="play"&&cl;
-  el.innerHTML=`<div class="xstop"><span class="px">${esc(r.name.toUpperCase())} · ${esc(G.w.name.toUpperCase())} · ROUND ${G.round}/${G.rounds}${G.test?" · TEST":""}</span><span class="px good">${G.purse}₵</span><button class="modechip" data-xa="quit" aria-label="Leave the room">✕</button></div>
-  <div class="xsstage" ${bg?`style="background-image:url('${bg}')"`:""}>
-    ${sa?`<canvas id="xsAnim" class="xscg" width="960" height="540"></canvas>`:si?`<img class="xscg" src="${si}" alt="">`:`${wa?`<img class="xsw" src="${wa}" alt="${esc(G.w.name)}">`:""}${showCl&&cl.port?`<img class="xsc" src="${cl.port}" alt="${esc(cl.name)}">`:""}`}
-    ${!bg&&!sa&&!si?`<span class="xsroom px">${esc(r.name.toUpperCase())}</span>`:""}
-    <p class="xsline">${esc(G.line)}</p>
-  </div>
-  ${mid}${bottom}`;
-}
-function xsClick(ev){
-  const b=ev.target.closest("[data-xa]"); if(!b||!b.dataset.xa) return; const a=b.dataset.xa;
-  if(a==="play") xsPlay(+b.dataset.i,ev);
-  else if(a==="end") xsEndTurn();
-  else if(a==="buy") xsBuy(b.dataset.id);
-  else if(a==="removeMode"){ XG.phase="remove"; xsRender(); }
-  else if(a==="remove") xsRemove(b.dataset.id);
-  else if(a==="backShop"){ XG.phase="shop"; xsRender(); }
-  else if(a==="next"){ XG.show=null; xsNewRound(); xsRender(); beep(660); }
-  else if(a==="close") xsClose();
-  else if(a==="quit"){ if(XG&&XG.phase!=="over"&&!b.dataset.armed){ b.dataset.armed="1"; b.textContent="END RUN?"; return; } xsClose(); }
-}
-setInterval(()=>{ const cv=$("xsAnim"); if(cv&&XG&&XG.show){ const c=xsCard(XG.show), V=c&&xsView(c,XG.w); if(V&&V.anim) drawSheetFit(cv,V.anim,XG.showT,performance.now()); } },40);
-
-/* ---------- Dev › Service ---------- */
-let xsDevWorker=null, xsDraft=null, xsArm=null;
-function vService(){
-  const X=S.xs, LV=[1,2,3,4,5];
-  if(!S.staff.some(w=>w.id===xsDevWorker)) xsDevWorker=S.staff[0]&&S.staff[0].id; const dw=S.staff.find(w=>w.id===xsDevWorker);
-  const counts={}; if(dw) xsDeck(dw).forEach(id=>counts[id]=(counts[id]||0)+1);
-  return `<section class="panel">
-    <h2><span>${esc(glName().toUpperCase())} · MINIGAME</span><span>${X.on?"ON":"OFF"}</span></h2>
-    <p style="margin:0 0 10px">Finishing tasks and habits fills the energy bar on the Shop page. When it's full, pick an employee to work a run: a set number of rounds, each with a random line of clients to satisfy before the turns run out. Pleased clients tip into the run's purse, paid out at the end plus a bonus for clearing every round. ${FEATURES.deckBuilding?`Between rounds, spend tips in the card shop (higher ${esc(PL())} unlocks riskier cards).`:`Each employee's deck is every card their ${esc(PL())} level has unlocked, so riskier cards join as they level up.`}</p>
-    <div class="spread" style="align-items:center"><span>Energy bar + minigame</span><button class="btn ${X.on?"solid":"ghost"}" data-xs="toggle" aria-pressed="${X.on}">${X.on?"ON":"OFF"}</button></div>
-    <div class="formgrid" style="margin-top:10px">
-      <div><label class="fl" for="glMax">Bar size</label><input class="field num" id="glMax" type="number" min="10" max="1000" value="${X.meter.max}"></div>
-      <div><label class="fl" for="glTask">Per task</label><input class="field num" id="glTask" type="number" min="0" max="500" value="${X.meter.task}"></div>
-      <div><label class="fl" for="glVip">Per high-priority task</label><input class="field num" id="glVip" type="number" min="0" max="500" value="${X.meter.vip}"></div>
-      <div><label class="fl" for="glHabit">Per habit</label><input class="field num" id="glHabit" type="number" min="0" max="500" value="${X.meter.habit}"></div>
-      <div><label class="fl" for="glWin">Per anytime action</label><input class="field num" id="glWin" type="number" min="0" max="500" value="${X.meter.win}"></div>
-      <div><span class="fl">Bar now: ${X.meter.val}/${X.meter.max}</span><button class="btn ghost smallbtn" data-xs="fillBar">FILL (TEST)</button></div>
-    </div>
-    <div class="formgrid" style="margin-top:8px"><div><label class="fl" for="xsEnergy">Energy per turn</label><input class="field num" id="xsEnergy" type="number" min="1" max="9" value="${X.energy}"></div>
-      <div><label class="fl" for="xsHand">Cards drawn per turn</label><input class="field num" id="xsHand" type="number" min="1" max="9" value="${X.hand}"></div>
-      <div class="full"><label class="fl" for="xsTags">Card tags (clients like one, dislike another)</label><input class="field" id="xsTags" maxlength="120" value="${esc(X.tags.join(", "))}"></div></div>
-  </section>
-  <section class="panel">
-    <h2><span>THE ROOM</span><span>NAME · ART · DIFFICULTY</span></h2>
-    ${(()=>{ const r=X.room, a=r.art&&resolveArt(r.art); return `<div class="favrow"><div class="favthumb">${a?`<img src="${a}" alt="">`:`<span>▣</span>`}</div>
-      <button class="info" data-xs="editRoom"><span class="nm">${esc(r.name)}</span><span class="meta"><span class="tag">${esc(PL())} ${r.needLv}+</span><span>${r.rounds} rounds · ${r.clientsMin}–${r.clientsMax} clients · ♥ ${r.targetMin}–${r.targetMax}</span></span></button>
-      <button class="btn ghost smallbtn" data-xs="test" ${S.staff.length?"":"disabled"}>TEST</button></div>`; })()}
-  </section>
-  <section class="panel">
-    <h2><span>CARD LIBRARY</span><span>${X.cards.length} CARDS</span></h2>
-    <p class="hint" style="margin:0 0 8px">${FEATURES.deckBuilding?`Starter copies go into every new deck. A card's ${esc(PL())} level decides when it shows up in the shop; the shop favors the highest level an employee has unlocked. Price 0 = automatic.`:`A card joins an employee's deck once their ${esc(PL())} level reaches the card's level. Copies sets how many of it are in the deck.`}</p>
-    <div class="list">${X.cards.map(c=>{ const a=c.art&&resolveArt(c.art); return `<div class="favrow"><div class="favthumb">${a?`<img src="${a}" alt="">`:`<span>${c.anim&&c.anim.ref?"▶":"✦"}</span>`}</div>
-      <button class="info" data-xs="editCard" data-id="${c.id}"><span class="nm">${esc(c.name)} <span class="muted">· ${c.cost|0}⚡</span></span><span class="meta"><span>${esc(xsEffects(c))}</span>${c.tag?`<span class="tag">${esc(c.tag)}</span>`:""}<span>Lv ${c.needLv||1}</span>${FEATURES.deckBuilding?`<span>${xsPrice(c)}₵</span>${c.starter?`<span>starter ×${c.starter}</span>`:""}`:`<span>×${Math.max(1,c.starter|0)}</span>`}</span></button></div>`; }).join("")}</div>
-    <div class="actions"><button class="btn solid" data-xs="newCard">+ NEW CARD</button></div>
-  </section>
-  <section class="panel">
-    <h2><span>${FEATURES.deckBuilding?"WORKER DECKS":"EMPLOYEE CARDS &amp; ART"}</span><span>${dw?xsDeck(dw).length+" CARDS":""}</span></h2>
-    ${dw?`<div class="devpick">${S.staff.map(w=>`<button class="devchip ${w.id===xsDevWorker?"on":""}" data-xs="deckWorker" data-id="${w.id}" aria-pressed="${w.id===xsDevWorker}"><span><b>${esc(w.name)}</b><small>${ROLES[w.role].title} · ${esc(PL())} ${progLevel(w)}</small></span></button>`).join("")}</div>
-      <p class="hint" style="margin:8px 0 4px">Each employee has their own deck. Tap ART to give a card ${esc(dw.name)}'s own art, animation, name and line. Anything left blank uses the library card.</p>
-      <div class="list">${X.cards.filter(c=>xsFor(c,dw)).map(c=>{ const n=counts[c.id]||0, V=xsView(c,dw), a=V.art&&resolveArt(V.art); return `<div class="deckrow ${n?"":"off"}">
-        <button class="deckart ${V.own?"own":""}" data-xs="wArt" data-id="${c.id}" aria-label="${esc(dw.name)}'s art for ${esc(c.name)}">${a?`<img src="${a}" alt="">`:`<span>${V.anim&&V.anim.ref?"▶":"✦"}</span>`}<small>ART</small></button>
-        <span style="flex:1;min-width:0"><b>${esc(V.name)}</b>${V.name!==c.name?` <small class="muted">(${esc(c.name)})</small>`:""}${c.worker&&c.worker!=="any"?` <span class="tag">only ${esc(dw.name)}</span>`:""}<br><small class="muted">${esc(xsEffects(c))}</small></span>
-        ${!FEATURES.deckBuilding?`<span class="muted" style="font-size:12px;white-space:nowrap">${n?`×${n} in deck`:`${esc(PL())} ${c.needLv||1}`}</span>`:`<span class="rowflex" style="gap:4px;flex-wrap:nowrap"><button class="btn ghost smallbtn" data-xs="deckMinus" data-id="${c.id}" ${n?"":"disabled"} aria-label="Remove one ${esc(c.name)}">−</button><b class="num" style="min-width:1.5em;text-align:center">${n}</b><button class="btn ghost smallbtn" data-xs="deckPlus" data-id="${c.id}" aria-label="Add one ${esc(c.name)}">+</button></span>`}</div>`; }).join("")}</div>
-      <div class="actions">${FEATURES.deckBuilding?`<button class="btn ghost" data-xs="deckReset">RESET TO STARTER DECK</button>`:""}<button class="btn" data-xs="newCardFor">+ CARD ONLY FOR ${esc(dw.name.toUpperCase())}</button></div>`:`<p class="empty">Hire someone first.</p>`}
-  </section>
-  <section class="panel"><h2><span>SERVICE PACKS</span><span></span></h2>${xferLink("Service pack import and export")}</section>`;
-}
-function xsRoomSheet(){
-  const r=S.xs.room; xsDraft={kind:"room",art:r.art,_orig:r.art}; const a=r.art&&resolveArt(r.art);
-  const T=(id,l,v,ph)=>`<div class="full"><label class="fl" for="${id}">${l}</label><textarea class="field" id="${id}" rows="2" maxlength="400" placeholder="${ph||""}">${esc(v||"")}</textarea></div>`;
-  openSheet(`<h3>THE ROOM</h3>
-  <form data-form="xsRoom" class="stack">
-    <div class="formgrid">
-      <div class="full"><label class="fl" for="xrName">Name (shows on the Shop page and in the minigame)</label><input class="field" id="xrName" maxlength="40" value="${esc(r.name)}"></div>
-      <div><label class="fl" for="xrLv">${esc(PL())} level needed</label><select class="field" id="xrLv">${[1,2,3,4,5].map(n=>`<option ${r.needLv===n?"selected":""}>${n}</option>`).join("")}</select></div>
-      <div><label class="fl" for="xrRounds">Rounds per run</label><input class="field num" id="xrRounds" type="number" min="1" max="10" value="${r.rounds}"></div>
-      <div><label class="fl" for="xrTurns">Extra turns per round</label><input class="field num" id="xrTurns" type="number" min="0" max="10" value="${r.baseTurns}"></div>
-      <div><label class="fl" for="xrCmin">Clients per round · min</label><input class="field num" id="xrCmin" type="number" min="1" max="6" value="${r.clientsMin}"></div>
-      <div><label class="fl" for="xrCmax">Clients per round · max</label><input class="field num" id="xrCmax" type="number" min="1" max="6" value="${r.clientsMax}"></div>
-      <div><label class="fl" for="xrTmin">♥ per client · min</label><input class="field num" id="xrTmin" type="number" min="1" max="999" value="${r.targetMin}"></div>
-      <div><label class="fl" for="xrTmax">♥ per client · max</label><input class="field num" id="xrTmax" type="number" min="1" max="999" value="${r.targetMax}"></div>
-      <div><label class="fl" for="xrPer">Tips per client ₵</label><input class="field num" id="xrPer" type="number" min="0" max="9999" value="${r.perClient}"></div>
-      <div><label class="fl" for="xrBonus">Clear-all bonus ₵</label><input class="field num" id="xrBonus" type="number" min="0" max="99999" value="${r.bonus}"></div>
-      <p class="hint full" style="margin:0">Each round gives one turn per client plus the extra turns. Later rounds add clients and ♥, and tip 25% more per round.</p>
-      <div><label class="fl" for="xrLw">${esc(PL())} gained for clearing a run</label><input class="field num" id="xrLw" type="number" min="0" max="20" value="${r.lwGain}"></div>
-      ${T("xrIntro","Line when the run starts",r.intro)}${T("xrWin","Line when every round is cleared",r.win)}${T("xrLose","Line when the run ends early",r.lose)}
-      <p class="hint full" style="margin:0">Use {w} for the worker, {c} for the client, {room} for the room name.</p>
-      <div class="full"><span class="fl">Background art</span><div class="rowflex"><div class="favthumb" id="xrArtPrev">${a?`<img src="${a}" alt="">`:`<span>▣</span>`}</div>
-        <label class="btn ghost" for="xrArt" style="text-align:center">${a?"REPLACE":"LOAD ART"}</label><input type="file" id="xrArt" class="srt" accept="image/*" data-up="xsroom">
-        ${a?`<button type="button" class="btn ghost" data-xs="clearDraftArt">REMOVE</button>`:""}</div></div>
-    </div>
-    <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">SAVE ROOM</button></div>
-  </form>`);
-}
-function xsCardSheet(c,forW){
-  const isNew=!c; c=c||{id:"",name:"",text:"",line:"",cost:1,pl:3,heat:0,draw:0,en:0,pat:0,tag:"",needLv:1,starter:0,exhaust:false,rooms:[],art:null,anim:null,worker:forW||""};
-  xsDraft={kind:"card",id:c.id,art:c.art,_orig:c.art,anim:c.anim,_origAnim:c.anim}; const a=c.art&&resolveArt(c.art), an=c.anim||{cols:4,rows:1,fps:8,loop:true};
-  const N=(id,l,v,mn,mx)=>`<div><label class="fl" for="${id}">${l}</label><input class="field num" id="${id}" type="number" min="${mn}" max="${mx}" value="${v|0}"></div>`;
-  openSheet(`<h3>${isNew?"NEW CARD":"EDIT CARD"}</h3>
-  <form data-form="xsCard" data-id="${c.id}" class="stack">
-    <div class="formgrid">
-      <div class="full"><label class="fl" for="xcName">Card name</label><input class="field" id="xcName" maxlength="40" value="${esc(c.name)}" required autocomplete="off"></div>
-      ${N("xcCost","Energy cost",c.cost,0,9)}${N("xcPl","♥ pleasure",c.pl,0,99)}${N("xcHeat","Heat added",c.heat,0,20)}${N("xcDraw","Draw cards",c.draw,0,5)}${N("xcEn","Energy back",c.en,0,5)}${N("xcPat","Extra turns",c.pat,0,3)}
-      <div><label class="fl" for="xcTag">Tag</label><select class="field" id="xcTag"><option value="">none</option>${S.xs.tags.map(t=>`<option ${c.tag===t?"selected":""}>${esc(t)}</option>`).join("")}</select></div>
-      <div><label class="fl" for="xcLv">${esc(PL())} level</label><select class="field" id="xcLv">${[1,2,3,4,5].map(n=>`<option ${(c.needLv||1)===n?"selected":""}>${n}</option>`).join("")}</select></div>
-      ${FEATURES.deckBuilding?N("xcStarter","Starter copies",c.starter,0,8)+N("xcPrice","Shop price ₵ (0 = auto)",c.price||0,0,9999):N("xcStarter","Copies in deck",Math.max(1,c.starter|0),1,8)}
-      <div><label class="fl" for="xcWorker">Only for</label><select class="field" id="xcWorker"><option value="">Everyone</option>${S.staff.map(w=>`<option value="${w.id}" ${c.worker===w.id?"selected":""}>${esc(w.name)}</option>`).join("")}</select></div>
-      <div><label class="fl" for="xcEx">Use</label><select class="field" id="xcEx"><option value="0">Reusable</option><option value="1" ${c.exhaust?"selected":""}>Once per round</option></select></div>
-      <div class="full"><span class="fl">Only for staff of (none = everyone)</span><div class="seg">${XS_SECS.map(s=>`<input type="checkbox" name="xcRoom" id="xcr-${s}" value="${s}" ${(c.rooms||[]).includes(s)?"checked":""}><label for="xcr-${s}">${s==="cafe"?"CAFÉ":s.toUpperCase()}</label>`).join("")}</div></div>
-      <div class="full"><label class="fl" for="xcText">Card text (optional)</label><input class="field" id="xcText" maxlength="80" value="${esc(c.text)}"></div>
-      <div class="full"><label class="fl" for="xcLine">Line when played</label><textarea class="field" id="xcLine" rows="2" maxlength="400" placeholder="{w} ... {c} ...">${esc(c.line)}</textarea></div>
-      <p class="hint full" style="margin:0">♥ = (pleasure + current heat), ×1.5 if the client likes the tag, ×0.5 if not. Heat halves at the end of each turn.</p>
-      <div class="full"><span class="fl">Card art (shows on the card and big on stage)</span><div class="rowflex"><div class="favthumb" id="xcArtPrev">${a?`<img src="${a}" alt="">`:`<span>✦</span>`}</div>
-        <label class="btn ghost" for="xcArt" style="text-align:center">${a?"REPLACE":"LOAD ART"}</label><input type="file" id="xcArt" class="srt" accept="image/*" data-up="xscard">
-        ${a?`<button type="button" class="btn ghost" data-xs="clearDraftArt">REMOVE</button>`:""}</div></div>
-      <div class="full"><span class="fl">Animation (sprite sheet, plays on stage instead of the art)</span>
-        <div class="formgrid"><div><label class="fl" for="xaCols">Across</label><input class="field num" id="xaCols" type="number" min="1" max="16" value="${an.cols}"></div><div><label class="fl" for="xaRows">Down</label><input class="field num" id="xaRows" type="number" min="1" max="8" value="${an.rows}"></div>
-        <div><label class="fl" for="xaFps">FPS</label><input class="field num" id="xaFps" type="number" min="1" max="30" value="${an.fps}"></div><div><label class="fl" for="xaLoop">Loop</label><select class="field" id="xaLoop"><option value="1">Yes</option><option value="0" ${an.loop===false?"selected":""}>No</option></select></div></div>
-        <div class="rowflex" style="margin-top:6px"><span class="muted" id="xcAnimState">${c.anim&&c.anim.ref?"Sheet loaded":"No sheet"}</span><label class="btn ghost" for="xcAnim" style="text-align:center">${c.anim&&c.anim.ref?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="xcAnim" class="srt" accept="image/*" data-up="xsanim">
-        ${c.anim&&c.anim.ref?`<button type="button" class="btn ghost" data-xs="clearDraftAnim">REMOVE</button>`:""}</div></div>
-    </div>
-    <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-xs="delCard" data-id="${c.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD CARD":"SAVE CARD"}</button></div>
-  </form>`);
-}
-function xsWorkerArtSheet(wid,cid){
-  const w=S.staff.find(x=>x.id===wid), c=xsCard(cid); if(!w||!c) return; const o=(w.xsArt&&w.xsArt[cid])||{};
-  xsDraft={kind:"wart",wid,cid,art:o.art||null,_orig:o.art||null,anim:o.anim||null,_origAnim:o.anim||null};
-  const a=o.art&&resolveArt(o.art), la=c.art&&resolveArt(c.art), an=o.anim||{cols:4,rows:1,fps:8,loop:true};
-  openSheet(`<h3>${esc(w.name.toUpperCase())} · ${esc(c.name.toUpperCase())}</h3>
-  <form data-form="xsWArt" class="stack">
-    <p class="hint" style="margin:0">${esc(w.name)}'s version of this card. Leave anything blank to use the library card. Stats stay the same for everyone.</p>
-    <div class="formgrid">
-      <div class="full"><label class="fl" for="xwName">Name for ${esc(w.name)}</label><input class="field" id="xwName" maxlength="40" value="${esc(o.name||"")}" placeholder="${esc(c.name)}"></div>
-      <div class="full"><label class="fl" for="xwLine">Line when ${esc(w.name)} plays it</label><textarea class="field" id="xwLine" rows="2" maxlength="400" placeholder="${esc(c.line||"{w} ...")}">${esc(o.line||"")}</textarea></div>
-      <div class="full"><span class="fl">${esc(w.name)}'s art</span><div class="rowflex"><div class="favthumb" id="xcArtPrev">${a?`<img src="${a}" alt="">`:la?`<img src="${la}" alt="" style="opacity:.35">`:`<span>✦</span>`}</div>
-        <label class="btn ghost" for="xwArt" style="text-align:center">${a?"REPLACE":"LOAD ART"}</label><input type="file" id="xwArt" class="srt" accept="image/*" data-up="xscard">
-        ${a?`<button type="button" class="btn ghost" data-xs="clearDraftArt">REMOVE</button>`:""}</div></div>
-      <div class="full"><span class="fl">${esc(w.name)}'s animation (sprite sheet)</span>
-        <div class="formgrid"><div><label class="fl" for="xaCols">Across</label><input class="field num" id="xaCols" type="number" min="1" max="16" value="${an.cols}"></div><div><label class="fl" for="xaRows">Down</label><input class="field num" id="xaRows" type="number" min="1" max="8" value="${an.rows}"></div>
-        <div><label class="fl" for="xaFps">FPS</label><input class="field num" id="xaFps" type="number" min="1" max="30" value="${an.fps}"></div><div><label class="fl" for="xaLoop">Loop</label><select class="field" id="xaLoop"><option value="1">Yes</option><option value="0" ${an.loop===false?"selected":""}>No</option></select></div></div>
-        <div class="rowflex" style="margin-top:6px"><span class="muted" id="xcAnimState">${o.anim&&o.anim.ref?"Sheet loaded":"No sheet"}</span><label class="btn ghost" for="xwAnim" style="text-align:center">${o.anim&&o.anim.ref?"REPLACE SHEET":"LOAD SHEET"}</label><input type="file" id="xwAnim" class="srt" accept="image/*" data-up="xsanim">
-        ${o.anim&&o.anim.ref?`<button type="button" class="btn ghost" data-xs="clearDraftAnim">REMOVE</button>`:""}</div></div>
-    </div>
-    <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">SAVE FOR ${esc(w.name.toUpperCase())}</button></div>
-  </form>`);
-}
-function xsUpload(t,file){
-  if(!xsDraft||!file) return; const up=t.dataset.up;
-  if(up==="xsroom"||up==="xscard") return bigArt(file,1000,async data=>{ if(xsDraft.art&&xsDraft.art!==xsDraft._orig) dropArt(xsDraft.art); xsDraft.art=await storeArt(data);
-    const pv=$(up==="xsroom"?"xrArtPrev":"xcArtPrev"); if(pv) pv.innerHTML=`<img src="${resolveArt(xsDraft.art)}" alt="">`; toast("Art loaded. Save to keep it."); });
-  if(up==="xsanim"){
-    const cols=Math.max(1,Math.min(16,+($("xaCols")||{}).value||4)), rows=Math.max(1,Math.min(8,+($("xaRows")||{}).value||1)), fps=Math.max(1,Math.min(30,+($("xaFps")||{}).value||8)), loop=($("xaLoop")||{}).value!=="0";
-    readImage(file).then(img=>{ const W=img.width||img.naturalWidth, H=img.height||img.naturalHeight, fw=W/cols, fh=H/rows, sc=Math.min(1,640/fw,640/fh,Math.sqrt(16e6/(W*H)));
-      const cv=document.createElement("canvas"); cv.width=Math.max(1,Math.round(W*sc)); cv.height=Math.max(1,Math.round(H*sc)); const g=cv.getContext("2d"); g.imageSmoothingEnabled=sc<1; g.imageSmoothingQuality="high"; g.drawImage(img,0,0,cv.width,cv.height);
-      let data=cv.toDataURL("image/png"); if(data.length>2.5e6) data=cv.toDataURL("image/webp",.9);
-      return storeArt(data).then(ref=>{ const old=xsDraft.anim&&xsDraft.anim.ref; if(old&&old!==(xsDraft._origAnim||{}).ref) dropArt(old); xsDraft.anim={ref,cols,rows,fps,loop}; const s=$("xcAnimState"); if(s) s.textContent=`${cols*rows} frames loaded`; toast("Sheet loaded. Save the card to keep it."); }); })
-    .catch(()=>toast(imgErr(file), true));
-  }
-}
-function xsSubmit(ev){
-  const f=ev.target; if(!f.dataset||!f.dataset.form||f.dataset.form.indexOf("xs")!==0) return; ev.preventDefault(); ev.stopImmediatePropagation();
-  const v=id=>($(id)||{}).value, n=(id,mn,mx,d)=>{ const q=Math.round(+v(id)); return isFinite(q)?Math.max(mn,Math.min(mx,q)):d; };
-  if(f.dataset.form==="xsRoom"){ const r=S.xs.room;
-    if(r.art&&r.art!==xsDraft.art) dropArt(r.art);
-    const cmin=n("xrCmin",1,6,1), tmin=n("xrTmin",1,999,8);
-    Object.assign(r,{name:(v("xrName")||"").trim()||r.name,needLv:+v("xrLv")||1,rounds:n("xrRounds",1,10,3),baseTurns:n("xrTurns",0,10,2),clientsMin:cmin,clientsMax:Math.max(cmin,n("xrCmax",1,6,3)),targetMin:tmin,targetMax:Math.max(tmin,n("xrTmax",1,999,16)),perClient:n("xrPer",0,9999,30),bonus:n("xrBonus",0,99999,60),lwGain:n("xrLw",0,20,0),
-      intro:v("xrIntro"),win:v("xrWin"),lose:v("xrLose"),art:xsDraft.art||null});
-    xsDraft=null; closeSheet(); commit(); toast("Room saved."); return; }
-  if(f.dataset.form==="xsWArt"){ const w=S.staff.find(x=>x.id===xsDraft.wid); if(!w) return; w.xsArt=w.xsArt||{}; const old=w.xsArt[xsDraft.cid]||{};
-    if(old.art&&old.art!==xsDraft.art) dropArt(old.art); if(old.anim&&old.anim.ref&&(!xsDraft.anim||xsDraft.anim.ref!==old.anim.ref)) dropArt(old.anim.ref);
-    const o={name:(v("xwName")||"").trim(),line:v("xwLine")||"",art:xsDraft.art||null,anim:xsDraft.anim||null};
-    if(o.name||o.line||o.art||o.anim) w.xsArt[xsDraft.cid]=o; else delete w.xsArt[xsDraft.cid];
-    xsDraft=null; closeSheet(); commit(); toast(`Saved ${w.name}'s version.`); return; }
-  if(f.dataset.form==="xsCard"){ const name=(v("xcName")||"").trim(); if(!name) return;
-    const o={name,cost:n("xcCost",0,9,0),pl:n("xcPl",0,99,0),heat:n("xcHeat",0,20,0),draw:n("xcDraw",0,5,0),en:n("xcEn",0,5,0),pat:n("xcPat",0,3,0),tag:v("xcTag")||"",needLv:+v("xcLv")||1,starter:n("xcStarter",0,8,0),exhaust:v("xcEx")==="1",
-      rooms:[...document.querySelectorAll('input[name="xcRoom"]:checked')].map(i=>i.value),price:$("xcPrice")?n("xcPrice",0,9999,0):(f.dataset.id&&xsCard(f.dataset.id)||{}).price||0,worker:v("xcWorker")||"",text:v("xcText")||"",line:v("xcLine")||"",art:xsDraft.art||null,anim:xsDraft.anim||null};
-    const ex=f.dataset.id&&xsCard(f.dataset.id);
-    if(ex){ if(ex.art&&ex.art!==o.art) dropArt(ex.art); if(ex.anim&&ex.anim.ref&&(!o.anim||o.anim.ref!==ex.anim.ref)) dropArt(ex.anim.ref); Object.assign(ex,o); }
-    else { const nc=Object.assign({id:uid()},o); S.xs.cards.push(nc); if(nc.worker){ const w=S.staff.find(x=>x.id===nc.worker); if(w) xsDeck(w).push(nc.id); } }
-    xsDraft=null; closeSheet(); commit(); toast(ex?"Card saved.":"Card added. Give it starter copies or let it show up as a reward."); }
-}
-document.addEventListener("submit",xsSubmit,true);
-function xsExport(){
-  const cards=S.xs.cards.map(c=>Object.assign({},c,{art:c.art?resolveArt(c.art):null,anim:c.anim&&c.anim.ref?Object.assign({},c.anim,{ref:resolveArt(c.anim.ref)}):null}));
-  const room=Object.assign({},S.xs.room,{art:S.xs.room.art?resolveArt(S.xs.room.art):null});
-  const workers={}; S.staff.forEach(w=>{ const o={}; Object.entries(w.xsArt||{}).forEach(([cid,v])=>{ o[cid]=Object.assign({},v,{art:v.art?resolveArt(v.art):null,anim:v.anim&&v.anim.ref?Object.assign({},v.anim,{ref:resolveArt(v.anim.ref)}):null}); }); if(Object.keys(o).length) workers[w.name]=o; });
-  cards.forEach(c=>{ if(c.worker){ const w=S.staff.find(x=>x.id===c.worker); c.workerName=w?w.name:""; } });
-  return JSON.stringify({type:"nightkettle-service",v:2,exported:new Date().toISOString(),settings:{energy:S.xs.energy,hand:S.xs.hand,tags:S.xs.tags,meter:Object.assign({},S.xs.meter,{val:0})},room,cards,workers});
-}
-async function xsImport(text){
-  let o; try{ o=JSON.parse(text); }catch(e){ toast("That isn't a service pack.", true); return; }
-  if(!o||o.type!=="nightkettle-service"||!Array.isArray(o.cards)){ toast("No service pack found in that file.", true); return; }
-  const store=async v=>typeof v==="string"&&v.indexOf("data:image")===0?await storeArt(v):null;
-  const idMap={}; let n=0;
-  const byName=nm=>S.staff.find(w=>w.name.toLowerCase()===String(nm||"").toLowerCase());
-  for(const raw of o.cards){ const c=Object.assign({},raw,{id:uid()}); { const w=raw.workerName&&byName(raw.workerName); c.worker=w?w.id:""; delete c.workerName; } idMap[raw.id]=c.id; c.art=await store(c.art); if(c.anim&&c.anim.ref){ const r=await store(c.anim.ref); c.anim=r?Object.assign({},c.anim,{ref:r}):null; } else c.anim=null; S.xs.cards.push(c); n++; }
-  let wn=0; if(o.workers) for(const [nm,map] of Object.entries(o.workers)){ const w=byName(nm); if(!w) continue; w.xsArt=w.xsArt||{}; wn++;
-    for(const [oldId,v] of Object.entries(map)){ const cid=idMap[oldId]; if(!cid) continue; const a=await store(v.art); let an=null; if(v.anim&&v.anim.ref){ const r2=await store(v.anim.ref); an=r2?Object.assign({},v.anim,{ref:r2}):null; } w.xsArt[cid]={name:v.name||"",line:v.line||"",art:a,anim:an}; } }
-  const rr=o.room||(o.rooms&&(o.rooms.club||o.rooms.cafe)); if(rr){ const r=Object.assign({},S.xs.room,rr); r.art=await store(rr.art)||S.xs.room.art; S.xs.room=r; }
-  if(o.settings){ ["energy","hand"].forEach(k=>{ if(o.settings[k]!=null) S.xs[k]=o.settings[k]; }); if(Array.isArray(o.settings.tags)) S.xs.tags=o.settings.tags; if(o.settings.meter) S.xs.meter=Object.assign({},S.xs.meter,o.settings.meter,{val:S.xs.meter.val}); }
-  addLog(`Imported a service pack: ${n} card${n===1?"":"s"}.`,"build"); commit(); toast(`Imported ${n} card${n===1?"":"s"} and the room${wn?`, plus art for ${wn} worker${wn===1?"":"s"}`:""}.`);
-}
-document.addEventListener("click",ev=>{
-  const b=ev.target.closest("[data-xs]"); if(!b) return; const a=b.dataset.xs, id=b.dataset.id;
-  const two=()=>{ if(xsArm!==a+id){ xsArm=a+id; b.textContent="TAP AGAIN"; return false; } xsArm=null; return true; };
-  switch(a){
-    case "work": { if(!glReady()) return; const w=S.staff.find(x=>x.id===id); if(!w) return; if(progLevel(w)<S.xs.room.needLv){ toast(`${w.name} needs ${PL()} ${S.xs.room.needLv}.`, true); return; }
-      S.xs.meter.val=0; save(); xsStart(w,false); break; }
-    case "fillBar": S.xs.meter.val=S.xs.meter.max; commit(); break;
-    case "toggle": S.xs.on=!S.xs.on; commit(); break;
-    case "editRoom": xsRoomSheet(); break;
-    case "test": { const w=S.staff.find(x=>x.id===xsDevWorker)||S.staff[0]; if(!w) return; xsStart(w,true); break; }
-    case "newCard": xsCardSheet(null); break;
-    case "newCardFor": xsCardSheet(null,xsDevWorker); break;
-    case "wArt": xsWorkerArtSheet(xsDevWorker,id); break;
-    case "editCard": xsCardSheet(xsCard(id)); break;
-    case "delCard": { if(!two()) return; const c=xsCard(id); if(c){ dropArt(c.art); if(c.anim) dropArt(c.anim.ref); } S.xs.cards=S.xs.cards.filter(x=>x.id!==id); S.staff.forEach(w=>{ if(Array.isArray(w.deck)) w.deck=w.deck.filter(x=>x!==id); if(w.xsArt&&w.xsArt[id]){ dropArt(w.xsArt[id].art); if(w.xsArt[id].anim) dropArt(w.xsArt[id].anim.ref); delete w.xsArt[id]; } }); xsDraft=null; closeSheet(); commit(); break; }
-    case "clearDraftArt": if(xsDraft){ if(xsDraft.art&&xsDraft.art!==xsDraft._orig) dropArt(xsDraft.art); xsDraft.art=null; const pv=$("xrArtPrev")||$("xcArtPrev"); if(pv) pv.innerHTML="<span>✦</span>"; b.remove(); } break;
-    case "clearDraftAnim": if(xsDraft){ xsDraft.anim=null; const s=$("xcAnimState"); if(s) s.textContent="No sheet"; b.remove(); } break;
-    case "deckWorker": xsDevWorker=id; render(); break;
-    case "deckPlus": { const w=S.staff.find(x=>x.id===xsDevWorker); if(!w) return; const d=xsDeck(w); if(d.length>=40){ toast("Decks max out at 40 cards.", true); return; } d.push(id); commit(); break; }
-    case "deckMinus": { const w=S.staff.find(x=>x.id===xsDevWorker); if(!w) return; const d=xsDeck(w); if(d.length<=1){ toast("A deck needs at least one card.", true); return; } const i=d.lastIndexOf(id); if(i>=0) d.splice(i,1); commit(); break; }
-    case "deckReset": { if(!two()) return; const w=S.staff.find(x=>x.id===xsDevWorker); if(w){ w.deck=xsStarter(w); commit(); toast(`${w.name}'s deck reset.`); } break; }
-    case "export": if(!downloadText("nightkettle-service.json",xsExport())) toast("Downloads are blocked here. Use Copy as text.", true); break;
-    case "copyPack": { const t=xsExport(), ta=$("xsPackText"); if(ta) ta.value=t; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Pack copied.")).catch(()=>{ if(ta) ta.select(); toast("Copy the pack from the box.", true); }); break; }
-    case "importText": { const t=($("xsPackText")||{}).value||""; if(t.trim()) xsImport(t); break; }
-  }
-});
-document.addEventListener("change",ev=>{ const t=ev.target;
-  if(t.id==="xsEnergy"){ S.xs.energy=Math.max(1,Math.min(9,+t.value||3)); save(); }
-  if(t.id==="xsHand"){ S.xs.hand=Math.max(1,Math.min(9,+t.value||5)); save(); }
-  if(t.id==="xsTags"){ S.xs.tags=[...new Set(t.value.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean))].slice(0,12); commit(); }
-  if(t.id==="xsPackFile"&&t.files&&t.files[0]){ const r=new FileReader(); r.onload=()=>xsImport(String(r.result)); r.readAsText(t.files[0]); t.value=""; }
-});
-document.addEventListener("change",ev=>{ const t=ev.target, M=S.xs&&S.xs.meter, k={glMax:"max",glTask:"task",glVip:"vip",glHabit:"habit",glWin:"win"}[t.id]; if(!k||!M) return;
-  M[k]=Math.max(k==="max"?10:0,Math.min(1000,Math.round(+t.value||0))); if(M.val>M.max) M.val=M.max; commit(); });
-
-/* ================= CHARM MOVES: named moves, per-employee art slots, gallery ================= */
-function defaultCharm(){ const M=(id,name,tip,chance,needLv,lwGain,act,yes,no)=>({id,name,tip,chance,needLv,lwGain,act,yes,no});
-  return {moves:[
-    M("wink","Wink",25,95,1,0,"{w} catches {c}'s eye and winks.","Oh. Hi.","...Was that at me?"),
-    M("compliment","Compliment",35,85,1,0,"{w} leans in: \"You look great today, {c}.\"","Stop it. Okay, don't stop.","Uh, thanks. I guess."),
-    M("tease","Tease",50,75,2,0,"{w} plays coy with {c}, all smiles.","You're trouble, you know that?","Not my thing, sorry."),
-    M("flash","Flash",80,60,3,1,"{w} gives {c} a quick little show.","I... need a minute.","Whoa. Okay. Wrong moment.")
-  ]}; }
-function charmMigrate(o){ const d=defaultCharm(); if(!o.charm||!Array.isArray(o.charm.moves)||!o.charm.moves.length) o.charm=d; }
-const charmMove=id=>S.charm.moves.find(m=>m.id===id);
-function charmOdds(w,m){ return Math.max(5,Math.min(98,Math.round((m.chance||50)+((w.charm||1)-1)*5))); }
-function charmArtFor(w,id){ const r=(w.charmArts&&w.charmArts[id])||w.charmArt; return r?resolveArt(r):null; }
-
-/* ---------- at the counter ---------- */
-function charmAllowed(){ return srv.sec==="cafe"||srv.sec==="club"||perkOf(srv.worker)==="entertain"; }
-function charmButton(){
-  if(!FEATURES.charm||!charmAllowed()||srv.result) return "";
-  const w=srv.worker, left=charmMax(w)-charmUsed(w);
-  return `<button class="btn charmbtn" data-act="charmPick" style="flex:1" aria-expanded="${!!srv.charmPick}" ${srv.charmed||left<=0?"disabled":""}>✦ CHARM · ${Math.max(0,left)} LEFT</button>`;
-}
-function charmPicker(){
-  if(!FEATURES.charm) return "";
-  if(!srv.charmPick||srv.charmed||srv.result||!charmAllowed()) return ""; const w=srv.worker, lv=progLevel(w);
-  return `<div class="charmpick" role="group" aria-label="Charm moves">${S.charm.moves.map(m=>{ const lock=lv<(m.needLv||1), a=charmArtFor(w,m.id);
-    return `<button class="cmove" data-act="charmMove" data-id="${m.id}" ${lock?"disabled":""}>${a?`<img src="${a}" alt="">`:`<span class="ci" aria-hidden="true">✦</span>`}
-      <b>${esc(m.name)}</b><small>${lock?`${esc(PL())} ${m.needLv} needed`:`+${m.tip}% tip · ${charmOdds(w,m)}%`}</small></button>`; }).join("")}</div>`;
-}
-function doCharmMove(id,ev){
-  const w=srv.worker, C=srv.cust, m=charmMove(id); if(!m||srv.charmed||srv.result) return;
-  if(progLevel(w)<(m.needLv||1)){ toast(`${w.name} needs ${PL()} ${m.needLv} for ${m.name}.`, true); return; }
-  if(charmUsed(w)>=charmMax(w)){ toast(`${w.name} is out of charm for today.`, true); return; }
-  const d=serveDay(); d.charm=d.charm||{}; d.charm[w.id]=(d.charm[w.id]||0)+1;
-  const ok=Math.random()*100<charmOdds(w,m), f=s=>fillT(s||"",{w:w.name,c:C.name});
-  srv.charmed=true; srv.charmPick=false; srv.charmMove=m.id; srv.charmFlash=performance.now();
-  if(ok){ srv.tipMod+=(m.tip||0)/100; srv.showCharmArt=!!charmArtFor(w,m.id); if(m.lwGain) gainProg(w,m.lwGain); }
-  else { srv.tipMod-=.1; srv.showCharmArt=false; }
-  srv.step=srv.lines.length-1; srv.typed=srv.lines[srv.step].text.length;
-  pushLines([{who:"n",text:f(m.act)||`${w.name} tries a ${m.name.toLowerCase()}.`},{who:"c",text:f(ok?m.yes:m.no)||(ok?"Wow.":"Hm.")}]);
-  pop(ev,ok?`✦ +${m.tip}% TIP`:"MISSED",ok?"#ff8cc4":"var(--bad)"); beep(ok?1320:300); if(ok) setTimeout(()=>beep(1760),110);
-  save(); renderServe();
-}
-function charmCG(){
-  if(!srv.showCharmArt||!srv.charmMove) return ""; const a=charmArtFor(srv.worker,srv.charmMove); if(!a) return "";
-  return `<button class="cgbtn" data-act="hideCharmArt" aria-label="Hide charm art"><img class="cg" src="${a}" alt=""></button>`;
-}
-
-/* ---------- Dev: gallery per employee + moves editor ---------- */
-function charmGallery(p){
-  const slots=[["general","General · fallback"],...S.charm.moves.map(m=>[m.id,m.name])];
-  return `<section class="panel"><h2><span>CHARM ART</span><span>${esc(p.name.toUpperCase())}</span></h2>
-    <p class="hint" style="margin:0 0 8px">One slot per charm move. A move with no art of its own uses the General slot. Tap a picture to view it full size.</p>
-    <div class="cgal">${slots.map(([id,label])=>{ const ref=id==="general"?p.charmArt:(p.charmArts||{})[id], a=ref&&resolveArt(ref), fid=`cs-${id}-${p.id}`;
-      return `<div class="cslot">${a?`<button class="cthumb" data-act="viewCharm" data-id="${p.id}:${id}" aria-label="View ${esc(label)} art"><img src="${a}" alt=""></button>`:`<div class="cthumb empty"><span>✦</span></div>`}
-        <b>${esc(label)}</b>
-        <div class="rowflex" style="gap:4px"><label class="btn ghost smallbtn" for="${fid}" style="text-align:center">${a?"REPLACE":"LOAD"}</label><input type="file" id="${fid}" class="srt" accept="image/*" data-up="charmslot" data-id="${p.id}" data-kind="${id}">
-        ${a?`<button class="btn ghost smallbtn" data-act="clearCharmSlot" data-id="${p.id}:${id}">✕</button>`:""}</div></div>`; }).join("")}</div>
-  </section>`;
-}
-function charmMovesPanel(){
-  return `<section class="panel"><h2><span>CHARM MOVES</span><span>ALL STAFF</span></h2>
-    <p class="hint" style="margin:0 0 8px">Moves show at the counter when you tap Charm. Each uses one charm for the day. The chance shown rises 5% per Charm point.</p>
-    <div class="list">${S.charm.moves.map(m=>`<div class="favrow"><div class="favthumb"><span>✦</span></div><button class="info" data-act="editCharmMove" data-id="${m.id}"><span class="nm">${esc(m.name)}</span>
-      <span class="meta"><span>+${m.tip}% tip</span><span>${m.chance}% base</span><span class="tag">${esc(PL())} ${m.needLv}+</span>${m.lwGain?`<span>+${m.lwGain} ${esc(PL())}</span>`:""}</span></button></div>`).join("")}</div>
-    <div class="actions">${S.charm.moves.length<8?`<button class="btn solid" data-act="newCharmMove">+ NEW MOVE</button>`:""}</div></section>`;
-}
-function charmMoveSheet(m){
-  const isNew=!m; m=m||{id:"",name:"",tip:40,chance:80,needLv:1,lwGain:0,act:"",yes:"",no:""};
-  const T=(id,l,v,ph)=>`<div class="full"><label class="fl" for="${id}">${l}</label><textarea class="field" id="${id}" rows="2" maxlength="300" placeholder="${ph}">${esc(v||"")}</textarea></div>`;
-  openSheet(`<h3>${isNew?"NEW CHARM MOVE":"EDIT "+esc(m.name.toUpperCase())}</h3>
-  <form data-form="charmMove" data-id="${m.id}" class="stack"><div class="formgrid">
-    <div class="full"><label class="fl" for="cmName">Move name</label><input class="field" id="cmName" maxlength="20" value="${esc(m.name)}" placeholder="Flash" required autocomplete="off"></div>
-    <div><label class="fl" for="cmTip">Tip bonus %</label><input class="field num" id="cmTip" type="number" min="0" max="300" value="${m.tip}"></div>
-    <div><label class="fl" for="cmChance">Base chance %</label><input class="field num" id="cmChance" type="number" min="5" max="100" value="${m.chance}"></div>
-    <div><label class="fl" for="cmLv">${esc(PL())} level needed</label><select class="field" id="cmLv">${[1,2,3,4,5].map(n=>`<option ${m.needLv===n?"selected":""}>${n}</option>`).join("")}</select></div>
-    <div><label class="fl" for="cmLw">${esc(PL())} gained</label><input class="field num" id="cmLw" type="number" min="0" max="10" value="${m.lwGain||0}"></div>
-    ${T("cmAct","What happens",m.act,"{w} ... {c}")}${T("cmYes","Client reaction when it lands",m.yes,"")}${T("cmNo","Client reaction when it misses",m.no,"")}
-    <p class="hint full" style="margin:0">Use {w} for the worker and {c} for the client. A miss costs 10% of the tip.</p></div>
-    <div class="actions">${isNew?"":`<button type="button" class="btn danger" data-act="delCharmMove" data-id="${m.id}">DELETE</button>`}<button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"ADD":"SAVE"}</button></div>
-  </form>`);
-}
-function charmSubmit(ev){
-  const f=ev.target; if(!f.dataset||f.dataset.form!=="charmMove") return; ev.preventDefault(); ev.stopImmediatePropagation();
-  const v=id=>($(id)||{}).value, n=(id,a,b)=>Math.max(a,Math.min(b,Math.round(+v(id)||0))), name=(v("cmName")||"").trim().slice(0,20); if(!name) return;
-  const o={name,tip:n("cmTip",0,300),chance:n("cmChance",5,100),needLv:+v("cmLv")||1,lwGain:n("cmLw",0,10),act:v("cmAct"),yes:v("cmYes"),no:v("cmNo")};
-  const m=f.dataset.id&&charmMove(f.dataset.id); if(m) Object.assign(m,o); else S.charm.moves.push(Object.assign({id:"m"+uid().slice(0,6)},o));
-  closeSheet(); commit(); toast(m?"Move saved.":"Move added. Load art for it per employee in Dev › Workers.");
-}
-document.addEventListener("submit",charmSubmit,true);
-function charmSlotUpload(file,wid,slot){
-  const w=S.staff.find(x=>x.id===wid); if(!w||!file) return;
-  bigArt(file,900,async data=>{ const ref=await storeArt(data);
-    if(slot==="general"){ dropArt(w.charmArt); w.charmArt=ref; } else { w.charmArts=w.charmArts||{}; dropArt(w.charmArts[slot]); w.charmArts[slot]=ref; }
-    commit(); toast("Charm art loaded."); });
-}
-function charmView(wid,slot){
-  const w=S.staff.find(x=>x.id===wid); if(!w) return; const ref=slot==="general"?w.charmArt:(w.charmArts||{})[slot], a=ref&&resolveArt(ref); if(!a) return;
-  const m=charmMove(slot), slots=["general",...S.charm.moves.map(x=>x.id)].filter(s=>{ const r=s==="general"?w.charmArt:(w.charmArts||{})[s]; return !!r; }), i=slots.indexOf(slot);
-  openSheet(`<h3>${esc(w.name.toUpperCase())} · ${esc(m?m.name.toUpperCase():"GENERAL")}</h3>
-    <img src="${a}" alt="" class="cview">
-    <div class="actions">${slots.length>1?`<button class="btn ghost" data-act="viewCharm" data-id="${wid}:${slots[(i-1+slots.length)%slots.length]}">‹ PREV</button><button class="btn ghost" data-act="viewCharm" data-id="${wid}:${slots[(i+1)%slots.length]}">NEXT ›</button>`:""}<button class="btn solid" data-act="close">CLOSE</button></div>`);
-}
-
 /* ================= JOBS: several per venue, roster, employee import/export ================= */
 const PERKS={
   service:{label:"Counter specialist",desc:"+1 hint a day, and sometimes saves a Close into a Perfect"},
   tips:{label:"Money handler",desc:"+20% tips on every client they serve"},
-  entertain:{label:"Entertainer",desc:"Clients ask favors twice as often, and favors give +1 extra progression"}
+  entertain:{label:"Entertainer",desc:"Clients ask favors twice as often"}
 };
 const VENUE_CAP=8;
 function defaultJobs(){ return {
   cafe:[{id:"cashier",name:"Cashier",perk:"tips"},{id:"barista",name:"Barista",perk:"service"},{id:"cafe_ent",name:"Entertainer",perk:"entertain"}],
   books:[{id:"clerk",name:"Clerk",perk:"tips"},{id:"bookseller",name:"Bookseller",perk:"service"},{id:"books_ent",name:"Entertainer",perk:"entertain"}],
   bar:[{id:"server",name:"Server",perk:"tips"},{id:"bartender",name:"Bartender",perk:"service"},{id:"bar_ent",name:"Entertainer",perk:"entertain"}],
-  club:[{id:"host",name:"Host",perk:"tips"},{id:"dancer",name:"Dancer",perk:"service"},{id:"club_ent",name:"VIP Entertainer",perk:"entertain"}]}; }
+  club:[{id:"host",name:"Host",perk:"tips"},{id:"dancer",name:"Performer",perk:"service"},{id:"club_ent",name:"VIP Host",perk:"entertain"}]}; }
+/* the night floor is the Lounge now: rename the old club job titles in saves (ids and who holds them stay the same) */
+function clubMigrate(o){ const js=o.jobs&&o.jobs.club; if(Array.isArray(js)) js.forEach(j=>{ if(j.name==="Dancer") j.name="Performer"; if(j.name==="VIP Entertainer") j.name="VIP Host"; }); }
 function jobsMigrate(o){
   const d=defaultJobs(); if(!o.jobs||typeof o.jobs!=="object") o.jobs=d;
   Object.keys(d).forEach(v=>{ if(!Array.isArray(o.jobs[v])||!o.jobs[v].length) o.jobs[v]=d[v]; });
@@ -7327,7 +6498,6 @@ function empSheet(w,venue){
       <div><label class="fl" for="empTrait">Trait</label><select class="field" id="empTrait">${Object.entries(TRAITS).map(([k,T])=>`<option value="${k}" ${w.trait===k?"selected":""}>${esc(T.name)}</option>`).join("")}</select></div>
       ${fskEditorHTML(isNew?null:w)}
       ${isHired(w)&&!isNew?"":`<div class="full"><label class="fl" for="empCost">Hire cost ₵ (0 = automatic)</label><input class="field num" id="empCost" type="number" min="0" max="999999" value="${w.cost||0}"></div>`}
-      <div class="full"><label class="fl" for="empLw">${esc(PL())} points <span class="muted">(levels at ${S.prog.need.slice(1).join(" / ")}; no way to earn yet, set it here)</span></label><input class="field num" id="empLw" type="number" min="0" max="9999" value="${w.lw||0}"></div>
     </div>
     ${isNew?`<p class="hint" style="margin:0">After saving, their editor opens below: faces, outfits, animations and the counter position.</p>`:""}
     <div class="actions"><button type="button" class="btn ghost" data-act="close">CANCEL</button><button type="submit" class="btn solid">${isNew?"CREATE":"SAVE"}</button></div>
@@ -7337,7 +6507,7 @@ function empSubmit(ev){
   const f=ev.target; if(!f.dataset||f.dataset.form!=="emp") return; ev.preventDefault(); ev.stopImmediatePropagation();
   const v=id=>($(id)||{}).value, name=(v("empName")||"").trim().slice(0,16); if(!name) return;
   const [role,job]=(v("empJob")||"cafe:").split(":"), id=f.dataset.id, w=id&&S.staff.find(x=>x.id===id);
-  const o={name,role,job,skill:+v("empSkill")||1,charm:+v("empCharm")||1,persona:v("empPersona"),trait:v("empTrait"),lw:Math.max(0,Math.round(+v("empLw")||0))};
+  const o={name,role,job,skill:+v("empSkill")||1,charm:+v("empCharm")||1,persona:v("empPersona"),trait:v("empTrait")};
   if($("empCost")) o.cost=Math.max(0,Math.round(+v("empCost")||0));
   o.base={skill:o.skill,charm:o.charm};
   const art=empDraft&&empDraft.art||null, ed=fskEditorRead();
@@ -7663,7 +6833,7 @@ function floorRollback(){
   let o; try{ o=JSON.parse(localStorage.getItem(FLOOR_BACKUP)||"null"); }catch(e){ o=null; }
   if(!o||!Array.isArray(o.habits)){ toast("No rollback backup on this device.", true); return; }
   o.floors={v:1,keep:true,bar:{open:true,at:today()},club:{open:true,at:today()}};
-  S=migrate(o); applyLines(); if(typeof applyAdult==="function") applyAdult(); closeSheet(); commit();
+  S=migrate(o); closeSheet(); commit();
   addLog("Rolled back to the save from before floors were locked. Both floors stay open.","build"); toast("Rolled back. The Bar and the "+SEC_NAME.club+" stay open on this save.");
 }
 
@@ -7746,12 +6916,24 @@ function taskDockHTML(){
 }
 /* remember where Tasks was opened from */
 { const _render=render; render=function(){ if(tab==="shop"||tab==="upgrade") taskBackTab=tab; return _render.apply(this,arguments); }; }
-document.addEventListener("click",ev=>{ const b=ev.target.closest('[data-act="taskBack"]'); if(!b) return; tab=taskBackTab||"shop"; render(); window.scrollTo(0,0); });
+document.addEventListener("click",ev=>{ const b=ev.target.closest('[data-act="taskBack"]'); if(!b) return; window.scrollTo(0,0); tab=taskBackTab||"shop"; render(); });
+
+/* keep the pill on the real bottom edge. iPhone home-screen apps can leave fixed bars drawn too high
+   after the page height changes; if the visible screen ends below where the bar is drawn, push it back down. */
+function taskDockPin(){
+  const nav=document.querySelector(".tabs"); if(!nav) return;
+  const vv=window.visualViewport; let gap=0;
+  if(vv&&document.body.classList.contains("taskdock")) gap=Math.round(vv.offsetTop+vv.height-window.innerHeight);   /* >0: bar sits above the visible bottom */
+  nav.style.transform=gap>1&&gap<240?`translateY(${gap}px)`:"";
+}
+if(window.visualViewport){ visualViewport.addEventListener("resize",taskDockPin); visualViewport.addEventListener("scroll",taskDockPin); }
+window.addEventListener("scroll",taskDockPin,{passive:true}); window.addEventListener("orientationchange",()=>setTimeout(taskDockPin,300));
+{ const _render2=render; render=function(){ const r=_render2.apply(this,arguments); taskDockPin(); requestAnimationFrame(taskDockPin); setTimeout(taskDockPin,250); return r; }; }
 
 /* ---------- boot ---------- */
 let lastDay, lastSide;
 async function boot(){
-  loadState(); applyLines(); applyAdult();
+  loadState();
   lastDay=today(); lastSide=clockSide();
   render();
   const ok=await ArtDB.open(); if(ok){ await ArtDB.loadAll(); render(); }
