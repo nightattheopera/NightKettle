@@ -920,6 +920,9 @@ body.taskdock main{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
 body.taskdock .tmain{padding-bottom:12px}
 body.taskdock .fab{bottom:calc(84px + env(safe-area-inset-bottom));border-radius:50%}
 body.taskdock .edgepill{bottom:calc(84px + env(safe-area-inset-bottom))}
+/* iPhone home-screen apps put fixed bars at the end of a short page instead of the screen bottom:
+   on Tasks the page is always at least the full screen tall (+1px so it always counts as scrollable) */
+body.taskdock #app{min-height:calc(100vh + 1px);min-height:calc(100lvh + 1px)}
 
 </style>
 </head>
@@ -4614,7 +4617,7 @@ document.addEventListener("click",ev=>{
   if(!["delCharmMove","delBad","undoBad","ssClear","ssDel","ssNew","zeroCreds","undoWin","delWin","delList","delHabit","delTask","delBucket","delFavor","delMoney","purgeArt","hire","fire"].includes(act)) armed=null;
   const twoTap=(label)=>{ if(armed!==act+id){ armed=act+id; el.textContent=label||"TAP AGAIN"; return false; } armed=null; return true; };
   switch(act){
-    case "tab": if(id==="favors"){ devSub="favors"; tab="dev"; render(); window.scrollTo(0,0); break; } if(id==="today") taskView="today"; if(id==="save") taskView="savings"; tab=id==="today"||id==="save"?"tasks":id==="build"?"upgrade":id; peek=null; render(); window.scrollTo(0,0); break;
+    case "tab": if(id==="favors"){ devSub="favors"; tab="dev"; render(); window.scrollTo(0,0); break; } if(id==="today") taskView="today"; if(id==="save") taskView="savings"; tab=id==="today"||id==="save"?"tasks":id==="build"?"upgrade":id; peek=null; window.scrollTo(0,0); render(); break;
     case "habit": toggleHabit(id,ev); break;
     case "task": toggleTask(id,ev); break;
     case "newHabit": habitSheet(null); break;
@@ -4629,7 +4632,7 @@ document.addEventListener("click",ev=>{
     case "editTask": taskSheet(S.tasks.find(t=>t.id===id)); break;
     case "delHabit": if(!twoTap()) return; S.habits=S.habits.filter(h=>h.id!==id); closeSheet(); commit(); break;
     case "delTask": if(!twoTap()) return; S.tasks=S.tasks.filter(t=>t.id!==id); closeSheet(); commit(); break;
-    case "taskView": taskView=id; render(); window.scrollTo(0,0); break;
+    case "taskView": window.scrollTo(0,0); taskView=id; render(); break;   /* scroll first: on iPhone, shrinking the page while scrolled leaves fixed bars drawn too high */
     case "taskFilter": taskFilter=id; render(); break;
     case "hireRandom": S.hireRandom=!S.hireRandom; commit(); break;
     case "bgOffer": S.bgOffer=S.bgOffer===false; commit(); toast(S.bgOffer?"Background removal will open on import.":"Images import as-is now."); break;
@@ -6913,7 +6916,19 @@ function taskDockHTML(){
 }
 /* remember where Tasks was opened from */
 { const _render=render; render=function(){ if(tab==="shop"||tab==="upgrade") taskBackTab=tab; return _render.apply(this,arguments); }; }
-document.addEventListener("click",ev=>{ const b=ev.target.closest('[data-act="taskBack"]'); if(!b) return; tab=taskBackTab||"shop"; render(); window.scrollTo(0,0); });
+document.addEventListener("click",ev=>{ const b=ev.target.closest('[data-act="taskBack"]'); if(!b) return; window.scrollTo(0,0); tab=taskBackTab||"shop"; render(); });
+
+/* keep the pill on the real bottom edge. iPhone home-screen apps can leave fixed bars drawn too high
+   after the page height changes; if the visible screen ends below where the bar is drawn, push it back down. */
+function taskDockPin(){
+  const nav=document.querySelector(".tabs"); if(!nav) return;
+  const vv=window.visualViewport; let gap=0;
+  if(vv&&document.body.classList.contains("taskdock")) gap=Math.round(vv.offsetTop+vv.height-window.innerHeight);   /* >0: bar sits above the visible bottom */
+  nav.style.transform=gap>1&&gap<240?`translateY(${gap}px)`:"";
+}
+if(window.visualViewport){ visualViewport.addEventListener("resize",taskDockPin); visualViewport.addEventListener("scroll",taskDockPin); }
+window.addEventListener("scroll",taskDockPin,{passive:true}); window.addEventListener("orientationchange",()=>setTimeout(taskDockPin,300));
+{ const _render2=render; render=function(){ const r=_render2.apply(this,arguments); taskDockPin(); requestAnimationFrame(taskDockPin); setTimeout(taskDockPin,250); return r; }; }
 
 /* ---------- boot ---------- */
 let lastDay, lastSide;
