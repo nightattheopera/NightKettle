@@ -981,6 +981,24 @@ body.edgeopen .tabs,body.edgeopen .fab{display:none}
 .sszoom{display:inline-flex;align-items:center;gap:4px}.sszoom b{font-family:var(--pixel);font-size:10px;min-width:2.2em;text-align:center}
 .bgxnote{margin:4px 12px 0;font-size:13px;color:var(--dim)}
 
+/* ---------- Tasks: floating pill dock ---------- */
+body.taskdock .tabs{background:linear-gradient(to top,var(--bg) 55%,transparent);border-top:0;padding:18px 12px calc(12px + env(safe-area-inset-bottom));pointer-events:none}
+.tabs .in.pilldock{pointer-events:auto;display:flex;align-items:center;gap:4px;max-width:440px;margin:0 auto;padding:6px;border-radius:999px;background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.6);-webkit-mask-image:none;mask-image:none}
+.pd{position:relative;flex:1 1 0;min-width:0;height:52px;border:0;border-radius:999px;background:none;color:var(--dim);display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;padding:0 8px;transition:flex-grow .25s ease,background-color .2s,color .2s,box-shadow .2s}
+.pd svg{width:26px;height:26px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pd svg .f{fill:currentColor;stroke:none}
+.pd.back{flex:0 0 40px;padding:0}
+.pd.on{flex-grow:3.2;background:rgba(255,255,255,.07);color:var(--accent);box-shadow:0 0 16px var(--glow),inset 0 0 0 1px color-mix(in srgb,var(--accent) 40%,transparent)}
+.pd .pdl{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);white-space:nowrap}
+.pd .pdb{position:absolute;top:3px;right:calc(50% - 25px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:var(--bg);font:700 11px/18px var(--display);text-align:center}
+.pd.on .pdb{top:-2px;right:6px}
+.pd:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.pd{transition:none}}
+body.taskdock main{padding-bottom:calc(170px + env(safe-area-inset-bottom))}
+body.taskdock .tmain{padding-bottom:12px}
+body.taskdock .fab{bottom:calc(96px + env(safe-area-inset-bottom));border-radius:50%}
+body.taskdock .edgepill{bottom:calc(96px + env(safe-area-inset-bottom))}
+
 </style>
 </head>
 <body class="night">
@@ -3877,9 +3895,8 @@ function vTasks(){
   if(MAP[taskView]){ if(["scheduled","someday","repeat"].includes(taskView)) taskFilter={scheduled:"upcoming",someday:"someday",repeat:"repeat"}[taskView]; taskView=MAP[taskView]; }
   if(taskView.indexOf("list:")===0){ taskFilter=taskView; taskView="tasks"; }
   if(!["today","tasks","habits","week","savings"].includes(taskView)) taskView="today";
-  const seg=[["today","Today",todayLeft()],["tasks","Tasks",openTasks().length],["habits","Habits",habitsDueOpen().length],["savings","Savings",depositDue()?"$":0]];
-  const head=taskView==="week"?`<div class="todayhd"><button class="linkbtn" data-act="taskView" data-id="today">‹ Back to today</button><span>Weekly review</span></div>`
-    :`<div class="tseg" role="tablist">${seg.map(([id,l,n])=>`<button role="tab" class="${taskView===id?"on":""}" aria-selected="${taskView===id}" data-act="taskView" data-id="${id}">${l}${n?` <b>${n}</b>`:""}</button>`).join("")}</div>`;
+  /* section switching lives in the floating dock (taskdock.js); only the weekly review has its own header */
+  const head=taskView==="week"?`<div class="todayhd"><button class="linkbtn" data-act="taskView" data-id="today">‹ Back to today</button><span>Weekly review</span></div>`:"";
   const body=taskView==="today"?todayBody():taskView==="tasks"?vTasksTab():taskView==="habits"?vHabitsTab():taskView==="savings"?vSavingsSeg():vWeek();
   return `<section class="panel tmain">${head}${body}</section>${taskView!=="week"&&taskView!=="savings"?`<button class="fab" data-act="fab" aria-label="${taskView==="habits"?"Add a habit or daily":"Add a task"}">+</button>`:""}`;
 }
@@ -7699,6 +7716,37 @@ function floorsDevPanel(){
     <div class="spread" style="align-items:center;gap:10px;margin-top:10px"><label for="fNight">Café + bookshop tips at night, before the Bar opens (%)</label><input class="field num" id="fNight" type="number" min="0" max="100" style="width:5em" value="${Math.round(nightTipPct()*100)}" data-floorcfg="all:nightTip"></div>
     <div class="actions"><button class="btn ghost" data-floor="devReset">RESET TO DEFAULTS</button></div>
   </section>`; }
+
+/* ================= TASKS DOCK: while Tasks is open, a floating pill replaces the bottom tabs =================
+   ‹ Back returns to the tab you came from (Shop or Build). The active section grows, glows and shows its name;
+   the others are icons with the same counts the old Today/Tasks/Habits/Savings row showed. */
+let taskBackTab="shop";
+const TD_SECS=[["today","Today"],["habits","Habits"],["tasks","To-dos"],["savings","Savings"]];
+const TD_ICON={
+  back:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>',
+  today:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle class="f" cx="8.5" cy="13.8" r="1.1"/><circle class="f" cx="12" cy="13.8" r="1.1"/><circle class="f" cx="15.5" cy="13.8" r="1.1"/><circle class="f" cx="8.5" cy="17.2" r="1.1"/><circle class="f" cx="12" cy="17.2" r="1.1"/></svg>',
+  habits:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M12 5v14M5 12h4M7 10v4M15 12h4"/></svg>',
+  tasks:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 10.2A8 8 0 1 1 14 4.4"/><path d="M7.5 12.5l3.5 3.5L21 6"/></svg>',
+  savings:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5C3 7.5 6 5 12 5s9 2.5 9 6.5"/><rect x="3" y="11.5" width="18" height="8" rx="1.5"/><path d="M3 11.5h18M10 10h4v4.5h-4z"/><path d="M7 5.8v5.7M17 5.8v5.7"/></svg>'
+};
+/* same counts as the old row (and the app badge is untouched: it still uses todayLeft + deposit day) */
+function tdCount(id){ return id==="today"?todayLeft():id==="tasks"?openTasks().length:id==="habits"?habitsDueOpen().length:id==="savings"?(depositDue()?"$":0):0; }
+const tdActive=()=>taskView==="week"?"today":taskView;
+function taskDockHTML(){
+  const cur=tdActive(), back=taskBackTab==="upgrade"?"Build":"Shop";
+  return `<button class="pd back" data-act="taskBack" aria-label="Back to ${back}">${TD_ICON.back}</button>`+
+    TD_SECS.map(([id,label])=>{ const n=tdCount(id), on=cur===id;
+      return `<button class="pd ${on?"on":""}" data-act="taskView" data-id="${id}" ${on?'aria-current="page"':""} aria-label="${label}${n?`, ${n==="$"?"deposit due":n+" open"}`:""}">${TD_ICON[id]}${on?`<span class="pdl">${label}</span>`:""}${n?`<span class="pdb" aria-hidden="true">${n}</span>`:""}</button>`; }).join("");
+}
+{ const _renderTabs=renderTabs;
+  renderTabs=function(){
+    const onTasks=tab==="tasks"; document.body.classList.toggle("taskdock",onTasks);
+    if(!onTasks){ const box=$("tabs"); box.removeAttribute("role"); box.removeAttribute("aria-label"); return _renderTabs.apply(this,arguments); }
+    const box=$("tabs"); box.className="in pilldock"; box.setAttribute("role","toolbar"); box.setAttribute("aria-label","Tasks sections"); box.innerHTML=taskDockHTML(); };
+}
+/* remember where Tasks was opened from */
+{ const _render=render; render=function(){ if(tab==="shop"||tab==="upgrade") taskBackTab=tab; return _render.apply(this,arguments); }; }
+document.addEventListener("click",ev=>{ const b=ev.target.closest('[data-act="taskBack"]'); if(!b) return; tab=taskBackTab||"shop"; render(); window.scrollTo(0,0); });
 
 /* ---------- boot ---------- */
 let lastDay, lastSide;
